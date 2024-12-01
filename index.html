@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Escáner de QR - Binary Eye</title>
+  <title>Escáner QR - Cámara Web</title>
   <script src="https://cdn.jsdelivr.net/npm/@zxing/library@latest"></script>
   <style>
     body {
@@ -41,49 +41,36 @@
 </head>
 <body>
 
-  <h1>Escáner de QR - Binary Eye</h1>
+  <h1>Escáner de QR</h1>
   <video id="preview" autoplay muted></video>
   <div id="output">Esperando código QR...</div>
 
   <script>
-    // Cargar la librería ZXing
+    // Inicializar el lector de código QR de ZXing
     const codeReader = new ZXing.BrowserQRCodeReader();
     const videoElement = document.getElementById('preview');
     const outputElement = document.getElementById('output');
 
     /**
-     * Detecta y selecciona la cámara disponible (en primer lugar la cámara trasera).
-     * @returns {Promise<string>} Device ID de la cámara seleccionada.
-     */
-    async function getCamera() {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      
-      if (!videoDevices.length) {
-        throw new Error("No se encontraron cámaras.");
-      }
-
-      // Intentar seleccionar la cámara trasera si está disponible
-      return videoDevices.find(device =>
-        device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('trasera')
-      )?.deviceId || videoDevices[0].deviceId;
-    }
-
-    /**
-     * Inicia el escaneo del código QR con la cámara seleccionada.
+     * Accede a la cámara y comienza a leer el código QR.
      */
     async function startScan() {
       try {
-        // Detectar la cámara disponible
-        outputElement.textContent = "Detectando cámara...";
-        const deviceId = await getCamera();
+        // Solicitar acceso a la cámara
+        outputElement.textContent = "Esperando cámara...";
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" }  // Usar la cámara trasera si está disponible
+        });
 
-        // Iniciar escaneo de QR
+        // Mostrar la transmisión de video en el elemento <video>
+        videoElement.srcObject = stream;
+
+        // Iniciar la lectura de códigos QR
         outputElement.textContent = "Escaneando...";
-        await codeReader.decodeFromVideoDevice(deviceId, videoElement, (result, err) => {
+        codeReader.decodeFromVideoDevice(undefined, videoElement, (result, err) => {
           if (result) {
             outputElement.textContent = `Código QR detectado: ${result.text}`;
-            codeReader.reset();  // Detener el escaneo tras detectar un QR
+            codeReader.reset();  // Detener el escaneo tras detectar un código
           } else if (err && !(err instanceof ZXing.NotFoundException)) {
             console.error(err);
           }
@@ -94,8 +81,8 @@
       }
     }
 
-    // Iniciar escaneo al cargar la página
-    startScan();
+    // Iniciar escaneo cuando la página esté cargada
+    window.onload = startScan;
   </script>
 
 </body>
