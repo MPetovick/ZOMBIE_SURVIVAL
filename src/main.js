@@ -1,84 +1,76 @@
-// Variables de estado del juego
-let vidas = 3;
-let armas = 0;
-let saludMaxima = 7;
-
 // Elementos del kit de supervivencia y los zombis
-const kit = ['♥️', '♥️', '♥️', '♥️', '♥️', '♥️', '♥️♥️', '♥️♥️', '♥️♥️', '⛏️', '⛏️', '⛏️', '⛏️', '⛏️', '⛏️⛏️', '⛏️⛏️', '⛏️⛏️', '⚡️', '⚡️', '⚡️', '❌', '❌', '❌', '❌', '❌'];
-const zombies = ['🧟', '🧟', '🧟', '🧟', '🧟', '🧟', '🧟🧟', '🧟🧟', '🧟🧟', '🧟🧟', '🧟🧟🧟', '🧟🧟🧟', '🧟🧟🧟', '☠️', '☠️', '☠️', '✅', '✅', '✅', '✅', '✅'];
+// const kit = ['♥️', '♥️', '♥️', '♥️', '♥️', '♥️', '♥️♥️', '♥️♥️', '♥️♥️', '⛏️', '⛏️', '⛏️', '⛏️', '⛏️', '⛏️⛏️', '⛏️⛏️', '⛏️⛏️', '⚡️', '⚡️', '⚡️', '❌', '❌', '❌', '❌', '❌'];
+// const zombies = ['🧟', '🧟', '🧟', '🧟', '🧟', '🧟', '🧟🧟', '🧟🧟', '🧟🧟', '🧟🧟', '🧟🧟🧟', '🧟🧟🧟', '🧟🧟🧟', '☠️', '☠️', '☠️', '✅', '✅', '✅', '✅', '✅'];
 
-// Función para empezar un turno
-function startTurn() {
-    if (vidas > 0) {
-        // Generar elementos aleatorios del Kit de Supervivencia
-        const kitAleatorio = getRandomElements(kit, 3);
-        const zombiesAleatorios = getRandomElements(zombies, 3);
+let lives = 3;
+let turn = 1;
+let kitValue = 0;
+let zombieValue = 0;
 
-        // Mostrar los resultados
-        document.getElementById('kit').innerHTML = `Kit de Supervivencia: ${kitAleatorio.join(' ')}`;
-        document.getElementById('zombies').innerHTML = `Zombis: ${zombiesAleatorios.join(' ')}`;
-        
-        // Evaluar el turno
-        evaluateTurn(kitAleatorio, zombiesAleatorios);
-    } else {
-        document.getElementById('result').innerHTML = "¡Te convertiste en un zombi! Fin del juego.";
-        document.getElementById('start-game').disabled = true;
-    }
+function updateGameInfo() {
+  document.getElementById("lives").innerText = lives;
+  document.getElementById("turn").innerText = turn;
 }
 
-// Función para obtener elementos aleatorios
-function getRandomElements(arr, count) {
-    let result = [];
-    let shuffled = arr.slice(0);
-    for (let i = 0; i < count; i++) {
-        let index = Math.floor(Math.random() * shuffled.length);
-        result.push(shuffled.splice(index, 1)[0]);
-    }
-    return result;
+// Generar valor aleatorio
+function getRandomValue(type) {
+  if (type === "KIT") {
+    // KIT de Supervivencia: valores entre 1 y 10
+    return Math.floor(Math.random() * 10) + 1;
+  } else if (type === "ZOMBIE") {
+    // ZOMBIE: valores entre 5 y 15
+    return Math.floor(Math.random() * 11) + 5;
+  }
 }
 
-// Evaluar el turno
-function evaluateTurn(kitAleatorio, zombiesAleatorios) {
-    // Contar elementos de supervivencia
-    let vidaRestaurada = 0;
-    let armasGanadas = 0;
-    
-    kitAleatorio.forEach(item => {
-        if (item === '♥️') vidaRestaurada++;
-        if (item === '⛏️') armasGanadas++;
-    });
-    
-    // Restablecer la vida (máximo 7)
-    vidas = Math.min(vidas + vidaRestaurada, saludMaxima);
-    armas += armasGanadas;
+// Usar el KIT de Supervivencia
+document.getElementById("kit-button").addEventListener("click", () => {
+  // Generar valor para el KIT
+  kitValue = getRandomValue("KIT");
+  document.getElementById("kit-value").innerText = `Valor KIT: ${kitValue}`;
 
-    // Contar zombis derrotados
-    let zombisDerrotados = 0;
-    zombiesAleatorios.forEach(item => {
-        if (item === '✅') zombisDerrotados++;
-    });
+  // Desactivar botón del KIT y activar botón del ZOMBIE
+  document.getElementById("kit-button").disabled = true;
+  document.getElementById("zombie-button").disabled = false;
+});
 
-    // Si hay zombis no derrotados, perder vida
-    let zombisNoDerrotados = zombiesAleatorios.length - zombisDerrotados;
-    if (zombisNoDerrotados > 0) {
-        vidas -= zombisNoDerrotados;
-    }
+// Enfrentar al ZOMBIE
+document.getElementById("zombie-button").addEventListener("click", () => {
+  // Generar valor para el ZOMBIE
+  zombieValue = getRandomValue("ZOMBIE");
+  document.getElementById("zombie-value").innerText = `Valor ZOMBIE: ${zombieValue}`;
 
-    // Mostrar el resultado del turno
-    document.getElementById('result').innerHTML = `
-        Vidas restantes: ${vidas} <br>
-        Armas: ${armas} <br>
-        Zombis derrotados: ${zombisDerrotados} <br>
-        ${zombisNoDerrotados > 0 ? `Perdiste ${zombisNoDerrotados} vidas. ` : '¡Sobreviviste al ataque!'}
-    `;
+  // Evaluar el resultado del combate
+  if (kitValue >= zombieValue) {
+    alert("¡Derrotaste al ZOMBIE!");
+  } else {
+    alert("¡Perdiste contra el ZOMBIE! Pierdes 1 vida.");
+    lives -= 1;
+  }
 
-    // Actualizar la interfaz de vidas y armas
-    document.getElementById('vidas').textContent = vidas;
-    document.getElementById('armas').textContent = armas;
+  // Desactivar botón del ZOMBIE
+  document.getElementById("zombie-button").disabled = true;
 
-    // Si ya no tienes vidas, el juego termina
-    if (vidas <= 0) {
-        document.getElementById('result').innerHTML = "¡Te convertiste en un zombi! Fin del juego.";
-        document.getElementById('start-game').disabled = true;
-    }
-}
+  // Actualizar vidas
+  updateGameInfo();
+});
+
+// Finalizar turno
+document.getElementById("end-turn").addEventListener("click", () => {
+  turn += 1;
+
+  // Reiniciar valores para el siguiente turno
+  kitValue = 0;
+  zombieValue = 0;
+  document.getElementById("kit-value").innerText = "";
+  document.getElementById("zombie-value").innerText = "";
+  document.getElementById("kit-button").disabled = false;
+  document.getElementById("zombie-button").disabled = true;
+
+  updateGameInfo();
+  alert("Turno finalizado. ¡Es el siguiente jugador!");
+});
+
+// Actualizar información inicial del juego
+updateGameInfo();
+
