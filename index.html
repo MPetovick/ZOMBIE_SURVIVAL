@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego ZOMBIE QR</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="game-container">
+    <h1>Juego ZOMBIE QR</h1>
+    <div class="game-info">
+      <p>Vidas restantes: <span id="lives">3</span></p>
+      <p>Turno: <span id="turn">1</span></p>
+    </div>
+
+    <div class="cards">
+      <button id="kit-button">Escanear KIT</button>
+      <p id="kit-value"></p>
+
+      <button id="zombie-button" disabled>Escanear ZOMBIE</button>
+      <p id="zombie-value"></p>
+    </div>
+
+    <div class="actions">
+      <button id="end-turn">Finalizar Turno</button>
+    </div>
+
+    <!-- Historial de resultados -->
+    <div class="history">
+      <h3>Historial de Resultados</h3>
+      <ul id="result-history"></ul>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

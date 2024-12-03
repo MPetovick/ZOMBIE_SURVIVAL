@@ -1,0 +1,87 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.game-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+h1 {
+  font-size: 24px;
+  color: #333;
+}
+
+.game-info {
+  margin-bottom: 20px;
+}
+
+.cards button {
+  padding: 15px;
+  margin: 10px;
+  font-size: 18px;
+  cursor: pointer;
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 5px;
+}
+
+.cards button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.cards p {
+  font-size: 18px;
+  color: #333;
+}
+
+.actions button {
+  padding: 10px 20px;
+  margin-top: 20px;
+  font-size: 18px;
+  cursor: pointer;
+  border: none;
+  background-color: #28a745;
+  color: white;
+  border-radius: 5px;
+}
+
+.actions button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.history {
+  margin-top: 30px;
+}
+
+.history h3 {
+  font-size: 20px;
+  color: #333;
+}
+
+.history ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.history ul li {
+  font-size: 16px;
+  margin: 5px 0;
+  padding: 5px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
