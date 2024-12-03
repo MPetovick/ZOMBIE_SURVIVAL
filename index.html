@@ -1,40 +1,30 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Juego ZOMBIE QR</title>
+  <title>Zombie Game</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </head>
 <body>
+  <h1>Zombie Game</h1>
+  
+  <!-- Botón para iniciar el juego -->
+  <button id="startButton">Start Game</button>
 
-  <div class="game-container">
-    <h1>Juego ZOMBIE QR</h1>
-    <div class="game-info">
-      <p>Vidas restantes: <span id="lives">3</span></p>
-      <p>Turno: <span id="turn">1</span></p>
-    </div>
+  <!-- Botón para finalizar el juego -->
+  <button id="endButton">Game Over</button>
 
-    <div class="cards">
-      <button id="kit-button">Escanear KIT</button>
-      <p id="kit-value"></p>
-
-      <button id="zombie-button" disabled>Escanear ZOMBIE</button>
-      <p id="zombie-value"></p>
-    </div>
-
-    <div class="actions">
-      <button id="end-turn">Finalizar Turno</button>
-    </div>
-
-    <!-- Historial de resultados -->
-    <div class="history">
-      <h3>Historial de Resultados</h3>
-      <ul id="result-history"></ul>
-    </div>
+  <!-- Sección para mostrar el valor aleatorio de cartas -->
+  <div>
+    <button id="getKitCard">Get KIT Card</button>
+    <p id="kitCardValue">KIT Card Value: </p>
   </div>
-
-  <script src="script.js"></script>
+  <div>
+    <button id="getZombieCard" disabled>Get ZOMBIE Card</button>
+    <p id="zombieCardValue">ZOMBIE Card Value: </p>
+  </div>
+  
 </body>
 </html>
