@@ -38,13 +38,13 @@ p {
 
 /* Borde rojo solo a la imagen de KIT */
 #image-container img[src="img/KIT.png"] {
-  border: 5px solid red;
+  border: 5px solid black;
   border-radius: 10px;
 }
 
 /* Borde rojo solo a la imagen de ZOMBIES */
 #image-container img[src="img/ZOMBIES.png"] {
-  border: 5px solid red;
+  border: 5px solid black;
   border-radius: 10px;
 }
 
