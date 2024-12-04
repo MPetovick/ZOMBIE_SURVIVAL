@@ -3,23 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ZOMBIE</title>
+  <title>Zombie Survival</title>
   <link rel="stylesheet" href="styles.css">
   <script src="script.js" defer></script>
 </head>
 <body>
 
-  <!-- Contenedor principal -->
+  <!-- Encabezado principal -->
   <header id="main-header">
     <img src="img/logo.png" id="logo" alt="Zombie Survival Logo">
-    <h1 id="main-title">¡Coming Soon!</h1>
+    <h1 id="main-title">¡Zombie Survival!</h1>
   </header>
 
   <!-- Música de fondo -->
   <audio id="background-music" autoplay loop>
-    <source src="bso/bso.ogg" type="audio/ogg">
+    <source src="bso/bso.mp3" type="audio/mp3">
     Tu navegador no soporta la etiqueta de audio.
   </audio>
+
+  <!-- Botón de Mute/Unmute -->
+  <button id="muteButton">Silenciar</button>
+
+  <!-- Juego Clicker -->
+  <section id="clicker-section">
+    <h2>Juego de Clicker</h2>
+    <button id="clickButton">Haz clic para ganar puntos</button>
+    <p id="clickerScore">Puntos: 0</p>
+  </section>
+
+  <!-- Puedes agregar otras secciones del juego Zombie aquí -->
 
 </body>
 </html>
