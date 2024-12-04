@@ -26,9 +26,3 @@ document.getElementById("getZombieCard").addEventListener("click", () => {
   document.getElementById("zombieCardValue").textContent = "ZOMBIE Card Value: " + zombieCard;
 });
 */
-let score = 0;
-
-function addPoint() {
-  score++;
-  document.getElementById("score").textContent = $ZMB: ${score}`;
-}
