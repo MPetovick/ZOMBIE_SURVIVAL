@@ -30,6 +30,48 @@ body {
   text-transform: uppercase;
 }
 
+/* Botón de Mute/Unmute */
+#muteButton {
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+}
+
+#muteButton:hover {
+  background-color: #45a049;
+}
+
+/* Sección Clicker */
+#clicker-section {
+  margin-top: 30px;
+}
+
+#clickButton {
+  padding: 15px 30px;
+  font-size: 20px;
+  background-color: #FF6347;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#clickButton:hover {
+  background-color: #FF4500;
+}
+
+#clickerScore {
+  font-size: 1.5em;
+  margin-top: 10px;
+}
+
 /* Compatibilidad móvil */
 @media (max-width: 600px) {
   #logo {
@@ -40,4 +82,13 @@ body {
     font-size: 2em;
   }
 
+  #muteButton {
+    font-size: 16px;
+    padding: 8px 16px;
+  }
+
+  #clickButton {
+    font-size: 18px;
+    padding: 12px 25px;
+  }
 }
