@@ -37,6 +37,6 @@ p {
 }
 
 /* Ocultar el reproductor de audio */
-audio {
-  display: none; /* El reproductor de audio no se mostrará */
-}
+/*audio { */
+/*  display: none;*/ /* El reproductor de audio no se mostrará */
+/*}*/
