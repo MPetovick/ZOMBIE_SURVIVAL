@@ -37,19 +37,6 @@ const clickerScoreElement = document.getElementById("clickerScore");
 let isMuted = false;
 let clickerScore = 0;
 
-// Función para alternar el sonido
-muteButton.addEventListener("click", () => {
-  isMuted = !isMuted; // Cambiar el estado
-
-  if (isMuted) {
-    backgroundMusic.muted = true; // Silenciar audio
-    muteButton.textContent = "Activar sonido"; // Cambiar texto del botón
-  } else {
-    backgroundMusic.muted = false; // Activar audio
-    muteButton.textContent = "Silenciar"; // Cambiar texto del botón
-  }
-});
-
 // Función para aumentar los puntos del juego Clicker
 clickButton.addEventListener("click", () => {
   clickerScore++; // Incrementar los puntos
