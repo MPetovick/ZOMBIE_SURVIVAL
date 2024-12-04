@@ -30,6 +30,10 @@ body {
   text-transform: uppercase;
 }
 
+audio {
+  display: none; /* Ocultar el reproductor */
+}
+
 /* Compatibilidad móvil */
 @media (max-width: 600px) {
   #logo {
