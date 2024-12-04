@@ -41,3 +41,8 @@ body {
   }
 }
 
+/* Ocultar el reproductor de audio */
+#audio {
+  display: none;
+}
+
