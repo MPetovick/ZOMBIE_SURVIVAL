@@ -48,7 +48,26 @@ p {
   border-radius: 10px;
 }
 
-/* Ocultar el reproductor de audio */
-/*audio { */
-/*  display: none;*/ /* El reproductor de audio no se mostrará */
-/*}*/
+/* Adaptaciones para pantallas pequeñas */
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+    margin-top: 20px;
+    padding: 0 10px;
+  }
+  button {
+    padding: 8px 16px;
+    font-size: 16px;
+  }
+  img#logo {
+    width: 80%; /* Ajustar tamaño del logo */
+  }
+  .foto {
+    width: 100px; /* Reducción de las imágenes */
+    height: auto;
+  }
+  
+  audio {
+    display: none; /* Ocultar el reproductor */
+  }
+}
