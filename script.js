@@ -26,22 +26,9 @@ document.getElementById("getZombieCard").addEventListener("click", () => {
   document.getElementById("zombieCardValue").textContent = "ZOMBIE Card Value: " + zombieCard;
 });
 */
-// Obtener referencias al audio y al botón
-const backgroundMusic = document.getElementById("background-music");
-const muteButton = document.getElementById("muteButton");
+let score = 0;
 
-// Estado inicial
-let isMuted = false;
-
-// Función para alternar sonido
-muteButton.addEventListener("click", () => {
-  isMuted = !isMuted; // Cambiar el estado
-
-  if (isMuted) {
-    backgroundMusic.muted = true; // Silenciar audio
-    muteButton.textContent = "Activar sonido"; // Cambiar texto del botón
-  } else {
-    backgroundMusic.muted = false; // Activar audio
-    muteButton.textContent = "Silenciar"; // Cambiar texto del botón
-  }
-});
+function addPoint() {
+  score++;
+  document.getElementById("score").textContent = $ZMB: ${score}`;
+}
