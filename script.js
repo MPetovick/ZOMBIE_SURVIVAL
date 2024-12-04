@@ -25,8 +25,3 @@ document.getElementById("getZombieCard").addEventListener("click", () => {
   document.getElementById("zombieCardValue").textContent = "ZOMBIE Card Value: " + zombieCard;
 });
 
-// Función para mostrar mensaje de "Juego Iniciado"
-document.getElementById("startButton").addEventListener("click", () => showAlert("Game Started"));
-
-// Función para mostrar mensaje de "Game Over"
-document.getElementById("endButton").addEventListener("click", () => showAlert("Game Over"));
