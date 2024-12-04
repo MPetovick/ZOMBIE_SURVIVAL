@@ -40,5 +40,5 @@ let clickerScore = 0;
 // Función para aumentar los puntos del juego Clicker
 clickButton.addEventListener("click", () => {
   clickerScore++; // Incrementar los puntos
-  clickerScoreElement.textContent = `Puntos: ${clickerScore}`; // Actualizar el contador
+  clickerScoreElement.textContent = `$ZMB: ${clickerScore}`; // Actualizar el contador
 });
