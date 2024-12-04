@@ -16,29 +16,49 @@ body {
 /* Logo */
 #logo {
   width: 50%;
-  max-width: 300px; /* Ancho máximo para pantallas grandes */
+  max-width: 300px;
   height: auto;
   margin-bottom: 20px;
 }
 
 /* Título */
 #main-title {
-  font-size: 3em; /* Tamaño grande para escritorio */
+  font-size: 3em;
   font-weight: bold;
   color: #4CAF50;
   margin: 0;
   text-transform: uppercase;
 }
 
-/* Responsividad para móviles */
+/* Botón de Mute/Unmute */
+#muteButton {
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+}
+
+#muteButton:hover {
+  background-color: #45a049;
+}
+
+/* Compatibilidad móvil */
 @media (max-width: 600px) {
   #logo {
-    width: 70%; /* Reducir el tamaño del logo en móviles */
+    width: 70%;
   }
 
   #main-title {
-    font-size: 2em; /* Tamaño ajustado para pantallas pequeñas */
+    font-size: 2em;
+  }
+
+  #muteButton {
+    font-size: 16px;
+    padding: 8px 16px;
   }
 }
-
-
