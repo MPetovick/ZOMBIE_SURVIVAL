@@ -26,3 +26,32 @@ document.getElementById("getZombieCard").addEventListener("click", () => {
   document.getElementById("zombieCardValue").textContent = "ZOMBIE Card Value: " + zombieCard;
 });
 */
+
+// Obtener referencias al audio y al botón
+const backgroundMusic = document.getElementById("background-music");
+const muteButton = document.getElementById("muteButton");
+const clickButton = document.getElementById("clickButton");
+const clickerScoreElement = document.getElementById("clickerScore");
+
+// Estado inicial
+let isMuted = false;
+let clickerScore = 0;
+
+// Función para alternar el sonido
+muteButton.addEventListener("click", () => {
+  isMuted = !isMuted; // Cambiar el estado
+
+  if (isMuted) {
+    backgroundMusic.muted = true; // Silenciar audio
+    muteButton.textContent = "Activar sonido"; // Cambiar texto del botón
+  } else {
+    backgroundMusic.muted = false; // Activar audio
+    muteButton.textContent = "Silenciar"; // Cambiar texto del botón
+  }
+});
+
+// Función para aumentar los puntos del juego Clicker
+clickButton.addEventListener("click", () => {
+  clickerScore++; // Incrementar los puntos
+  clickerScoreElement.textContent = `Puntos: ${clickerScore}`; // Actualizar el contador
+});
