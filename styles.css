@@ -7,10 +7,9 @@ body {
   flex-direction: column;
   align-items: center;
 }
-
 #logo {
-  width: 200px; /* Ajusta el tamaño del logo */
-  margin-bottom: 20px;
+  width: 50%;  /* 50% del ancho de su contenedor */
+  height: auto;
 }
 
 button {
