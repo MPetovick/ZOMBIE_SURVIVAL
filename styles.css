@@ -36,6 +36,18 @@ p {
   color: #333;
 }
 
+/* Borde rojo solo a la imagen de KIT */
+#image-container img[src="img/KIT.png"] {
+  border: 5px solid red;
+  border-radius: 10px;
+}
+
+/* Borde rojo solo a la imagen de ZOMBIES */
+#image-container img[src="img/ZOMBIES.png"] {
+  border: 5px solid red;
+  border-radius: 10px;
+}
+
 /* Ocultar el reproductor de audio */
 /*audio { */
 /*  display: none;*/ /* El reproductor de audio no se mostrará */
