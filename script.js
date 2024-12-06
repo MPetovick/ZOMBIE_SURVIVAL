@@ -58,7 +58,7 @@ clickButton.addEventListener("click", () => {
   }
 
   // Activar el botón "JUGAR" cuando el puntaje llegue a 1021
-  if (clickerScore >= 1021) {
+  if (clickerScore >= 42) {
     playButton.disabled = false; // Habilitar el botón
   }
 });
