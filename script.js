@@ -57,13 +57,13 @@ clickButton.addEventListener("click", () => {
     document.body.removeChild(link); // Eliminar el enlace
   }
 
-  // Redirección al hacer clic en el botón "JUGAR" en la página principal
-document.addEventListener("DOMContentLoaded", () => {
-  const playButton = document.getElementById("playButton");
-  if (playButton) {
-    playButton.addEventListener("click", () => {
-      window.location.href = "game.html"; // Redirige a la página del juego
-    });
+  // Activar el botón "JUGAR" cuando el puntaje llegue a 1021
+  if (clickerScore >= 1021) {
+    playButton.disabled = false; // Habilitar el botón
   }
 });
+
+// Redirección al hacer clic en el botón "JUGAR"
+playButton.addEventListener("click", () => {
+  window.location.href = "juego.html"; // Redirige a la página del juego
 });
