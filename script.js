@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const playButton = document.getElementById("playButton");
   if (playButton) {
     playButton.addEventListener("click", () => {
-      window.location.href = "juego.html"; // Redirige a la página del juego
+      window.location.href = "game.html"; // Redirige a la página del juego
     });
   }
 });
