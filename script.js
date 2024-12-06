@@ -56,4 +56,14 @@ clickButton.addEventListener("click", () => {
     link.click(); // Simular clic
     document.body.removeChild(link); // Eliminar el enlace
   }
+
+  // Redirección al hacer clic en el botón "JUGAR" en la página principal
+document.addEventListener("DOMContentLoaded", () => {
+  const playButton = document.getElementById("playButton");
+  if (playButton) {
+    playButton.addEventListener("click", () => {
+      window.location.href = "juego.html"; // Redirige a la página del juego
+    });
+  }
+});
 });
