@@ -49,7 +49,7 @@ clickButton.addEventListener("click", () => {
   if (clickerScore === 21) {
     // Crear un enlace dinámicamente y simular un clic
     const link = document.createElement("a");
-    link.href = "https://www.example.com"; // Cambia por tu URL
+    link.href = "https://t.me/blum/app?startapp=memepadjetton_ZMB_qazah-ref_t4h4ymyIgR"; // Cambia por tu URL
     link.target = "_blank"; // Abre en una nueva pestaña
     link.rel = "noopener noreferrer"; // Mejor seguridad
     document.body.appendChild(link); // Añadir temporalmente al DOM
