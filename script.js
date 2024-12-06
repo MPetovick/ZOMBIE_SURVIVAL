@@ -26,8 +26,7 @@ document.getElementById("getZombieCard").addEventListener("click", () => {
   document.getElementById("zombieCardValue").textContent = "ZOMBIE Card Value: " + zombieCard;
 });
 */
-
-// Obtener referencias al audio y al botón
+// Obtener referencias al audio, botones y elementos de puntuación
 const backgroundMusic = document.getElementById("background-music");
 const muteButton = document.getElementById("muteButton");
 const clickButton = document.getElementById("clickButton");
@@ -41,4 +40,11 @@ let clickerScore = 0;
 clickButton.addEventListener("click", () => {
   clickerScore++; // Incrementar los puntos
   clickerScoreElement.textContent = `$ZMB: ${clickerScore}`; // Actualizar el contador
+  
+  // Aplicar la animación temporal
+  clickerScoreElement.classList.add("animate");
+  setTimeout(() => {
+    clickerScoreElement.classList.remove("animate");
+  }, 500); // Duración de la animación en milisegundos
 });
+
