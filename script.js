@@ -28,12 +28,10 @@ document.getElementById("getZombieCard").addEventListener("click", () => {
 */
 // Obtener referencias al audio, botones y elementos de puntuación
 const backgroundMusic = document.getElementById("background-music");
-const muteButton = document.getElementById("muteButton");
 const clickButton = document.getElementById("clickButton");
 const clickerScoreElement = document.getElementById("clickerScore");
 
 // Estado inicial
-let isMuted = false;
 let clickerScore = 0;
 
 // Función para aumentar los puntos del juego Clicker
@@ -47,8 +45,15 @@ clickButton.addEventListener("click", () => {
     clickerScoreElement.classList.remove("animate");
   }, 500); // Duración de la animación en milisegundos
 
-  // Huevo de Pascua: abrir una página al alcanzar 21 puntos
+  // Huevo de Pascua: redirigir al alcanzar 21 puntos
   if (clickerScore === 21) {
-    window.open("https://t.me/blum/app?startapp=memepadjetton_ZMB_qazah-ref_t4h4ymyIgR", "_blank");
+    // Crear un enlace dinámicamente y simular un clic
+    const link = document.createElement("a");
+    link.href = "https://www.example.com"; // Cambia por tu URL
+    link.target = "_blank"; // Abre en una nueva pestaña
+    link.rel = "noopener noreferrer"; // Mejor seguridad
+    document.body.appendChild(link); // Añadir temporalmente al DOM
+    link.click(); // Simular clic
+    document.body.removeChild(link); // Eliminar el enlace
   }
 });
