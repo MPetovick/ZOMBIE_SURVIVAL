@@ -40,11 +40,15 @@ let clickerScore = 0;
 clickButton.addEventListener("click", () => {
   clickerScore++; // Incrementar los puntos
   clickerScoreElement.textContent = `$ZMB: ${clickerScore}`; // Actualizar el contador
-  
+
   // Aplicar la animación temporal
   clickerScoreElement.classList.add("animate");
   setTimeout(() => {
     clickerScoreElement.classList.remove("animate");
   }, 500); // Duración de la animación en milisegundos
-});
 
+  // Huevo de Pascua: abrir una página al alcanzar 21 puntos
+  if (clickerScore === 21) {
+    window.open("https://t.me/blum/app?startapp=memepadjetton_ZMB_qazah-ref_t4h4ymyIgR", "_blank");
+  }
+});
