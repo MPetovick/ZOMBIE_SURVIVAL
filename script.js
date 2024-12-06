@@ -30,6 +30,7 @@ document.getElementById("getZombieCard").addEventListener("click", () => {
 const backgroundMusic = document.getElementById("background-music");
 const clickButton = document.getElementById("clickButton");
 const clickerScoreElement = document.getElementById("clickerScore");
+const playButton = document.getElementById("playButton");
 
 // Estado inicial
 let clickerScore = 0;
@@ -65,5 +66,5 @@ clickButton.addEventListener("click", () => {
 
 // Redirección al hacer clic en el botón "JUGAR"
 playButton.addEventListener("click", () => {
-  window.location.href = "juego.html"; // Redirige a la página del juego
+  window.location.href = "game.html"; // Redirige a la página del juego
 });
