@@ -1,43 +1,32 @@
-// Variables de juego para `game.html`
-let health = 100;
-let zombieLevel = 1;
-let gameActive = true;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zombie Survival - Juego</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Encabezado principal -->
+  <header id="main-header">
+    <img src="img/logo.png" id="logo" alt="Zombie Survival Logo">
+    <h1 id="main-title">¡Survive the Zombie Apocalypse!</h1>
+  </header>
 
-const healthElement = document.getElementById("health");
-const zombieLevelElement = document.getElementById("zombie-level");
-const attackButton = document.getElementById("attackButton");
-const defendButton = document.getElementById("defendButton");
-const resultElement = document.getElementById("result");
+  <!-- Estado del juego -->
+  <p id="health">Salud: 100</p>
+  <p id="zombie-level">Nivel de zombies: 1</p>
 
-if (attackButton) {
-  // Lógica de ataque
-  attackButton.addEventListener("click", () => {
-    if (!gameActive) return;
-    let zombieDamage = Math.floor(Math.random() * 20) + 5;
-    zombieLevel -= zombieDamage;
-    if (zombieLevel <= 0) {
-      resultElement.textContent = "¡Has derrotado a los zombies!";
-      zombieLevel = 0;
-    }
-    updateGameStatus();
-  });
-}
+  <!-- Botones de acción -->
+  <button id="attackButton">Atacar</button>
+  <button id="defendButton">Defender</button>
 
-if (defendButton) {
-  // Lógica de defensa
-  defendButton.addEventListener("click", () => {
-    if (!gameActive) return;
-    let defense = Math.floor(Math.random() * 15);
-    health -= Math.max(0, Math.floor(Math.random() * 30) - defense);
-    if (health <= 0) {
-      resultElement.textContent = "¡Game Over! Has perdido.";
-      gameActive = false;
-    }
-    updateGameStatus();
-  });
-}
+  <!-- Resultados -->
+  <p id="result"></p>
 
-function updateGameStatus() {
-  healthElement.textContent = `Salud: ${health}`;
-  zombieLevelElement.textContent = `Nivel de zombies: ${zombieLevel}`;
-}
+  <!-- Enlace para regresar -->
+  <a href="index.html" id="backButton">Volver al inicio</a>
+
+  <script src="script.js"></script>
+</body>
+</html>
