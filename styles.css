@@ -13,21 +13,24 @@ body {
   min-height: 100vh;
 }
 
-/* Logo */
 #logo {
   width: 100%;
   max-width: 300px;
   height: auto;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
-/* Título */
 #main-title {
   font-size: 3em;
   font-weight: bold;
   color: #4CAF50;
   margin: 0;
+  margin-bottom: 40px; /* Aumenta el margen inferior para alejarlo del botón */
   text-transform: uppercase;
+}
+
+#clicker-section {
+  margin-top: 40px;
 }
 
 #clickButton {
@@ -36,41 +39,47 @@ body {
   background-color: #FF6347;
   color: white;
   border: none;
-  border-radius: 10px; /* Bordes redondeados */
+  border-radius: 5px;
   cursor: pointer;
-  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Sombra suave */
 }
 
 #clickButton:hover {
   background-color: #FF4500;
-  transform: scale(1.1); /* Efecto de agrandado */
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5); /* Sombra más pronunciada */
 }
 
-#clickButton:active {
-  transform: scale(1); /* Se reduce el tamaño al hacer clic */
-  background-color: #FF6347; /* Vuelve al color original */
+#clickerScore {
+  font-size: 1.5em;
+  margin-top: 10px;
 }
 
+#clickerScore.animate {
+  animation: glowGreen 0.5s ease-in-out;
+}
 
-/* Estilo para los botones de acción */
-#attackButton, #defendButton {
+@keyframes glowGreen {
+  0% { color: white; text-shadow: 0 0 5px white; }
+  50% { color: #32CD32; text-shadow: 0 0 20px #32CD32; }
+  100% { color: white; text-shadow: 0 0 5px white; }
+}
+
+#playButton {
   padding: 15px 30px;
   font-size: 20px;
-  background-color: #FF6347; /* Mismo color que el botón de Clicker */
+  background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 5px;
-  cursor: pointer;
+  cursor: not-allowed;
+  opacity: 0.5;
   transition: background-color 0.3s;
+  margin-top: 30px;
 }
 
-#attackButton:hover, #defendButton:hover {
-  background-color: #FF4500; /* Cambio de color al pasar el ratón */
+#playButton:enabled {
+  cursor: pointer;
+  opacity: 1;
 }
 
-/* Estilo para el enlace "Volver al inicio" */
 #backButton {
   display: inline-block;
   margin-top: 30px;
@@ -80,68 +89,9 @@ body {
   color: white;
   text-decoration: none;
   border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
 }
 
 #backButton:hover {
   background-color: #45A049;
   transform: scale(1.1);
-}
-
-/* Estilo para los textos de salud y nivel de zombies */
-#health, #zombie-level {
-  font-size: 1.5em;
-  margin-top: 10px;
-}
-
-/* Compatibilidad móvil */
-@media (max-width: 600px) {
-  #logo {
-    width: 70%;
-  }
-
-  #main-title {
-    font-size: 2em;
-  }
-
-  #attackButton, #defendButton {
-    font-size: 18px;
-    padding: 12px 25px;
-  }
-
-  #backButton {
-    font-size: 1em;
-    padding: 8px 16px;
-  }
-  
-  /* Estilo para el historial de batalla */
-#battle-history {
-  margin-top: 30px;
-  padding: 15px;
-  background-color: rgba(0, 0, 0, 0.7);
-  border-radius: 5px;
-  width: 90%;
-  max-width: 600px;
-  margin-bottom: 20px;
-}
-
-#battle-history h2 {
-  color: #FF6347;
-  font-size: 1.5em;
-  margin-bottom: 10px;
-}
-
-#history-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-#history-list li {
-  font-size: 1.1em;
-  color: white;
-  margin: 5px 0;
-}
-
 }
