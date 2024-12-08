@@ -1,15 +1,19 @@
-// Variables de juego en index.html
+// En index.html
 const backgroundMusic = document.getElementById("background-music");
 const clickButton = document.getElementById("clickButton");
 const clickerScoreElement = document.getElementById("clickerScore");
 const playButton = document.getElementById("playButton");
 
+// Estado inicial
 let clickerScore = 0;
 
 // Función para aumentar los puntos del juego Clicker
 clickButton.addEventListener("click", () => {
   clickerScore++; // Incrementar los puntos
   clickerScoreElement.textContent = `$ZMB: ${clickerScore}`; // Actualizar el contador
+
+  // Guardar en localStorage
+  localStorage.setItem('zmbPoints', clickerScore);
 
   // Aplicar la animación temporal de luz verde
   clickerScoreElement.classList.add("animate");
