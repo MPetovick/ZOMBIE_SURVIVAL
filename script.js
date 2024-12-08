@@ -41,6 +41,7 @@ playButton.addEventListener("click", () => {
 });
 
 // Lógica del juego en game.html
+l// Variables de juego
 let health = 100;
 let zombieLevel = 1;
 let gameActive = true;
@@ -51,6 +52,7 @@ const attackButton = document.getElementById("attackButton");
 const defendButton = document.getElementById("defendButton");
 const resultElement = document.getElementById("result");
 
+// Lógica de ataque
 if (attackButton) {
   attackButton.addEventListener("click", () => {
     if (!gameActive) return;
@@ -64,6 +66,7 @@ if (attackButton) {
   });
 }
 
+// Lógica de defensa
 if (defendButton) {
   defendButton.addEventListener("click", () => {
     if (!gameActive) return;
@@ -77,6 +80,7 @@ if (defendButton) {
   });
 }
 
+// Función para actualizar el estado del juego
 function updateGameStatus() {
   healthElement.textContent = `Salud: ${health}`;
   zombieLevelElement.textContent = `Nivel de zombies: ${zombieLevel}`;
