@@ -1,26 +1,43 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zombie Survival - Juego</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <!-- Encabezado principal -->
-  <header id="main-header">
-    <img src="img/logo.png" id="logo" alt="Zombie Survival Logo">
-    <h1 id="main-title">¡SURVIVAL MODE!</h1>
-  </header>
+// Variables de juego para `game.html`
+let health = 100;
+let zombieLevel = 1;
+let gameActive = true;
 
-  <!-- Contenido del juego -->
-  <p>Get ready to survive the zombie apocalypse! Are you ready to play??</p>
+const healthElement = document.getElementById("health");
+const zombieLevelElement = document.getElementById("zombie-level");
+const attackButton = document.getElementById("attackButton");
+const defendButton = document.getElementById("defendButton");
+const resultElement = document.getElementById("result");
 
-  <!-- Enlace con flecha para regresar -->
-  <a href="index.html" id="backButton">
-    <span>← Back</span>
-  </a>
-  
-  <!-- Aquí puedes agregar el contenido o interfaz del juego -->
-</body>
-</html>
+if (attackButton) {
+  // Lógica de ataque
+  attackButton.addEventListener("click", () => {
+    if (!gameActive) return;
+    let zombieDamage = Math.floor(Math.random() * 20) + 5;
+    zombieLevel -= zombieDamage;
+    if (zombieLevel <= 0) {
+      resultElement.textContent = "¡Has derrotado a los zombies!";
+      zombieLevel = 0;
+    }
+    updateGameStatus();
+  });
+}
+
+if (defendButton) {
+  // Lógica de defensa
+  defendButton.addEventListener("click", () => {
+    if (!gameActive) return;
+    let defense = Math.floor(Math.random() * 15);
+    health -= Math.max(0, Math.floor(Math.random() * 30) - defense);
+    if (health <= 0) {
+      resultElement.textContent = "¡Game Over! Has perdido.";
+      gameActive = false;
+    }
+    updateGameStatus();
+  });
+}
+
+function updateGameStatus() {
+  healthElement.textContent = `Salud: ${health}`;
+  zombieLevelElement.textContent = `Nivel de zombies: ${zombieLevel}`;
+}
