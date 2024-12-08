@@ -30,6 +30,30 @@ body {
   text-transform: uppercase;
 }
 
+#clickButton {
+  padding: 15px 30px;
+  font-size: 20px;
+  background-color: #FF6347;
+  color: white;
+  border: none;
+  border-radius: 10px; /* Bordes redondeados */
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Sombra suave */
+}
+
+#clickButton:hover {
+  background-color: #FF4500;
+  transform: scale(1.1); /* Efecto de agrandado */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5); /* Sombra más pronunciada */
+}
+
+#clickButton:active {
+  transform: scale(1); /* Se reduce el tamaño al hacer clic */
+  background-color: #FF6347; /* Vuelve al color original */
+}
+
+
 /* Estilo para los botones de acción */
 #attackButton, #defendButton {
   padding: 15px 30px;
