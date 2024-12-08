@@ -68,3 +68,48 @@ clickButton.addEventListener("click", () => {
 playButton.addEventListener("click", () => {
   window.location.href = "game.html"; // Redirige a la página del juego
 });
+
+// Variables de juego para `game.html`
+let health = 100;
+let zombieLevel = 1;
+let gameActive = true;
+
+const healthElement = document.getElementById("health");
+const zombieLevelElement = document.getElementById("zombie-level");
+const attackButton = document.getElementById("attackButton");
+const defendButton = document.getElementById("defendButton");
+const resultElement = document.getElementById("result");
+
+if (attackButton) {
+  // Lógica de ataque
+  attackButton.addEventListener("click", () => {
+    if (!gameActive) return;
+    let zombieDamage = Math.floor(Math.random() * 20) + 5;
+    zombieLevel -= zombieDamage;
+    if (zombieLevel <= 0) {
+      resultElement.textContent = "¡Has derrotado a los zombies!";
+      zombieLevel = 0;
+    }
+    updateGameStatus();
+  });
+}
+
+if (defendButton) {
+  // Lógica de defensa
+  defendButton.addEventListener("click", () => {
+    if (!gameActive) return;
+    let defense = Math.floor(Math.random() * 15);
+    health -= Math.max(0, Math.floor(Math.random() * 30) - defense);
+    if (health <= 0) {
+      resultElement.textContent = "¡Game Over! Has perdido.";
+      gameActive = false;
+    }
+    updateGameStatus();
+  });
+}
+
+function updateGameStatus() {
+  healthElement.textContent = `Salud: ${health}`;
+  zombieLevelElement.textContent = `Nivel de zombies: ${zombieLevel}`;
+}
+
