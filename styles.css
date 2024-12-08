@@ -13,7 +13,6 @@ body {
   min-height: 100vh;
 }
 
-/* Logo */
 #logo {
   width: 50%;
   max-width: 300px;
@@ -21,7 +20,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* Título */
 #main-title {
   font-size: 3em;
   font-weight: bold;
@@ -30,7 +28,6 @@ body {
   text-transform: uppercase;
 }
 
-/* Sección Clicker */
 #clicker-section {
   margin-top: 30px;
 }
@@ -43,7 +40,6 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
 #clickButton:hover {
@@ -55,18 +51,6 @@ body {
   margin-top: 10px;
 }
 
-/* Animación para el contador */
-#clickerScore.animate {
-  animation: glowGreen 0.5s ease-in-out;
-}
-
-@keyframes glowGreen {
-  0% { color: white; text-shadow: 0 0 5px white; }
-  50% { color: #32CD32; text-shadow: 0 0 20px #32CD32; }
-  100% { color: white; text-shadow: 0 0 5px white; }
-}
-
-/* Botón de JUGAR */
 #playButton {
   padding: 15px 30px;
   font-size: 20px;
@@ -85,11 +69,6 @@ body {
   opacity: 1;
 }
 
-#playButton:hover {
-  background-color: #45A049;
-}
-
-/* Enlace para regresar */
 #backButton {
   display: inline-block;
   margin-top: 30px;
@@ -99,37 +78,9 @@ body {
   color: white;
   text-decoration: none;
   border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
 }
 
 #backButton:hover {
   background-color: #45A049;
   transform: scale(1.1);
-}
-
-/* Compatibilidad móvil */
-@media (max-width: 600px) {
-  #logo {
-    width: 70%;
-  }
-
-  #main-title {
-    font-size: 2em;
-  }
-
-  #clickButton {
-    font-size: 18px;
-    padding: 12px 25px;
-  }
-
-  #playButton {
-    font-size: 18px;
-    padding: 12px 25px;
-  }
-
-  #backButton {
-    font-size: 1em;
-    padding: 8px 16px;
-  }
 }
