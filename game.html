@@ -14,21 +14,25 @@
     <h1 id="main-title">¡SURVIVAL MODE!</h1>
   </header>
 
+  <!-- Mostrar el saldo de ZMB -->
+  <p id="zmb-balance">Balance de ZMB: 42</p>
+
+  <!-- Contenido del juego -->
   <p>Get ready to survive the zombie apocalypse! Are you ready to play??</p>
 
-  <!-- Controles del juego -->
-  <div>
-    <button id="attackButton">Attack</button>
-    <button id="defendButton">Defend</button>
-  </div>
-
-  <p id="result"></p>
-  <p id="health">Salud: 100</p>
-  <p id="zombie-level">Nivel de zombies: 1</p>
-
-  <!-- Enlace para regresar -->
-  <a href="index.html" id="backButton">← Back</a>
-
-  <script src="game.js"></script>
+  <!-- Enlace con flecha para regresar -->
+  <a href="index.html" id="backButton">
+    <span>← Back</span>
+  </a>
+  
+  <!-- Aquí puedes agregar el contenido o interfaz del juego -->
+  
+  <script>
+    // En game.html
+    window.onload = function() {
+      let zmbPoints = localStorage.getItem('zmbPoints') || 42; // Cargar el valor o establecer el mínimo como 42
+      document.getElementById('zmb-balance').textContent = `Balance de ZMB: ${zmbPoints}`;
+    };
+  </script>
 </body>
 </html>
