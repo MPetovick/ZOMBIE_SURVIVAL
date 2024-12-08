@@ -90,4 +90,34 @@ body {
     font-size: 1em;
     padding: 8px 16px;
   }
+  
+  /* Estilo para el historial de batalla */
+#battle-history {
+  margin-top: 30px;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 5px;
+  width: 90%;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+#battle-history h2 {
+  color: #FF6347;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+#history-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#history-list li {
+  font-size: 1.1em;
+  color: white;
+  margin: 5px 0;
+}
+
 }
