@@ -1,0 +1,129 @@
+/* Estilo general */
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #111;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+#logo {
+  width: 50%;
+  max-width: 300px;
+  height: auto;
+  margin-bottom: 20px;
+}
+
+#main-title {
+  font-size: 3em;
+  font-weight: bold;
+  color: #4CAF50;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+#clicker-section {
+  margin-top: 30px;
+}
+
+#clickButton {
+  padding: 15px 30px;
+  font-size: 20px;
+  background-color: #FF6347;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#clickButton:hover {
+  background-color: #FF4500;
+}
+
+#clickerScore {
+  font-size: 2em;
+  margin-top: 10px;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+#clickerScore.animate {
+  animation: glowGreen 0.5s ease-in-out;
+}
+
+@keyframes glowGreen {
+  0% { color: white; text-shadow: 0 0 5px white; }
+  50% { color: #32CD32; text-shadow: 0 0 20px #32CD32; }
+  100% { color: white; text-shadow: 0 0 5px white; }
+}
+
+#playButton {
+  padding: 15px 30px;
+  font-size: 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: not-allowed;
+  opacity: 0.5;
+  transition: background-color 0.3s;
+  margin-top: 30px;
+}
+
+#playButton:enabled {
+  cursor: pointer;
+  opacity: 1;
+}
+
+#playButton:hover {
+  background-color: #45A049;
+}
+
+#backButton {
+  display: inline-block;
+  margin-top: 30px;
+  padding: 10px 20px;
+  font-size: 1.2em;
+  background-color: #4CAF50;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+#backButton:hover {
+  background-color: #45A049;
+  transform: scale(1.1);
+}
+
+@media (max-width: 600px) {
+  #logo {
+    width: 70%;
+  }
+
+  #main-title {
+    font-size: 2em;
+  }
+
+  #clickButton {
+    font-size: 18px;
+    padding: 12px 25px;
+  }
+
+  #playButton {
+    font-size: 18px;
+    padding: 12px 25px;
+  }
+
+  #backButton {
+    font-size: 1em;
+    padding: 8px 16px;
+  }
+}

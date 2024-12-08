@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zombie Survival</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+
+  <!-- Encabezado principal -->
+  <header id="main-header">
+    <img src="img/logo.png" id="logo" alt="Zombie Survival Logo">
+    <h1 id="main-title">¡Welcome Survivor!</h1>
+  </header>
+
+  <!-- Música de fondo -->
+  <audio id="background-music" autoplay loop>
+    <source src="bso/bso.mp3" type="audio/mp3">
+    Tu navegador no soporta la etiqueta de audio.
+  </audio>
+
+  <!-- Juego Clicker -->
+  <section id="clicker-section">
+    <button id="clickButton">Claim your tokens</button>
+    <p id="clickerScore" class="animate">$ZMB: 0</p>
+  </section>
+
+  <!-- Botón para jugar, deshabilitado inicialmente -->
+  <button id="playButton" disabled>PLAY</button>
+
+</body>
+</html>
