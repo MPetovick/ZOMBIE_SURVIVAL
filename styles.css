@@ -51,6 +51,16 @@ body {
   margin-top: 10px;
 }
 
+#clickerScore.animate {
+  animation: glowGreen 0.5s ease-in-out;
+}
+
+@keyframes glowGreen {
+  0% { color: white; text-shadow: 0 0 5px white; }
+  50% { color: #32CD32; text-shadow: 0 0 20px #32CD32; }
+  100% { color: white; text-shadow: 0 0 5px white; }
+}
+
 #playButton {
   padding: 15px 30px;
   font-size: 20px;
