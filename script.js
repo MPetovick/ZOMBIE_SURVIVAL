@@ -85,3 +85,62 @@ function updateGameStatus() {
   healthElement.textContent = `Salud: ${health}`;
   zombieLevelElement.textContent = `Nivel de zombies: ${zombieLevel}`;
 }
+
+// Función para agregar un nuevo evento al historial de batalla
+function addBattleHistory(message) {
+  const historyList = document.getElementById("history-list");
+  const newEntry = document.createElement("li");
+  newEntry.textContent = message;
+  historyList.appendChild(newEntry);
+}
+
+// Lógica de ataque
+attackButton.addEventListener("click", () => {
+  if (!gameActive) return;
+
+  let zombieDamage = Math.floor(Math.random() * 20) + 5;
+  zombieLevel -= zombieDamage;
+  defeatedZombies++;
+
+  if (defeatedZombies >= 3) {
+    dayCount++;
+    health += 20;
+    defeatedZombies = 0;
+    addBattleHistory("¡Has derrotado a 3 zombis! +1 Día, +20 Salud");
+  }
+
+  if (zombieLevel <= 0) {
+    resultElement.textContent = "¡Has derrotado a los zombies!";
+    zombieLevel = 0;
+    addBattleHistory("¡Has derrotado a los zombis!");
+  } else {
+    addBattleHistory(`Atacaste a los zombis y causaste ${zombieDamage} de daño.`);
+  }
+
+  updateGameStatus();
+});
+
+// Lógica de defensa
+defendButton.addEventListener("click", () => {
+  if (!gameActive) return;
+
+  let defense = Math.floor(Math.random() * 15);
+  health -= Math.max(0, Math.floor(Math.random() * 30) - defense);
+
+  if (health <= 0) {
+    resultElement.textContent = "¡Game Over! Has perdido.";
+    gameActive = false;
+    addBattleHistory("¡Game Over! Has perdido.");
+  } else {
+    addBattleHistory(`Te defendiste con éxito, pero el zombi te atacó y perdiste ${Math.max(0, 30 - defense)} de salud.`);
+  }
+
+  // Si el zombi te ataca, pierdes 5 de salud
+  if (Math.random() < 0.5) {
+    health -= 5;
+    addBattleHistory("¡El zombi te ha atacado! Perdiste 5 de salud.");
+  }
+
+  updateGameStatus();
+});
+
