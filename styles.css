@@ -97,11 +97,11 @@ body {
 }
 
 .tile.player {
-  background-color: #0000ff;
+  background-color: #4CAF50;
 }
 
 .tile.zombie {
-  background-color: #00ff00;
+  background-color: #FF6347;
 }
 
 /* Botón de regreso */
