@@ -91,7 +91,7 @@ body {
   /* Celdas que se ajustan al tamaño disponible */
   grid-template-rows: repeat(5, minmax(50px, 1fr)); 
   grid-template-columns: repeat(5, minmax(50px, 1fr)); 
-}}
+}
 
 .tile {
   width: 50px;
