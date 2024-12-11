@@ -1,34 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zombie Survival</title>
+  <title>Zombie Clicker</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="script.js" defer></script>
 </head>
 <body>
-
-  <!-- Encabezado principal -->
   <header id="main-header">
     <img src="img/logo.png" id="logo" alt="Zombie Survival Logo">
-    <h1 id="main-title">¡Welcome Survivor!</h1>
+    <h1 id="main-title">¡Zombie Clicker!</h1>
   </header>
 
-  <!-- Música de fondo -->
-  <audio id="background-music" autoplay loop>
-    <source src="bso/bso.mp3" type="audio/mp3">
-    Tu navegador no soporta la etiqueta de audio.
-  </audio>
+  <main>
+    <div id="clicker-section">
+      <button id="clickButton">Haz click para ganar ZMB</button>
+      <p id="clickerScore">$ZMB: 0</p>
+      <button id="playButton" disabled>JUGAR</button>
+    </div>
+  </main>
 
-  <!-- Juego Clicker -->
-  <section id="clicker-section">
-    <button id="clickButton">Claim your tokens</button>
-    <p id="clickerScore">$ZMB: 0</p>
-  </section>
+  <footer>
+    <audio id="background-music" src="music.mp3" autoplay loop></audio>
+  </footer>
 
-  <!-- Botón para jugar, deshabilitado inicialmente -->
-  <button id="playButton" disabled>PLAY</button>
-
+  <script src="script.js"></script>
 </body>
 </html>
