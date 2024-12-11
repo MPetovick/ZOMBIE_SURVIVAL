@@ -99,9 +99,9 @@ function checkCollisions() {
 
 // Actualizar estadísticas
 function updateStats() {
-  livesDisplay.textContent = `❤️ Vidas: ${player.lives}`;
-  daysDisplay.textContent = `📅 Días: ${days}`;
-  timeDisplay.textContent = `⏳ Tiempo: ${elapsedTime}s`;
+  livesDisplay.textContent = `❤️ HP: ${player.lives}`;
+  daysDisplay.textContent = `📅 DAYS: ${days}`;
+  timeDisplay.textContent = `⏳ TIME SURVIVED: ${elapsedTime}s`;
 }
 
 // Control del jugador
