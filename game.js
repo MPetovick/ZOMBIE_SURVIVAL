@@ -99,38 +99,60 @@ function checkCollisions() {
 
 // Actualizar estadísticas
 function updateStats() {
-  livesDisplay.textContent = `❤️ HP: ${player.lives}`;
-  daysDisplay.textContent = `📅 DAYS: ${days}`;
-  timeDisplay.textContent = `⏳ TIME SURVIVED: ${elapsedTime}s`;
+  livesDisplay.textContent = `❤️ Vidas: ${player.lives}`;
+  daysDisplay.textContent = `📅 Días: ${days}`;
+  timeDisplay.textContent = `⏳ Tiempo: ${elapsedTime}s`;
 }
 
-// Control del jugador
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowLeft" && player.x > 0) player.x -= 1;
-  if (e.key === "ArrowRight" && player.x < MAP_WIDTH - 1) player.x += 1;
-  if (e.key === "ArrowUp" && player.y > 0) player.y -= 1;
-  if (e.key === "ArrowDown" && player.y < MAP_HEIGHT - 1) player.y += 1;
+// Control de deslizamiento táctil
+let touchStartX = 0;
+let touchStartY = 0;
+
+gameContainer.addEventListener('touchstart', (e) => {
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+});
+
+gameContainer.addEventListener('touchend', (e) => {
+  const touchEndX = e.changedTouches[0].clientX;
+  const touchEndY = e.changedTouches[0].clientY;
+
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // Movimiento horizontal
+    if (deltaX > 0 && player.x < MAP_WIDTH - 1) {
+      player.x += 1; // Mover a la derecha
+    } else if (deltaX < 0 && player.x > 0) {
+      player.x -= 1; // Mover a la izquierda
+    }
+  } else {
+    // Movimiento vertical
+    if (deltaY > 0 && player.y < MAP_HEIGHT - 1) {
+      player.y += 1; // Mover hacia abajo
+    } else if (deltaY < 0 && player.y > 0) {
+      player.y -= 1; // Mover hacia arriba
+    }
+  }
+
   updatePositions();
   checkCollisions();
 });
 
 // Reiniciar o restaurar el juego
 function resetGame() {
-  // Intentar cargar el estado guardado
   const savedState = localStorage.getItem("gameState");
-  
+
   if (savedState) {
-    // Si hay un estado guardado, cargarlo
     const gameState = JSON.parse(savedState);
     player = gameState.player;
     zombies = gameState.zombies;
     days = gameState.days;
     elapsedTime = gameState.elapsedTime;
 
-    // Limpiar el estado guardado después de cargarlo
     localStorage.removeItem("gameState");
   } else {
-    // Si no hay estado guardado, empezar desde cero
     player = { x: 1, y: 1, lives: 3 };
     days = 0;
     elapsedTime = 0;
