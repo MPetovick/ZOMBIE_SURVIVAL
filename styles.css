@@ -1,33 +1,29 @@
-/* Estilo general */
+/* Configuración general */
 body {
-  font-family: 'Arial', sans-serif;
   margin: 0;
-  padding: 0;
+  font-family: 'Arial', sans-serif;
   background-color: #111;
-  color: white;
+  color: #fff;
   text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   min-height: 100vh;
 }
 
-#logo {
-  width: 50%;
-  max-width: 300px;
-  height: auto;
+/* Encabezado */
+#main-header {
   margin-bottom: 20px;
 }
 
 #main-title {
   font-size: 3em;
-  font-weight: bold;
   color: #4CAF50;
-  margin: 0;
   text-transform: uppercase;
 }
 
+/* Sección del clicker */
 #clicker-section {
   margin-top: 30px;
 }
@@ -40,11 +36,12 @@ body {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 #clickButton:hover {
   background-color: #FF4500;
+  transform: scale(1.05);
 }
 
 #clickerScore {
@@ -81,49 +78,46 @@ body {
   opacity: 1;
 }
 
-#playButton:hover {
+#playButton:hover:enabled {
   background-color: #45A049;
 }
 
+/* Cuadrícula del juego */
+#game-container {
+  display: grid;
+  gap: 2px;
+  background-color: #333;
+  border: 3px solid #555;
+}
+
+.tile {
+  width: 50px;
+  height: 50px;
+  background-color: #444;
+}
+
+.tile.player {
+  background-color: #4CAF50;
+}
+
+.tile.zombie {
+  background-color: #FF6347;
+}
+
+/* Botón de regreso */
 #backButton {
   display: inline-block;
-  margin-top: 30px;
+  margin: 20px;
   padding: 10px 20px;
   font-size: 1.2em;
   background-color: #4CAF50;
   color: white;
   text-decoration: none;
   border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  transition: all 0.3s;
 }
 
 #backButton:hover {
   background-color: #45A049;
   transform: scale(1.1);
-}
-
-@media (max-width: 600px) {
-  #logo {
-    width: 70%;
-  }
-
-  #main-title {
-    font-size: 2em;
-  }
-
-  #clickButton {
-    font-size: 18px;
-    padding: 12px 25px;
-  }
-
-  #playButton {
-    font-size: 18px;
-    padding: 12px 25px;
-  }
-
-  #backButton {
-    font-size: 1em;
-    padding: 8px 16px;
-  }
 }
