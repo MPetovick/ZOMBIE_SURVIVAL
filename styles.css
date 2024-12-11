@@ -88,10 +88,10 @@ body {
   background-color: #333;
   border: 3px solid #555;
   
-  /* Define 3 filas y 3 columnas */
-  grid-template-rows: repeat(5, 30px); /* 3 filas de igual tamaño */
-  grid-template-columns: repeat(7, 30px); /* 3 columnas de igual tamaño */
-}
+  /* Celdas que se ajustan al tamaño disponible */
+  grid-template-rows: repeat(5, minmax(50px, 1fr)); 
+  grid-template-columns: repeat(5, minmax(50px, 1fr)); 
+}}
 
 .tile {
   width: 50px;
