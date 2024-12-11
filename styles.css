@@ -17,6 +17,20 @@ body {
   margin-bottom: 20px;
 }
 
+/* Ajustar el contenedor de estadísticas */
+#stats {
+  display: flex; /* Cambiamos a un diseño flexbox */
+  gap: 20px; /* Espacio entre los contadores */
+  justify-content: center; /* Centrar horizontalmente */
+  align-items: center; /* Alinear verticalmente */
+}
+
+/* Opcional: Estilo adicional para los contadores */
+#stats p {
+  margin: 0; /* Eliminamos el margen predeterminado */
+  font-size: 1.2em; /* Tamaño del texto */
+}
+
 #main-title {
   font-size: 3em;
   color: #4CAF50;
