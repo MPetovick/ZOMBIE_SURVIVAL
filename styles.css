@@ -82,12 +82,15 @@ body {
   background-color: #45A049;
 }
 
-/* Cuadrícula del juego */
 #game-container {
   display: grid;
   gap: 2px;
   background-color: #333;
   border: 3px solid #555;
+  
+  /* Define 3 filas y 3 columnas */
+  grid-template-rows: repeat(5, 1fr); /* 3 filas de igual tamaño */
+  grid-template-columns: repeat(7, 1fr); /* 3 columnas de igual tamaño */
 }
 
 .tile {
