@@ -6,36 +6,25 @@
   <title>Zombie Survival - Juego</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-  <!-- Encabezado principal -->
   <header id="main-header">
     <img src="img/logo.png" id="logo" alt="Zombie Survival Logo">
-    <h1 id="main-title">¡SURVIVAL MODE!</h1>
+    <h1 id="main-title">Survival</h1>
+    <div id="stats">
+      <p id="lives">❤️ HP: 3</p>
+      <p id="days">📅 DAYS: 0</p>
+      <p id="time">⏳ TIME 0s</p>
+    </div>
   </header>
 
-  <!-- Mostrar el saldo de ZMB -->
-  <p id="zmb-balance">Balance de ZMB: 42</p>
-  
+  <main>
+    <div id="game-container"></div>
+  </main>
 
-  <!-- Contenido del juego -->
-  <p>Get ready to survive the zombie apocalypse! Are you ready to play??</p>
-  <h3 id="main-title">¡COMING SOON!</h3>
+  <footer>
+    <a href="index.html" id="backButton">← Volver</a>
+  </footer>
 
-  <!-- Enlace con flecha para regresar -->
-  <a href="index.html" id="backButton">
-    <span>← Back</span>
-  </a>
-  
-  
-  <!-- Aquí puedes agregar el contenido o interfaz del juego -->
-  
-  <script>
-    // En game.html
-    window.onload = function() {
-      let zmbPoints = localStorage.getItem('zmbPoints') || 42; // Cargar el valor o establecer el mínimo como 42
-      document.getElementById('zmb-balance').textContent = `Balance de ZMB: ${zmbPoints}`;
-    };
-  </script>
+  <script src="game.js"></script>
 </body>
 </html>
