@@ -1,3 +1,4 @@
+
 // En index.html
 const backgroundMusic = document.getElementById("background-music");
 const clickButton = document.getElementById("clickButton");
@@ -22,7 +23,7 @@ clickButton.addEventListener("click", () => {
   }, 500); // Duración de la animación en milisegundos
 
   // Huevo de Pascua: redirigir al alcanzar 21 puntos
-  if (clickerScore === 21) {
+  if (clickerScore === 100) {
     const link = document.createElement("a");
     link.href = "https://t.me/blum/app?startapp=memepadjetton_ZMB_qazah-ref_t4h4ymyIgR"; // Cambia por tu URL
     link.target = "_blank";
@@ -33,7 +34,7 @@ clickButton.addEventListener("click", () => {
   }
 
   // Activar el botón "JUGAR" cuando el puntaje llegue a 42
-  if (clickerScore >= 42) {
+  if (clickerScore >= 3) {
     playButton.disabled = false;
   }
 });
