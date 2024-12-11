@@ -79,7 +79,18 @@ function checkCollisions() {
       if (player.lives <= 0) {
         alert("¡Game Over!");
         clearInterval(gameInterval);
-        resetGame();
+
+        // Guardar el estado del juego en localStorage
+        const gameState = {
+          player,
+          zombies,
+          days,
+          elapsedTime
+        };
+        localStorage.setItem("gameState", JSON.stringify(gameState));
+
+        // Redirigir a la página de inicio
+        window.location.href = "index.html";
       }
     }
   });
@@ -103,13 +114,30 @@ document.addEventListener("keydown", e => {
   checkCollisions();
 });
 
-// Reiniciar juego
+// Reiniciar o restaurar el juego
 function resetGame() {
-  player = { x: 1, y: 1, lives: 3 };
-  days = 0;
-  elapsedTime = 0;
+  // Intentar cargar el estado guardado
+  const savedState = localStorage.getItem("gameState");
+  
+  if (savedState) {
+    // Si hay un estado guardado, cargarlo
+    const gameState = JSON.parse(savedState);
+    player = gameState.player;
+    zombies = gameState.zombies;
+    days = gameState.days;
+    elapsedTime = gameState.elapsedTime;
+
+    // Limpiar el estado guardado después de cargarlo
+    localStorage.removeItem("gameState");
+  } else {
+    // Si no hay estado guardado, empezar desde cero
+    player = { x: 1, y: 1, lives: 3 };
+    days = 0;
+    elapsedTime = 0;
+    createZombies(1);
+  }
+
   createMap();
-  createZombies(1);
   updatePositions();
   updateStats();
 }
