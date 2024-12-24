@@ -1,10 +1,11 @@
-const MAP_WIDTH = 7; // 7 columnas
-const MAP_HEIGHT = 12; // 12 filas
+const MAP_WIDTH = 8; // 8 columnas
+const MAP_HEIGHT = 10; // 10 filas
 const TILE_SIZE = 50;
 
 // Estado inicial del juego
-let player = { x: 1, y: 1, lives: 3 };
+let player = { x: 4, y: 5, lives: 3, bombs: 2, shield: false };
 let zombies = [];
+let items = [];
 let days = 0;
 let elapsedTime = 0;
 let gameInterval;
@@ -12,6 +13,7 @@ let gameInterval;
 // Referencias a elementos del DOM
 const gameContainer = document.getElementById("game-container");
 const livesDisplay = document.getElementById("lives");
+const bombsDisplay = document.getElementById("bombs");
 const daysDisplay = document.getElementById("days");
 const timeDisplay = document.getElementById("time");
 
@@ -35,165 +37,186 @@ function createMap() {
 // Actualizar posiciones visuales
 function updatePositions() {
   document.querySelectorAll(".tile").forEach(tile => {
-    tile.classList.remove("player", "zombie");
+    tile.classList.remove("player", "zombie", "item-bomb", "item-shield", "shield");
   });
 
-  document.querySelector(`.tile[data-x='${player.x}'][data-y='${player.y}']`).classList.add("player");
+  // Jugador
+  const playerTile = document.querySelector(`.tile[data-x='${player.x}'][data-y='${player.y}']`);
+  if (playerTile) {
+    playerTile.classList.add("player");
+    if (player.shield) playerTile.classList.add("shield");
+  }
 
+  // Zombies
   zombies.forEach(({ x, y }) => {
     const zombieTile = document.querySelector(`.tile[data-x='${x}'][data-y='${y}']`);
     if (zombieTile) zombieTile.classList.add("zombie");
   });
+
+  // Items
+  items.forEach(({ x, y, type }) => {
+    const itemTile = document.querySelector(`.tile[data-x='${x}'][data-y='${y}']`);
+    if (itemTile) itemTile.classList.add(type === "bomb" ? "item-bomb" : "item-shield");
+  });
 }
 
-// Crear zombies
-function createZombies(count) {
-  zombies = [];
+// Crear entidades (zombies o items)
+function createEntities(count, type) {
+  const entities = [];
   for (let i = 0; i < count; i++) {
     let x, y;
     do {
       x = Math.floor(Math.random() * MAP_WIDTH);
       y = Math.floor(Math.random() * MAP_HEIGHT);
-    } while (x === player.x && y === player.y); // Evitar spawn en la posición del jugador
+    } while (
+      entities.some(entity => entity.x === x && entity.y === y) ||
+      (x === player.x && y === player.y) ||
+      zombies.some(zombie => zombie.x === x && zombie.y === y)
+    );
 
-    zombies.push({ x, y });
+    if (type === "zombie") {
+      const zombieType = Math.random() < 0.3 ? "fast" : Math.random() < 0.5 ? "slow" : "stealth";
+      entities.push({ x, y, type: zombieType });
+    } else if (type === "item") {
+      const itemType = Math.random() < 0.5 ? "bomb" : "shield";
+      entities.push({ x, y, type: itemType });
+    }
   }
+  return entities;
 }
 
-// Mover zombies
+function createZombies(count) {
+  zombies = zombies.concat(createEntities(count, "zombie"));
+}
+
+function createItems(count) {
+  items = items.concat(createEntities(count, "item"));
+}
+
+// Mover zombies con comportamientos avanzados
 function moveZombies() {
   zombies.forEach(zombie => {
-    const direction = Math.floor(Math.random() * 4);
-    if (direction === 0 && zombie.x > 0) zombie.x -= 1; // Izquierda
-    if (direction === 1 && zombie.x < MAP_WIDTH - 1) zombie.x += 1; // Derecha
-    if (direction === 2 && zombie.y > 0) zombie.y -= 1; // Arriba
-    if (direction === 3 && zombie.y < MAP_HEIGHT - 1) zombie.y += 1; // Abajo
+    const dx = player.x - zombie.x;
+    const dy = player.y - zombie.y;
+
+    if (zombie.type === "fast") {
+      zombie.x += Math.sign(dx);
+      zombie.y += Math.sign(dy);
+    } else if (zombie.type === "slow" && Math.random() < 0.5) {
+      zombie.x += Math.sign(dx);
+    } else if (zombie.type === "stealth" && Math.random() < 0.3) {
+      zombie.x += Math.floor(Math.random() * 3) - 1;
+      zombie.y += Math.floor(Math.random() * 3) - 1;
+    }
+
+    zombie.x = Math.max(0, Math.min(MAP_WIDTH - 1, zombie.x));
+    zombie.y = Math.max(0, Math.min(MAP_HEIGHT - 1, zombie.y));
   });
 }
 
 // Comprobar colisiones
 function checkCollisions() {
-  zombies.forEach(({ x, y }) => {
+  // Zombies
+  zombies = zombies.filter(({ x, y }) => {
     if (x === player.x && y === player.y) {
-      player.lives -= 1;
-      if (player.lives <= 0) {
-        alert("¡Game Over!");
-        clearInterval(gameInterval);
-
-        // Guardar el estado del juego en localStorage
-        const gameState = {
-          player,
-          zombies,
-          days,
-          elapsedTime
-        };
-        localStorage.setItem("gameState", JSON.stringify(gameState));
-
-        // Redirigir a la página de inicio después de un pequeño retraso
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 500); // Espera 500ms para dar tiempo a que el alert se cierre
+      if (player.shield) {
+        player.shield = false;
+        return false; // Elimina el zombie
+      } else {
+        player.lives -= 1;
+        if (player.lives <= 0) {
+          endGame("¡Has sido devorado por los zombies!");
+        }
+        return false;
       }
     }
+    return true;
   });
+
+  // Items
+  items = items.filter(({ x, y, type }) => {
+    if (x === player.x && y === player.y) {
+      if (type === "bomb") player.bombs++;
+      if (type === "shield") player.shield = true;
+      return false;
+    }
+    return true;
+  });
+
   updateStats();
+}
+
+// Usar bomba
+function useBomb() {
+  if (player.bombs > 0) {
+    player.bombs--;
+    zombies = zombies.filter(({ x, y }) => {
+      return Math.abs(x - player.x) > 1 || Math.abs(y - player.y) > 1;
+    });
+    updatePositions();
+    updateStats();
+  }
 }
 
 // Actualizar estadísticas en pantalla
 function updateStats() {
   livesDisplay.textContent = `❤️ Vidas: ${player.lives}`;
+  bombsDisplay.textContent = `💣 Bombas: ${player.bombs}`;
   daysDisplay.textContent = `📅 Días: ${days}`;
   timeDisplay.textContent = `⏳ Tiempo: ${elapsedTime}s`;
 }
 
-// Control del jugador con teclado
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowLeft" && player.x > 0) player.x -= 1;
-  if (e.key === "ArrowRight" && player.x < MAP_WIDTH - 1) player.x += 1;
-  if (e.key === "ArrowUp" && player.y > 0) player.y -= 1;
-  if (e.key === "ArrowDown" && player.y < MAP_HEIGHT - 1) player.y += 1;
+// Control del jugador
+function handlePlayerMove(dx, dy) {
+  player.x = Math.max(0, Math.min(MAP_WIDTH - 1, player.x + dx));
+  player.y = Math.max(0, Math.min(MAP_HEIGHT - 1, player.y + dy));
   updatePositions();
   checkCollisions();
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft") handlePlayerMove(-1, 0);
+  if (e.key === "ArrowRight") handlePlayerMove(1, 0);
+  if (e.key === "ArrowUp") handlePlayerMove(0, -1);
+  if (e.key === "ArrowDown") handlePlayerMove(0, 1);
+  if (e.key === " ") useBomb();
 });
 
-// Control del jugador con gestos táctiles (swipes)
-let touchStartX = 0;
-let touchStartY = 0;
-let touchEndX = 0;
-let touchEndY = 0;
-
-gameContainer.addEventListener("touchstart", (e) => {
-  const touch = e.touches[0];
-  touchStartX = touch.pageX;
-  touchStartY = touch.pageY;
-}, false);
-
-gameContainer.addEventListener("touchend", (e) => {
-  const touch = e.changedTouches[0];
-  touchEndX = touch.pageX;
-  touchEndY = touch.pageY;
-
-  const diffX = touchEndX - touchStartX;
-  const diffY = touchEndY - touchStartY;
-
-  if (Math.abs(diffX) > Math.abs(diffY)) {
-    // Deslizar horizontalmente
-    if (diffX > 0 && player.x < MAP_WIDTH - 1) player.x += 1; // Deslizar a la derecha
-    if (diffX < 0 && player.x > 0) player.x -= 1; // Deslizar a la izquierda
-  } else {
-    // Deslizar verticalmente
-    if (diffY > 0 && player.y < MAP_HEIGHT - 1) player.y += 1; // Deslizar hacia abajo
-    if (diffY < 0 && player.y > 0) player.y -= 1; // Deslizar hacia arriba
-  }
-
-  updatePositions();
-  checkCollisions();
-}, false);
-
-// Reiniciar o restaurar el juego
+// Reiniciar juego
 function resetGame() {
-  // Intentar cargar el estado guardado
-  const savedState = localStorage.getItem("gameState");
-
-  if (savedState) {
-    // Si hay un estado guardado, cargarlo
-    const gameState = JSON.parse(savedState);
-    player = gameState.player || { x: 1, y: 1, lives: 3 }; // Asegurar valores predeterminados si no existe player
-    zombies = gameState.zombies || [];
-    days = gameState.days || 0; // Asegurar valores predeterminados
-    elapsedTime = gameState.elapsedTime || 0; // Asegurar valores predeterminados
-
-    // Limpiar el estado guardado después de cargarlo
-    localStorage.removeItem("gameState");
-  } else {
-    // Si no hay estado guardado, empezar desde cero
-    player = { x: 1, y: 1, lives: 3 };
-    days = 0;
-    elapsedTime = 0;
-    createZombies(1);
-  }
-
-  // Crear el mapa y actualizar las posiciones y estadísticas
+  player = { x: 4, y: 5, lives: 3, bombs: 2, shield: false };
+  zombies = [];
+  items = [];
+  days = 0;
+  elapsedTime = 0;
+  createZombies(3);
+  createItems(2);
   createMap();
   updatePositions();
   updateStats();
 }
 
-// Inicializar juego
+// Finalizar juego
+function endGame(message) {
+  alert(message);
+  clearInterval(gameInterval);
+  setTimeout(() => window.location.reload(), 500);
+}
+
+// Iniciar juego
 function startGame() {
-  createMap();
   resetGame();
 
   gameInterval = setInterval(() => {
     elapsedTime++;
-    if (elapsedTime % 60 === 0) {
+    if (elapsedTime % 30 === 0) {
       days++;
-      createZombies(days);
+      createZombies(days + 1);
+      createItems(1);
     }
     moveZombies();
     updatePositions();
     checkCollisions();
-    updateStats();
   }, 1000);
 }
 
