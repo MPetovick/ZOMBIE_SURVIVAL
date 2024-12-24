@@ -5,18 +5,118 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zombie Survival - Juego</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Estilos básicos (respaldo si no hay styles.css) */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #333;
+      color: white;
+    }
+
+    #main-header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      width: 100%;
+      background-color: #222;
+    }
+
+    #stats {
+      display: flex;
+      justify-content: space-between;
+      width: 300px;
+    }
+
+    main {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: calc(100vh - 140px); /* Ajustado para botones de control */
+      width: 100%;
+    }
+
+    #game-container {
+      display: grid;
+      gap: 1px;
+      background-color: #111;
+    }
+
+    .tile {
+      width: 50px;
+      height: 50px;
+      background-color: #444;
+      border: 1px solid #222;
+    }
+
+    .player {
+      background-color: #4CAF50;
+    }
+
+    .zombie {
+      background-color: #FF0000;
+    }
+
+    .item-bomb {
+      background-color: #FFC107;
+    }
+
+    .item-shield {
+      background-color: #00BCD4;
+    }
+
+    .shield.player {
+      border: 3px solid #00BCD4;
+    }
+
+    /* Botones de control */
+    #controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .control-btn {
+      width: 80px;
+      height: 80px;
+      background-color: #555;
+      color: white;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .control-btn:active {
+      background-color: #777;
+    }
+  </style>
 </head>
 <body>
   <header id="main-header">
     <div id="stats">
       <p id="lives">❤️ HP: 3</p>
+      <p id="bombs">💣 BOMBS: 2</p>
       <p id="days">📅 DAYS: 0</p>
-      <p id="time">⏳ TiME 0s</p>
+      <p id="time">⏳ TIME: 0s</p>
     </div>
   </header>
 
   <main>
     <div id="game-container"></div>
+    <div id="controls">
+      <button class="control-btn" onclick="useBomb()">💣 Bomb</button>
+    </div>
   </main>
 
   <script src="game.js"></script>
