@@ -47,16 +47,27 @@ function updatePositions() {
     if (player.shield) playerTile.classList.add("shield");
   }
 
-  // Zombies
-  zombies.forEach(({ x, y }) => {
+  // Zombies con colores según tipo
+  zombies.forEach(({ x, y, type }) => {
     const zombieTile = document.querySelector(`.tile[data-x='${x}'][data-y='${y}']`);
-    if (zombieTile) zombieTile.classList.add("zombie");
+    if (zombieTile) {
+      zombieTile.classList.add("zombie");
+      if (type === "fast") zombieTile.style.backgroundColor = "green";
+      if (type === "slow") zombieTile.style.backgroundColor = "darkgreen";
+      if (type === "stealth") zombieTile.style.backgroundColor = "lightgreen";
+    }
   });
 
   // Items
   items.forEach(({ x, y, type }) => {
     const itemTile = document.querySelector(`.tile[data-x='${x}'][data-y='${y}']`);
-    if (itemTile) itemTile.classList.add(type === "bomb" ? "item-bomb" : "item-shield");
+    if (itemTile) {
+      if (type === "bomb") {
+        itemTile.textContent = "💣"; // Mostrar el ícono de bomba
+      } else if (type === "shield") {
+        itemTile.classList.add("item-shield");
+      }
+    }
   });
 }
 
@@ -174,12 +185,27 @@ function handlePlayerMove(dx, dy) {
   checkCollisions();
 }
 
-document.addEventListener("keydown", e => {
-  if (e.key === "ArrowLeft") handlePlayerMove(-1, 0);
-  if (e.key === "ArrowRight") handlePlayerMove(1, 0);
-  if (e.key === "ArrowUp") handlePlayerMove(0, -1);
-  if (e.key === "ArrowDown") handlePlayerMove(0, 1);
-  if (e.key === " ") useBomb();
+// Agregar controles táctiles
+gameContainer.addEventListener("touchstart", e => {
+  const touchStart = e.touches[0];
+  const startX = touchStart.clientX;
+  const startY = touchStart.clientY;
+
+  gameContainer.addEventListener("touchmove", e => {
+    const touchMove = e.touches[0];
+    const dx = touchMove.clientX - startX;
+    const dy = touchMove.clientY - startY;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+      // Movimiento horizontal
+      if (dx > 0) handlePlayerMove(1, 0);
+      else if (dx < 0) handlePlayerMove(-1, 0);
+    } else {
+      // Movimiento vertical
+      if (dy > 0) handlePlayerMove(0, 1);
+      else if (dy < 0) handlePlayerMove(0, -1);
+    }
+  });
 });
 
 // Reiniciar juego
