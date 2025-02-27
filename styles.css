@@ -16,8 +16,45 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
+    overflow: hidden;
 }
 
+/* --- Efecto Moderno en el Título --- */
+h1 {
+    font-size: 50px;
+    font-weight: bold;
+    text-transform: uppercase;
+    position: relative;
+    letter-spacing: 3px;
+    background: linear-gradient(90deg, #00ffcc, #00a878, #007755);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: fadeText 4s infinite alternate, glow 3s infinite alternate, gradientShift 6s infinite linear;
+}
+
+/* --- Animación de Aparición y Desaparición --- */
+@keyframes fadeText {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* --- Animación de Resplandor --- */
+@keyframes glow {
+    0% { text-shadow: 0 0 5px rgba(0, 255, 204, 0.2); }
+    100% { text-shadow: 0 0 15px rgba(0, 255, 204, 0.8); }
+}
+
+/* --- Cambio de Degradado en Tonos de Verde --- */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* --- Contenedor Principal --- */
 .container {
     max-width: 600px;
     width: 100%;
@@ -27,26 +64,7 @@ body {
     box-shadow: 0 4px 15px rgba(0, 255, 204, 0.2);
 }
 
-/* --- Título con efecto --- */
-h1 {
-    font-size: 50px;
-    font-weight: bold;
-    text-transform: uppercase;
-    color: transparent;
-    background: linear-gradient(90deg, #00ffcc, #00a878);
-    -webkit-background-clip: text;
-    background-clip: text;
-    letter-spacing: 3px;
-    text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
-    animation: glow 1.5s infinite alternate;
-}
-
-@keyframes glow {
-    0% { text-shadow: 0 0 10px rgba(0, 255, 204, 0.6); }
-    100% { text-shadow: 0 0 20px rgba(0, 255, 204, 1); }
-}
-
-/* --- Chat Box --- */
+/* --- Caja de Chat / Mensajes --- */
 #chat {
     background-color: rgba(0, 0, 0, 0.3);
     padding: 20px;
@@ -89,7 +107,7 @@ button:hover {
     transform: scale(1.05);
 }
 
-/* --- QR Section --- */
+/* --- Sección de QR --- */
 #qr {
     margin-top: 20px;
 }
@@ -111,7 +129,7 @@ canvas {
     margin: 10px auto;
 }
 
-/* --- Responsive Design --- */
+/* --- Responsive Design para Móviles --- */
 @media (max-width: 768px) {
     .container {
         width: 90%;
