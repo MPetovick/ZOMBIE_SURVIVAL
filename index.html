@@ -1,35 +1,138 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HushBox - QR Seguro</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-</head>
-<body>
-    <div class="container">
-        <h1>HUSHBOX</h1>
-        <div id="chat">
-            <div id="messages"></div>
-            <div class="input">
-                <input type="password" id="passphrase" placeholder="Clave" required>
-                <input type="text" id="message" placeholder="Mensaje" required>
-                <button id="send">Enviar QR</button>
-            </div>
-            <div id="qr">
-                <h3>QR:</h3>
-                <canvas id="qr-canvas"></canvas>
-                <button id="download" disabled>Descargar</button>
-            </div>
-            <div class="decode">
-                <h3>Descifrar:</h3>
-                <input type="file" id="qr-upload" accept="image/*">
-                <button id="decode">Leer QR</button>
-            </div>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap');
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+}
+
+/* Contenedor principal */
+.container {
+    width: 100%;
+    max-width: 600px;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 255, 204, 0.1);
+}
+
+/* Título */
+h1 {
+    font-size: 36px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #00ffcc;
+    text-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+}
+
+/* Contenedor del chat */
+#chat {
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Inputs y botones */
+.input {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input, button {
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+    font-size: 16px;
+    width: 100%;
+}
+
+input {
+    background-color: #222222;
+    color: #ffffff;
+}
+
+button {
+    background-color: #00a878;
+    color: #ffffff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #008866;
+}
+
+/* Sección de QR */
+#qr {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+canvas {
+    background: #ffffff;
+    padding: 8px;
+    border-radius: 8px;
+    max-width: 300px;
+    width: 100%;
+}
+
+/* Decodificación del QR */
+.decode {
+    margin-top: 15px;
+}
+
+#qr-upload {
+    width: 100%;
+    max-width: 300px;
+    margin: 10px auto;
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 28px;
+        letter-spacing: 1px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    input, button {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 24px;
+    }
+
+    input, button {
+        padding: 8px;
+        font-size: 12px;
+    }
+}
