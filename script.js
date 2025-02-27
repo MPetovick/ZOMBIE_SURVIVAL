@@ -1,115 +1,218 @@
-const messages = document.getElementById('messages');
-const passphrase = document.getElementById('passphrase');
-const message = document.getElementById('message');
-const send = document.getElementById('send');
-const qrCanvas = document.getElementById('qr-canvas');
-const qrUpload = document.getElementById('qr-upload');
-const decode = document.getElementById('decode');
-const download = document.getElementById('download');
+const elements = {
+    messagesDiv: document.getElementById('messages'),
+    passphraseInput: document.getElementById('passphrase'),
+    messageInput: document.getElementById('message-input'),
+    sendButton: document.getElementById('send-button'),
+    qrCanvas: document.getElementById('qr-canvas'),
+    qrUpload: document.getElementById('qr-upload'),
+    decodeButton: document.getElementById('decode-button'),
+    downloadButton: document.getElementById('download-button'),
+    qrContainer: document.getElementById('qr-container')
+};
 
-async function encrypt(message, passphrase) {
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const key = await deriveKey(passphrase, salt);
-    const encrypted = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv },
-        key,
-        new TextEncoder().encode(message)
-    );
-    const result = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
-    result.set(salt, 0);
-    result.set(iv, salt.length);
-    result.set(new Uint8Array(encrypted), salt.length + iv.length);
-    return btoa(String.fromCharCode(...result));
-}
+const cryptoUtils = {
+    stringToArrayBuffer: str => new TextEncoder().encode(str),
 
-async function decrypt(encryptedBase64, passphrase) {
-    const data = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
-    const salt = data.slice(0, 16);
-    const iv = data.slice(16, 28);
-    const ciphertext = data.slice(28);
-    const key = await deriveKey(passphrase, salt);
-    const decrypted = await crypto.subtle.decrypt(
-        { name: 'AES-GCM', iv },
-        key,
-        ciphertext
-    );
-    return new TextDecoder().decode(decrypted);
-}
+    arrayBufferToString: buffer => new TextDecoder().decode(buffer),
 
-async function deriveKey(passphrase, salt) {
-    const keyMaterial = await crypto.subtle.importKey(
-        'raw', new TextEncoder().encode(passphrase), { name: 'PBKDF2' }, false, ['deriveKey']
-    );
-    return crypto.subtle.deriveKey(
-        { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
-        keyMaterial,
-        { name: 'AES-GCM', length: 256 },
-        true,
-        ['encrypt', 'decrypt']
-    );
-}
+    deriveKey: async (passphrase, salt) => {
+        const keyMaterial = await crypto.subtle.importKey(
+            'raw',
+            cryptoUtils.stringToArrayBuffer(passphrase),
+            { name: 'PBKDF2' },
+            false,
+            ['deriveKey']
+        );
 
-function showMessage(text, isSent, encrypted = false) {
-    const div = document.createElement('div');
-    div.classList.add('message');
-    if (isSent) div.classList.add('sent');
-    div.textContent = encrypted ? `[Enc: ${text}]` : text;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-}
+        return crypto.subtle.deriveKey(
+            {
+                name: 'PBKDF2',
+                salt,
+                iterations: 100000,
+                hash: 'SHA-256'
+            },
+            keyMaterial,
+            { name: 'AES-GCM', length: 256 },
+            true,
+            ['encrypt', 'decrypt']
+        );
+    },
 
-async function makeQR(data) {
-    await QRCode.toCanvas(qrCanvas, data, { width: 200 });
-    download.disabled = false;
-}
+    encryptMessage: async (message, passphrase) => {
+        try {
+            const salt = crypto.getRandomValues(new Uint8Array(16));
+            const iv = crypto.getRandomValues(new Uint8Array(12));
+            const key = await cryptoUtils.deriveKey(passphrase, salt);
 
-send.addEventListener('click', async () => {
-    const text = message.value.trim();
-    const key = passphrase.value.trim();
-    if (!text || !key) return alert('Falta mensaje o clave.');
-    try {
-        const encrypted = await encrypt(text, key);
-        showMessage(encrypted, true, true);
-        await makeQR(encrypted);
-        message.value = '';
-    } catch (e) {
-        alert('Error al encriptar.');
+            const encrypted = await crypto.subtle.encrypt(
+                { name: 'AES-GCM', iv },
+                key,
+                cryptoUtils.stringToArrayBuffer(message)
+            );
+
+            const combined = new Uint8Array([...salt, ...iv, ...new Uint8Array(encrypted)]);
+            return btoa(String.fromCharCode(...combined));
+        } catch (error) {
+            throw new Error('Encryption failed: ' + error.message);
+        }
+    },
+
+    decryptMessage: async (encryptedBase64, passphrase) => {
+        try {
+            const encryptedData = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+            const salt = encryptedData.slice(0, 16);
+            const iv = encryptedData.slice(16, 28);
+            const ciphertext = encryptedData.slice(28);
+
+            const key = await cryptoUtils.deriveKey(passphrase, salt);
+
+            const decrypted = await crypto.subtle.decrypt(
+                { name: 'AES-GCM', iv },
+                key,
+                ciphertext
+            );
+
+            return cryptoUtils.arrayBufferToString(decrypted);
+        } catch (error) {
+            throw new Error('Decryption failed: ' + error.message);
+        }
     }
-});
+};
 
-decode.addEventListener('click', () => {
-    const file = qrUpload.files[0];
-    const key = passphrase.value.trim();
-    if (!file || !key) return alert('Sube un QR y escribe la clave.');
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(data.data, data.width, data.height);
-            if (code) {
-                decrypt(code.data, key)
-                    .then(text => showMessage(text, false))
-                    .catch(() => alert('Clave incorrecta o QR inválido.'));
-            } else {
-                alert('No se encontró QR.');
+const ui = {
+    displayMessage: (content, isSent = false) => {
+        const messageEl = document.createElement('div');
+        messageEl.className = `message ${isSent ? 'sent' : ''}`;
+        messageEl.innerHTML = `
+            <div class="message-content">${content}</div>
+            <div class="message-time">${new Date().toLocaleTimeString()}</div>
+        `;
+
+        if (!isSent) {
+            elements.messagesDiv.querySelector('.message-placeholder')?.remove();
+        }
+
+        elements.messagesDiv.appendChild(messageEl);
+        elements.messagesDiv.scrollTop = elements.messagesDiv.scrollHeight;
+    },
+
+    generateQR: async (data) => {
+        return new Promise((resolve, reject) => {
+            QRCode.toCanvas(elements.qrCanvas, data, {
+                width: 250,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
+            }, (error) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    elements.qrContainer.classList.remove('hidden');
+                    resolve();
+                }
+            });
+        });
+    },
+
+    showLoader: (button, text = 'Processing...') => {
+        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
+        button.disabled = true;
+    },
+
+    resetButton: (button, originalHTML) => {
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+    }
+};
+
+const handlers = {
+    handleEncrypt: async () => {
+        const message = elements.messageInput.value.trim();
+        const passphrase = elements.passphraseInput.value.trim();
+
+        if (!message || !passphrase) {
+            alert('Please enter both a message and passphrase');
+            return;
+        }
+
+        ui.showLoader(elements.sendButton, 'Encrypting...');
+
+        try {
+            const encrypted = await cryptoUtils.encryptMessage(message, passphrase);
+            await ui.generateQR(encrypted);
+            ui.displayMessage(`Encrypted: ${encrypted.slice(0, 40)}...`, true);
+            elements.messageInput.value = '';
+        } catch (error) {
+            console.error('Encryption error:', error);
+            alert(error.message);
+        }
+
+        ui.resetButton(elements.sendButton, `<i class="fas fa-lock"></i> Encrypt & Generate QR`);
+    },
+
+    handleDecrypt: async () => {
+        const file = elements.qrUpload.files[0];
+        const passphrase = elements.passphraseInput.value.trim();
+
+        if (!file || !passphrase) {
+            alert('Please select a QR file and enter passphrase');
+            return;
+        }
+
+        ui.showLoader(elements.decodeButton, 'Decrypting...');
+
+        try {
+            const imageData = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0);
+                        resolve(ctx.getImageData(0, 0, canvas.width, canvas.height));
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+
+            const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+
+            if (!qrCode) {
+                throw new Error('No QR code detected in the image');
             }
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-});
 
-download.addEventListener('click', () => {
-    const url = qrCanvas.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'hushbox_qr.png';
-    a.click();
-});
+            const decrypted = await cryptoUtils.decryptMessage(qrCode.data, passphrase);
+            ui.displayMessage(decrypted);
+        } catch (error) {
+            console.error('Decryption error:', error);
+            alert(error.message.includes('decrypt') ? 
+                'Decryption failed. Wrong passphrase?' : 
+                error.message);
+        }
+
+        ui.resetButton(elements.decodeButton, `<i class="fas fa-unlock"></i> Decrypt Message`);
+    },
+
+    handleDownload: () => {
+        const link = document.createElement('a');
+        link.download = 'hushbox-qr.png';
+        link.href = elements.qrCanvas.toDataURL();
+        link.click();
+    }
+};
+
+// Event Listeners
+elements.sendButton.addEventListener('click', handlers.handleEncrypt);
+elements.decodeButton.addEventListener('click', handlers.handleDecrypt);
+elements.downloadButton.addEventListener('click', handlers.handleDownload);
+
+// Initialize
+elements.qrContainer.classList.add('hidden');
