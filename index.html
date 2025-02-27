@@ -1,29 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zombie Clicker</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HushBox - Secure Messaging with QR</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <header id="main-header">
-    <img src="img/logo.png" id="logo" alt="Zombie Survival Logo">
-    <h1 id="main-title">¡SURVIVAL!</h1>
-  </header>
+    <div class="container">
+        <h1 class="logo">HUSHBOX</h1>
+        <div id="chat-container">
+            <div id="messages"></div>
+            
+            <div class="input-area">
+                <div class="input-group">
+                    <input type="password" id="passphrase" placeholder="Enter your passphrase" required>
+                    <i class="fas fa-lock icon"></i>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="message-input" placeholder="Write a message...">
+                    <i class="fas fa-comment icon"></i>
+                </div>
+                <button id="send-button" class="btn-primary">
+                    <i class="fas fa-paper-plane"></i> Send and Generate QR
+                </button>
+            </div>
 
-  <main>
-    <div id="clicker-section">
-      <button id="clickButton">Haz click para ganar ZMB</button>
-      <p id="clickerScore">$ZMB: 0</p>
-      <button id="playButton" disabled>JUGAR</button>
+            <div id="qr-container" class="hidden">
+                <h3>Generated QR:</h3>
+                <canvas id="qr-canvas"></canvas>
+                <button id="download-button" class="btn-secondary">
+                    <i class="fas fa-download"></i> Download QR
+                </button>
+            </div>
+
+            <div class="decode-area">
+                <h3>Upload QR to Decrypt:</h3>
+                <label class="file-upload">
+                    <input type="file" id="qr-upload" accept="image/*">
+                    <i class="fas fa-upload"></i> Choose File
+                </label>
+                <button id="decode-button" class="btn-primary">
+                    <i class="fas fa-unlock"></i> Decrypt QR
+                </button>
+            </div>
+        </div>
     </div>
-  </main>
-
-  <footer>
-    <audio id="background-music" src="music.mp3" autoplay loop></audio>
-  </footer>
-
-  <script src="script.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
