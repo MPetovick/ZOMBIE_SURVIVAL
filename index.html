@@ -6,6 +6,7 @@
     <title>HushBox - Secure Messaging with QR</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="container">
@@ -18,7 +19,7 @@
                     <i class="fas fa-key icon"></i>
                 </div>
                 <div class="input-group">
-                    <textarea id="message-input" placeholder="Write your secure message... Max 200 characters" rows="4"></textarea>
+                    <textarea id="message-input" placeholder="Write your secure message... Max 200 chars" rows="4"></textarea>
                     <i class="fas fa-comment-dots icon"></i>
                 </div>
                 <button id="send-button" class="btn-primary">
@@ -26,7 +27,7 @@
                 </button>
                 <div id="qr-container" class="hidden">
                     <div class="qr-header">
-                        <h3><i class="fas fa-qrcode"></i> Secure QR Code</h3>
+                        <h3><i class="fas fa-qrcode"></i> Secure QR</h3>
                         <button id="download-button" class="btn-secondary">
                             <i class="fas fa-download"></i> Download
                         </button>
@@ -42,7 +43,7 @@
                         <input type="file" id="qr-upload" accept="image/*">
                         <div class="upload-content">
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <p>Drag & drop or click to upload QR</p>
+                            <p>Drop or click to upload QR</p>
                         </div>
                     </label>
                 </div>
@@ -52,7 +53,7 @@
                 <div id="messages" class="message-container">
                     <div class="message-placeholder">
                         <i class="fas fa-comments"></i>
-                        <p>Decrypted messages will appear here</p>
+                        <p>Decrypted messages appear here</p>
                     </div>
                 </div>
             </div>
