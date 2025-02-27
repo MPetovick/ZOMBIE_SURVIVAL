@@ -4,50 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HushBox - Secure Messaging with QR</title>
-    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
         <h1 class="logo">HUSHBOX</h1>
-        <div id="chat-container">
-            <div id="messages"></div>
-            
-            <div class="input-area">
+        
+        <div class="main-grid">
+            <!-- Sección de Encriptación -->
+            <div class="section encrypt-section">
                 <div class="input-group">
-                    <input type="password" id="passphrase" placeholder="Enter your passphrase" required>
-                    <i class="fas fa-lock icon"></i>
+                    <input type="password" id="passphrase" placeholder="Enter your secret passphrase" required>
+                    <i class="fas fa-key icon"></i>
                 </div>
+                
                 <div class="input-group">
-                    <input type="text" id="message-input" placeholder="Write a message...">
-                    <i class="fas fa-comment icon"></i>
+                    <textarea id="message-input" placeholder="Write your secure message..." rows="4"></textarea>
+                    <i class="fas fa-comment-dots icon"></i>
                 </div>
+                
                 <button id="send-button" class="btn-primary">
-                    <i class="fas fa-paper-plane"></i> Send and Generate QR
+                    <i class="fas fa-lock"></i> Encrypt & Generate QR
                 </button>
+                
+                <div id="qr-container" class="hidden">
+                    <div class="qr-header">
+                        <h3><i class="fas fa-qrcode"></i> Secure QR Code</h3>
+                        <button id="download-button" class="btn-secondary">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                    <canvas id="qr-canvas"></canvas>
+                </div>
             </div>
 
-            <div id="qr-container" class="hidden">
-                <h3>Generated QR:</h3>
-                <canvas id="qr-canvas"></canvas>
-                <button id="download-button" class="btn-secondary">
-                    <i class="fas fa-download"></i> Download QR
-                </button>
-            </div>
-
-            <div class="decode-area">
-                <h3>Upload QR to Decrypt:</h3>
-                <label class="file-upload">
-                    <input type="file" id="qr-upload" accept="image/*">
-                    <i class="fas fa-upload"></i> Choose File
-                </label>
+            <!-- Sección de Desencriptación -->
+            <div class="section decrypt-section">
+                <div class="upload-container">
+                    <label class="file-upload">
+                        <input type="file" id="qr-upload" accept="image/*">
+                        <div class="upload-content">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag & drop or click to upload QR</p>
+                        </div>
+                    </label>
+                </div>
+                
                 <button id="decode-button" class="btn-primary">
-                    <i class="fas fa-unlock"></i> Decrypt QR
+                    <i class="fas fa-unlock"></i> Decrypt Message
                 </button>
+                
+                <div id="messages" class="message-container">
+                    <div class="message-placeholder">
+                        <i class="fas fa-comments"></i>
+                        <p>Decrypted messages will appear here</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <script src="script.js"></script>
