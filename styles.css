@@ -5,6 +5,7 @@
     --text-color: #e0e0e0;
     --success-color: #00cc99;
     --error-color: #ff4d4d;
+    --section-bg: rgba(42, 42, 42, 0.95);
 }
 
 * {
@@ -17,87 +18,46 @@
 body {
     background: var(--background-gradient);
     color: var(--text-color);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
     line-height: 1.6;
 }
 
 .container {
     width: 100%;
-    max-width: 800px;
+    max-width: 1200px;
     padding: 2rem;
-    animation: fadeIn 0.5s ease-in;
 }
 
 .logo {
     text-align: center;
     color: var(--primary-color);
     margin-bottom: 2rem;
-    font-size: 2.5rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    text-shadow: 0 2px 4px rgba(0, 204, 153, 0.3);
+    font-size: 2.8rem;
+    letter-spacing: 3px;
+    text-shadow: 0 2px 8px rgba(0, 204, 153, 0.4);
 }
 
-#chat-container {
-    background: rgba(42, 42, 42, 0.95);
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.section {
+    background: var(--section-bg);
     border-radius: 15px;
     padding: 2rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
 }
 
-#messages {
-    height: 300px;
-    overflow-y: auto;
-    margin-bottom: 1.5rem;
-    padding: 1rem;
-    border: 2px solid rgba(58, 58, 58, 0.5);
-    border-radius: 10px;
-    background: rgba(30, 30, 30, 0.6);
-}
-
-/* Custom Scrollbar */
-#messages::-webkit-scrollbar {
-    width: 8px;
-}
-
-#messages::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-}
-
-#messages::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 4px;
-}
-
-.message {
-    padding: 1rem;
-    margin: 0.5rem 0;
-    border-radius: 8px;
-    background: rgba(58, 58, 58, 0.8);
-    animation: slideIn 0.3s ease-out;
-    max-width: 80%;
-    word-wrap: break-word;
-}
-
-.message.sent {
-    background: var(--primary-color);
-    color: #1a1a1a;
-    margin-left: auto;
-}
-
-.input-area {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
 .input-group {
     position: relative;
+    margin-bottom: 1.5rem;
 }
 
 .input-group .icon {
@@ -106,58 +66,58 @@ body {
     top: 50%;
     transform: translateY(-50%);
     color: rgba(160, 160, 160, 0.6);
+    font-size: 1.2rem;
 }
 
 #passphrase, #message-input {
     width: 100%;
     padding: 1rem 2.5rem 1rem 1rem;
     border: 2px solid transparent;
-    border-radius: 8px;
+    border-radius: 10px;
     background: rgba(58, 58, 58, 0.8);
     color: var(--text-color);
     font-size: 1rem;
     transition: all 0.3s ease;
 }
 
+#message-input {
+    resize: none;
+    min-height: 100px;
+}
+
 #passphrase:focus, #message-input:focus {
     outline: none;
     border-color: var(--primary-color);
-    box-shadow: 0 0 8px rgba(0, 204, 153, 0.3);
+    box-shadow: 0 0 12px rgba(0, 204, 153, 0.3);
 }
 
 .btn-primary {
-    padding: 1rem 2rem;
+    width: 100%;
+    padding: 1.2rem;
     background: var(--primary-color);
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     color: #1a1a1a;
-    cursor: pointer;
     font-weight: 600;
+    cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
     justify-content: center;
+    gap: 0.8rem;
+    font-size: 1.1rem;
 }
 
 .btn-primary:hover {
     background: #00b386;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 204, 153, 0.3);
+    box-shadow: 0 4px 16px rgba(0, 204, 153, 0.4);
 }
 
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--text-color);
-    border: 2px solid var(--primary-color);
-}
-
+/* Sección QR */
 #qr-container {
+    margin-top: 2rem;
     text-align: center;
-    margin: 2rem 0;
-    padding: 1.5rem;
-    background: rgba(30, 30, 30, 0.6);
-    border-radius: 10px;
     animation: fadeIn 0.5s ease-out;
 }
 
@@ -165,58 +125,98 @@ body {
     display: none;
 }
 
-#qr-canvas {
-    max-width: 200px;
-    margin: 1rem auto;
-    border: 2px solid var(--primary-color);
-    border-radius: 8px;
-    padding: 0.5rem;
-    background: white;
+.qr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
 
-.decode-area {
-    text-align: center;
-    margin-top: 2rem;
+#qr-canvas {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--primary-color);
+}
+
+/* Sección de Desencriptación */
+.upload-container {
+    margin-bottom: 2rem;
 }
 
 .file-upload {
-    display: inline-block;
-    padding: 0.8rem 1.5rem;
-    background: rgba(58, 58, 58, 0.8);
-    border-radius: 8px;
+    display: block;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 2rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    margin: 1rem 0;
 }
 
 .file-upload:hover {
-    background: rgba(58, 58, 58, 1);
+    border-color: var(--primary-color);
+    background: rgba(0, 204, 153, 0.05);
 }
 
-.file-upload input[type="file"] {
-    display: none;
+.upload-content {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.upload-content i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.message-container {
+    margin-top: 2rem;
+    background: rgba(30, 30, 30, 0.6);
+    border-radius: 10px;
+    padding: 1.5rem;
+    min-height: 200px;
+}
+
+.message {
+    background: rgba(58, 58, 58, 0.8);
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.message.sent {
+    background: var(--primary-color);
+    color: #1a1a1a;
+}
+
+.message-placeholder {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 2rem;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideIn {
-    from { opacity: 0; transform: translateX(20px); }
+    from { opacity: 0; transform: translateX(30px); }
     to { opacity: 1; transform: translateX(0); }
 }
 
 @media (max-width: 768px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+    
     .container {
         padding: 1rem;
     }
     
-    #messages {
-        height: 250px;
-    }
-    
-    .btn-primary {
-        padding: 0.8rem 1rem;
+    .logo {
+        font-size: 2rem;
     }
 }
