@@ -1,194 +1,222 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+:root {
+    --primary-color: #00cc99;
+    --secondary-color: #2a2a2a;
+    --background-gradient: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    --text-color: #e0e0e0;
+    --success-color: #00cc99;
+    --error-color: #ff4d4d;
+    --section-bg: rgba(42, 42, 42, 0.95);
+}
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 body {
-    background-color: #121212;
-    color: white;
-    font-family: 'Montserrat', sans-serif;
+    background: var(--background-gradient);
+    color: var(--text-color);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    padding: 20px;
-    overflow: hidden;
+    line-height: 1.6;
 }
 
-/* Contenedor principal con borde y sombra */
 .container {
-    max-width: 100%;
     width: 100%;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 255, 204, 0.2);
+    max-width: 1200px;
+    padding: 2rem;
 }
 
-/* --- Efecto Moderno en el Título --- */
-h1 {
-    font-size: 50px;
-    font-weight: bold;
-    text-transform: uppercase;
-    position: relative;
-    letter-spacing: 3px;
-    background: linear-gradient(90deg, #00ffcc, #00a878, #007755);
-    background-size: 300% 300%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: fadeText 4s infinite alternate, glow 3s infinite alternate, gradientShift 6s infinite linear;
-}
-
-/* --- Animaciones del Título --- */
-@keyframes fadeText {
-    0% { opacity: 0; }
-    50% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
-@keyframes glow {
-    0% { text-shadow: 0 0 5px rgba(0, 255, 204, 0.2); }
-    100% { text-shadow: 0 0 15px rgba(0, 255, 204, 0.8); }
-}
-
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-/* --- Contenedor del Chat --- */
-#chat {
-    background-color: rgba(0, 0, 0, 0.4);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 168, 120, 0.4);
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
-
-/* Inputs y botones */
-.input {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-input, button {
-    padding: 12px;
-    border-radius: 5px;
-    border: none;
-    font-size: 16px;
+.logo {
     text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    font-size: 2.8rem;
+    letter-spacing: 3px;
+    text-shadow: 0 2px 8px rgba(0, 204, 153, 0.4);
+}
+
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.section {
+    background: var(--section-bg);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-group .icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(160, 160, 160, 0.6);
+    font-size: 1.2rem;
+}
+
+#passphrase, #message-input {
     width: 100%;
-}
-
-input {
-    background-color: #222;
-    color: white;
-}
-
-button {
-    background-color: #00a878;
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-button:hover {
-    background-color: #008866;
-    transform: scale(1.05);
-}
-
-/* --- Sección de QR --- */
-#qr {
-    margin-top: 20px;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-canvas {
-    background: white;
-    padding: 10px;
+    padding: 1rem 2.5rem 1rem 1rem;
+    border: 2px solid transparent;
     border-radius: 10px;
-    width: 80%;
-    max-width: 400px;
-    margin-top: 10px;
+    background: rgba(58, 58, 58, 0.8);
+    color: var(--text-color);
+    font-size: 1rem;
+    transition: all 0.3s ease;
 }
 
-/* --- Decodificación del QR --- */
-.decode {
-    margin-top: 20px;
+#message-input {
+    resize: none;
+    min-height: 100px;
 }
 
-#qr-upload {
+#passphrase:focus, #message-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 12px rgba(0, 204, 153, 0.3);
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 1.2rem;
+    background: var(--primary-color);
+    border: none;
+    border-radius: 10px;
+    color: #1a1a1a;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    font-size: 1.1rem;
+}
+
+.btn-primary:hover {
+    background: #00b386;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 204, 153, 0.4);
+}
+
+/* Sección QR */
+#qr-container {
+    margin-top: 2rem;
+    text-align: center;
+    animation: fadeIn 0.5s ease-out;
+}
+
+#qr-container.hidden {
+    display: none;
+}
+
+.qr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+#qr-canvas {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border: 2px solid var(--primary-color);
+}
+
+/* Sección de Desencriptación */
+.upload-container {
+    margin-bottom: 2rem;
+}
+
+.file-upload {
     display: block;
-    margin: 10px auto;
-    width: 80%;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-/* --- Diseño Responsive --- */
+.file-upload:hover {
+    border-color: var(--primary-color);
+    background: rgba(0, 204, 153, 0.05);
+}
+
+.upload-content {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.upload-content i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.message-container {
+    margin-top: 2rem;
+    background: rgba(30, 30, 30, 0.6);
+    border-radius: 10px;
+    padding: 1.5rem;
+    min-height: 200px;
+}
+
+.message {
+    background: rgba(58, 58, 58, 0.8);
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    animation: slideIn 0.3s ease-out;
+}
+
+.message.sent {
+    background: var(--primary-color);
+    color: #1a1a1a;
+}
+
+.message-placeholder {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    padding: 2rem;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
 @media (max-width: 768px) {
-    h1 {
-        font-size: 40px;
-        letter-spacing: 2px;
+    .main-grid {
+        grid-template-columns: 1fr;
     }
 
     .container {
-        width: 100%;
-        padding: 10px;
+        padding: 1rem;
     }
 
-    input, button {
-        font-size: 14px;
-        padding: 10px;
+    .logo {
+        font-size: 2rem;
     }
-
-    .input {
-        gap: 8px;
-    }
-
-    canvas {
-        width: 90%;
-    }
-}
-
-@media (max-width: 480px) {
-    h1 {
-        font-size: 35px;
-        letter-spacing: 1px;
-    }
-
-    .container {
-        padding: 10px;
-    }
-
-    .input, button {
-        font-size: 12px;
-    }
-
-    input, button {
-        padding: 8px;
-    }
-}
-
-/* --- Botón SCAN --- */
-#scan {
-    background-color: #0077cc; /* Color del botón SCAN */
-}
-
-#scan:hover {
-    background-color: #005fa3; /* Color de hover del botón SCAN */
 }
