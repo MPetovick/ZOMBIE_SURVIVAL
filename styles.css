@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
 
+/* Reset de márgenes y padding globales */
 * {
     margin: 0;
     padding: 0;
@@ -10,13 +11,24 @@ body {
     background-color: #121212;
     color: white;
     font-family: 'Montserrat', sans-serif;
-    text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
+    padding: 20px;
     overflow: hidden;
+    text-align: center;
+}
+
+/* Contenedor principal con borde y sombra */
+.container {
+    max-width: 100%;
+    width: 100%;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 255, 204, 0.2);
 }
 
 /* --- Efecto Moderno en el Título --- */
@@ -34,47 +46,40 @@ h1 {
     animation: fadeText 4s infinite alternate, glow 3s infinite alternate, gradientShift 6s infinite linear;
 }
 
-/* --- Animación de Aparición y Desaparición --- */
+/* --- Animaciones del Título --- */
 @keyframes fadeText {
     0% { opacity: 0; }
     50% { opacity: 1; }
     100% { opacity: 0; }
 }
 
-/* --- Animación de Resplandor --- */
 @keyframes glow {
     0% { text-shadow: 0 0 5px rgba(0, 255, 204, 0.2); }
     100% { text-shadow: 0 0 15px rgba(0, 255, 204, 0.8); }
 }
 
-/* --- Cambio de Degradado en Tonos de Verde --- */
 @keyframes gradientShift {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
 }
 
-/* --- Contenedor Principal --- */
-.container {
-    max-width: 600px;
-    width: 100%;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 255, 204, 0.2);
-}
-
-/* --- Caja de Chat / Mensajes --- */
+/* --- Contenedor del Chat --- */
 #chat {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: rgba(0, 0, 0, 0.4);
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 168, 120, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 168, 120, 0.4);
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
 }
 
-/* --- Inputs y Botones --- */
+/* Inputs y botones */
 .input {
-    margin-top: 15px;
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -86,12 +91,12 @@ input, button {
     border: none;
     font-size: 16px;
     text-align: center;
+    width: 100%;
 }
 
 input {
     background-color: #222;
     color: white;
-    width: 100%;
 }
 
 button {
@@ -99,7 +104,7 @@ button {
     color: white;
     cursor: pointer;
     font-weight: bold;
-    transition: 0.3s;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 button:hover {
@@ -110,12 +115,18 @@ button:hover {
 /* --- Sección de QR --- */
 #qr {
     margin-top: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 canvas {
     background: white;
     padding: 10px;
     border-radius: 10px;
+    width: 80%;
+    max-width: 400px;
     margin-top: 10px;
 }
 
@@ -127,19 +138,50 @@ canvas {
 #qr-upload {
     display: block;
     margin: 10px auto;
+    width: 80%;
 }
 
-/* --- Responsive Design para Móviles --- */
+/* --- Diseño Responsive --- */
 @media (max-width: 768px) {
-    .container {
-        width: 90%;
-    }
-
     h1 {
         font-size: 40px;
+        letter-spacing: 2px;
+    }
+
+    .container {
+        width: 100%;
+        padding: 10px;
     }
 
     input, button {
         font-size: 14px;
+        padding: 10px;
+    }
+
+    .input {
+        gap: 8px;
+    }
+
+    canvas {
+        width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 35px;
+        letter-spacing: 1px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .input, button {
+        font-size: 12px;
+    }
+
+    input, button {
+        padding: 8px;
     }
 }
