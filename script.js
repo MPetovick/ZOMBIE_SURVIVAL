@@ -98,13 +98,24 @@ const ui = {
 
     generateQR: async (data) => {
         return new Promise((resolve, reject) => {
-            QRCode.toCanvas(elements.qrCanvas, data, {
-                width: 250,
+            // Obtener el tamaño actual del canvas desde el CSS
+            const canvas = elements.qrCanvas;
+            const size = Math.min(canvas.offsetWidth, canvas.offsetHeight); // Usar el menor valor para asegurar cuadrado
+
+            // Ajustar el tamaño del canvas para alta resolución (2x para pantallas Retina)
+            canvas.width = size * 2;
+            canvas.height = size * 2;
+            canvas.style.width = `${size}px`;
+            canvas.style.height = `${size}px`;
+
+            QRCode.toCanvas(canvas, data, {
+                width: size * 2, // Doble resolución para nitidez
                 margin: 2,
                 color: {
                     dark: '#000000',
                     light: '#ffffff'
-                }
+                },
+                scale: 8 // Aumentar escala para mejor resolución
             }, (error) => {
                 if (error) {
                     reject(error);
@@ -204,7 +215,7 @@ const handlers = {
     handleDownload: () => {
         const link = document.createElement('a');
         link.download = 'hushbox-qr.png';
-        link.href = elements.qrCanvas.toDataURL();
+        link.href = elements.qrCanvas.toDataURL('image/png', 1.0); // Máxima calidad
         link.click();
     }
 };
