@@ -1,3 +1,4 @@
+
 const elements = {
     messagesDiv: document.getElementById('messages'),
     passphraseInput: document.getElementById('passphrase'),
@@ -7,7 +8,6 @@ const elements = {
     qrUpload: document.getElementById('qr-upload'),
     decodeButton: document.getElementById('decode-button'),
     downloadButton: document.getElementById('download-button'),
-    shareButton: document.getElementById('share-button'),
     qrContainer: document.getElementById('qr-container')
 };
 
@@ -113,7 +113,6 @@ const ui = {
                     reject(error);
                 } else {
                     elements.qrContainer.classList.remove('hidden');
-                    elements.shareButton.disabled = false; // Enable share button
                     resolve();
                 }
             });
@@ -137,7 +136,7 @@ const handlers = {
         const passphrase = elements.passphraseInput.value.trim();
 
         if (!message || !passphrase) {
-            alert('Please enter both a message and a passphrase');
+            alert('Please enter both a message and passphrase');
             return;
         }
 
@@ -161,7 +160,7 @@ const handlers = {
         const passphrase = elements.passphraseInput.value.trim();
 
         if (!file || !passphrase) {
-            alert('Please select a QR file and enter the passphrase');
+            alert('Please select a QR file and enter passphrase');
             return;
         }
 
@@ -210,46 +209,6 @@ const handlers = {
         link.download = 'hushbox-qr.png';
         link.href = elements.qrCanvas.toDataURL('image/png', 1.0);
         link.click();
-    },
-
-    handleShare: async () => {
-        const qrDataURL = elements.qrCanvas.toDataURL('image/png', 1.0);
-        const blob = await (await fetch(qrDataURL)).blob();
-        const telegramChatUrl = 'https://t.me/HUSHBOX_STORAGE';
-
-        // Check if Clipboard API is available
-        if (navigator.clipboard && navigator.clipboard.write) {
-            try {
-                // Attempt to copy the image to the clipboard
-                await navigator.clipboard.write([
-                    new ClipboardItem({
-                        'image/png': blob
-                    })
-                ]);
-                alert('QR image copied to clipboard! Open Telegram, go to HUSHBOX_STORAGE (' + telegramChatUrl + '), and paste the image (Ctrl+V or long press) to share it.');
-                return; // Exit if successful
-            } catch (error) {
-                console.error('Clipboard copy failed:', error);
-                // Don’t alert here; proceed to fallback
-            }
-        } else {
-            console.warn('Clipboard API not available');
-        }
-
-        // Fallback: Download the image if clipboard copy fails or isn’t supported
-        const blobUrl = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = 'hushbox-qr.png';
-        document.body.appendChild(link);
-        alert('Couldn’t copy to clipboard. The QR image will download instead. Open it and share it to HUSHBOX_STORAGE (' + telegramChatUrl + ') manually.');
-        link.click();
-
-        // Clean up
-        setTimeout(() => {
-            document.body.removeChild(link);
-            URL.revokeObjectURL(blobUrl);
-        }, 100);
     }
 };
 
@@ -257,8 +216,6 @@ const handlers = {
 elements.sendButton.addEventListener('click', handlers.handleEncrypt);
 elements.decodeButton.addEventListener('click', handlers.handleDecrypt);
 elements.downloadButton.addEventListener('click', handlers.handleDownload);
-elements.shareButton.addEventListener('click', handlers.handleShare);
 
-// Initialization
+// Initialize
 elements.qrContainer.classList.add('hidden');
-elements.shareButton.disabled = true; // Disable share button until QR is generated
