@@ -100,21 +100,13 @@ const ui = {
 
     generateQR: async (data) => {
         return new Promise((resolve, reject) => {
-            const canvas = elements.qrCanvas;
-            // Tamaño base en píxeles (antes de escalar para alta resolución)
-            const baseSize = Math.min(300, Math.min(canvas.parentElement.offsetWidth * 0.8, 300)); // Máximo 300px o 80% del contenedor
-            const scaleFactor = 2; // Para pantallas Retina
-            canvas.width = baseSize * scaleFactor;
-            canvas.height = baseSize * scaleFactor;
-            canvas.style.width = `${baseSize}px`;
-            canvas.style.height = `${baseSize}px`;
-
-            QRCode.toCanvas(canvas, data, {
-                errorCorrectionLevel: 'L', // Baja corrección para maximizar capacidad
-                width: baseSize * scaleFactor, // Tamaño del QR en alta resolución
+            QRCode.toCanvas(elements.qrCanvas, data, {
+                width: 250,
                 margin: 2,
-                color: { dark: '#000000', light: '#ffffff' },
-                scale: 4 // Reducido para mantener legibilidad sin agrandar demasiado
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
             }, (error) => {
                 if (error) {
                     reject(error);
