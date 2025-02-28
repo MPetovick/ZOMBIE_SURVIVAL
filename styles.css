@@ -109,8 +109,8 @@ body {
 
 #message-input { 
     resize: vertical;
-    min-height: clamp(80px, 20vw, 100px);
-    max-height: 200px;
+    min-height: clamp(100px, 25vw, 150px); /* Aumentado para mensajes más largos */
+    max-height: 300px; /* Aumentado para mayor flexibilidad */
 }
 
 #passphrase:focus, #message-input:focus { 
@@ -181,11 +181,10 @@ body {
     gap: 0.5rem;
 }
 
-/* Mejoras específicas para el QR */
 #qr-canvas { 
-    width: clamp(150px, 50vw, 300px); /* Ancho adaptable */
-    height: clamp(150px, 50vw, 300px); /* Altura igual al ancho para mantenerlo cuadrado */
-    max-width: 100%; /* No exceder el contenedor */
+    width: clamp(200px, 60vw, 400px); /* Aumentado para QRs más grandes */
+    height: clamp(200px, 60vw, 400px); /* Mantiene proporción cuadrada */
+    max-width: 100%;
     background: white;
     padding: clamp(0.8rem, 2vw, 1rem);
     border-radius: 12px;
@@ -194,7 +193,7 @@ body {
     transition: transform 0.3s ease;
     margin: 0 auto;
     display: block;
-    image-rendering: pixelated; /* Mejora la nitidez del QR */
+    image-rendering: pixelated;
 }
 
 #qr-canvas:hover {
@@ -293,8 +292,8 @@ body {
     }
 
     #qr-canvas {
-        width: clamp(150px, 40vw, 250px); /* Ajuste para tablets */
-        height: clamp(150px, 40vw, 250px);
+        width: clamp(150px, 50vw, 300px); /* Ajustado para tablets */
+        height: clamp(150px, 50vw, 300px);
     }
 
     .upload-content i {
@@ -336,7 +335,7 @@ body {
     }
 
     #qr-canvas {
-        width: clamp(120px, 50vw, 200px); /* Ajuste para móviles pequeños */
+        width: clamp(120px, 50vw, 200px); /* Ajustado para móviles pequeños */
         height: clamp(120px, 50vw, 200px);
     }
 
