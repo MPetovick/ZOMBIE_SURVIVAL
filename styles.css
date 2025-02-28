@@ -17,14 +17,14 @@
     font-family: 'Segoe UI', system-ui, sans-serif; 
 }
 
-/* Estilo del contenedor de acciones */
+
 .qr-actions {
     display: flex;
     gap: clamp(0.5rem, 1vw, 1rem);
     flex-wrap: wrap;
 }
 
-/* Estilo del botón Download */
+
 .btn-secondary {
     padding: clamp(0.6rem, 1.5vw, 0.8rem);
     background: var(--secondary-color);
@@ -46,7 +46,7 @@
     box-shadow: 0 2px 8px var(--glow-color);
 }
 
-/* Media Queries para responsividad */
+
 @media (max-width: 480px) {
     .qr-actions {
         justify-content: center;
