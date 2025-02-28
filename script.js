@@ -99,15 +99,40 @@ const ui = {
                 if (error) {
                     reject(error);
                 } else {
-                    // Añadir el sello "HBOX" al QR
+                    // Añadir el sello "HUSHBOX" al QR
                     const ctx = elements.qrCanvas.getContext('2d');
-                    ctx.font = 'bold 40px "Segoe UI", system-ui, sans-serif';
+
+                    // Configurar estilo común
                     ctx.fillStyle = '#00cc99'; // --primary-color
+                    ctx.strokeStyle = '#000000'; // Contorno negro
+                    ctx.lineWidth = 2;
+                    ctx.shadowColor = 'rgba(0, 204, 153, 0.8)'; // --glow-color
+                    ctx.shadowBlur = 15;
                     ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.shadowColor = 'rgba(0, 204, 153, 0.4)'; // --glow-color
-                    ctx.shadowBlur = 10;
-                    ctx.fillText('HBOX', 125, 125); // Centro del QR (250px / 2)
+
+                    // Restaurar estilo para el texto
+                    ctx.fillStyle = '#00cc99';
+                    ctx.strokeStyle = '#000000';
+
+                    // "HUSH" arriba
+                    ctx.font = 'bold 21px "Segoe UI", system-ui, sans-serif'; // Reducido para caber en el círculo
+                    const hushWidth = ctx.measureText('HUSH').width;
+                    ctx.textBaseline = 'bottom';
+                    ctx.strokeText('HUSH', 125, 115); // Ajustado para quedar dentro del círculo
+                    ctx.fillText('HUSH', 125, 115);
+
+                    // "BOX" debajo, igualando el ancho de "HUSH"
+                    ctx.font = 'bold 37px "Segoe UI", system-ui, sans-serif'; // Tamaño base
+                    const boxWidth = ctx.measureText('BOX').width;
+                    const scaleFactor = hushWidth / boxWidth; // Escalar "BOX" al ancho de "HUSH"
+                    const boxFontSize = Math.floor(48 * scaleFactor);
+                    ctx.font = `bold ${boxFontSize}px "Segoe UI", system-ui, sans-serif`;
+                    ctx.textBaseline = 'top';
+                    ctx.strokeText('BOX', 125, 115); // Pegado a "HUSH"
+                    ctx.fillText('BOX', 125, 115);
+
+                    // Limpiar sombra
+                    ctx.shadowBlur = 0;
 
                     elements.qrContainer.classList.remove('hidden');
                     resolve();
