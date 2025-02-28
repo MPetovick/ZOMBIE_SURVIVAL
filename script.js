@@ -7,7 +7,7 @@ const elements = {
     qrUpload: document.getElementById('qr-upload'),
     decodeButton: document.getElementById('decode-button'),
     downloadButton: document.getElementById('download-button'),
-    shareButton: document.getElementById('share-button'), // New element
+    shareButton: document.getElementById('share-button'),
     qrContainer: document.getElementById('qr-container')
 };
 
@@ -217,22 +217,36 @@ const handlers = {
         const blob = await (await fetch(qrDataURL)).blob();
         const file = new File([blob], 'hushbox-qr.png', { type: 'image/png' });
 
-        if (navigator.share) {
-            // Use Web Share API
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            // Use Web Share API for direct file sharing
             try {
                 await navigator.share({
                     files: [file],
                     title: 'HushBox Secure QR',
                     text: 'Scan this QR code to decrypt a secure message with HushBox.'
                 });
+                console.log('Image shared successfully');
             } catch (error) {
                 console.error('Share error:', error);
                 alert('Sharing failed: ' + error.message);
             }
         } else {
-            // Fallback: Telegram-specific share link
-            const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(qrDataURL)}&text=${encodeURIComponent('Scan this QR code to decrypt a secure message with HushBox.')}`;
-            window.open(telegramUrl, '_blank');
+            // Fallback: Create a temporary blob URL and prompt manual sharing
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = 'hushbox-qr.png';
+            document.body.appendChild(link);
+
+            // Notify user to share manually
+            alert('Your browser doesn\'t support direct file sharing. The QR image will download. Please share it manually via Telegram or another app.');
+            link.click();
+
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+            }, 100);
         }
     }
 };
