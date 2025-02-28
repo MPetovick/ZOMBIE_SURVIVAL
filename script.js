@@ -1,13 +1,4 @@
-// Polyfills y detección de entorno
-const isTelegram = !!window.Telegram?.WebApp;
 
-// Configuración inicial de Telegram
-if (isTelegram) {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-}
-
-// Elementos del DOM
 const elements = {
     messagesDiv: document.getElementById('messages'),
     passphraseInput: document.getElementById('passphrase'),
@@ -17,23 +8,9 @@ const elements = {
     qrUpload: document.getElementById('qr-upload'),
     decodeButton: document.getElementById('decode-button'),
     downloadButton: document.getElementById('download-button'),
-    qrContainer: document.getElementById('qr-container'),
-    telegramShare: document.createElement('button'),
-    telegramHint: document.createElement('div')
+    qrContainer: document.getElementById('qr-container')
 };
 
-// Configurar elementos específicos de Telegram
-elements.telegramShare.innerHTML = '<i class="fas fa-share"></i> Compartir en Telegram';
-elements.telegramShare.id = 'telegram-share';
-elements.telegramShare.classList.add('btn', 'btn-secondary', 'hidden');
-
-elements.telegramHint.innerHTML = '<p>En Telegram: Mantén presionado el QR para guardar</p>';
-elements.telegramHint.id = 'telegram-hint';
-elements.telegramHint.classList.add('hidden');
-
-elements.qrContainer.append(elements.telegramShare, elements.telegramHint);
-
-// Utilidades de cifrado
 const cryptoUtils = {
     stringToArrayBuffer: str => new TextEncoder().encode(str),
 
@@ -105,7 +82,6 @@ const cryptoUtils = {
     }
 };
 
-// Manejo de UI
 const ui = {
     displayMessage: (content, isSent = false) => {
         const messageEl = document.createElement('div');
@@ -151,14 +127,9 @@ const ui = {
     resetButton: (button, originalHTML) => {
         button.innerHTML = originalHTML;
         button.disabled = false;
-    },
-
-    toggleTelegramHint: (show = true) => {
-        elements.telegramHint.classList.toggle('visible', show);
     }
 };
 
-// Manejadores de eventos
 const handlers = {
     handleEncrypt: async () => {
         const message = elements.messageInput.value.trim();
@@ -233,54 +204,16 @@ const handlers = {
         ui.resetButton(elements.decodeButton, `<i class="fas fa-unlock"></i> Decrypt Message`);
     },
 
-    handleDownload: async () => {
-        if (isTelegram) {
-            try {
-                const blob = await new Promise(resolve => {
-                    elements.qrCanvas.toBlob(resolve, 'image/png');
-                });
-                
-                const file = new File([blob], 'hushbox-qr.png', {
-                    type: 'image/png',
-                    lastModified: Date.now()
-                });
-
-                await Telegram.WebApp.showSaveFileDialog(file);
-            } catch (error) {
-                ui.toggleTelegramHint(true);
-                setTimeout(() => ui.toggleTelegramHint(false), 5000);
-            }
-        } else {
-            const link = document.createElement('a');
-            link.download = 'hushbox-qr.png';
-            link.href = elements.qrCanvas.toDataURL('image/png', 1.0);
-            link.click();
-        }
-    },
-
-    handleShare: () => {
-        elements.qrCanvas.toBlob(blob => {
-            const file = new File([blob], 'secret.png', {type: 'image/png'});
-            Telegram.WebApp.shareFile([file]);
-        });
+    handleDownload: () => {
+        const link = document.createElement('a');
+        link.download = 'hushbox-qr.png';
+        link.href = elements.qrCanvas.toDataURL('image/png', 1.0);
+        link.click();
     }
 };
 
-// Configuración inicial
-const init = () => {
-    // Event listeners
-    elements.sendButton.addEventListener('click', handlers.handleEncrypt);
-    elements.decodeButton.addEventListener('click', handlers.handleDecrypt);
-    elements.downloadButton.addEventListener('click', handlers.handleDownload);
-    elements.telegramShare.addEventListener('click', handlers.handleShare);
+elements.sendButton.addEventListener('click', handlers.handleEncrypt);
+elements.decodeButton.addEventListener('click', handlers.handleDecrypt);
+elements.downloadButton.addEventListener('click', handlers.handleDownload);
 
-    // Ajustes específicos para Telegram
-    if (isTelegram) {
-        elements.downloadButton.classList.add('hidden');
-        elements.telegramShare.classList.remove('hidden');
-        elements.qrCanvas.style.maxWidth = '70vw';
-    }
-};
-
-// Inicializar la aplicación
-document.addEventListener('DOMContentLoaded', init);
+elements.qrContainer.classList.add('hidden');
