@@ -216,6 +216,7 @@ const handlers = {
         const qrDataURL = elements.qrCanvas.toDataURL('image/png', 1.0);
         const blob = await (await fetch(qrDataURL)).blob();
         const file = new File([blob], 'hushbox-qr.png', { type: 'image/png' });
+        const telegramChatUrl = 'https://t.me/HUSHBOX_STORAGE';
 
         // Check if running inside Telegram WebView
         const isTelegramWebView = window.Telegram?.WebView?.initParams?.tgWebAppPlatform !== undefined;
@@ -226,7 +227,7 @@ const handlers = {
                 await navigator.share({
                     files: [file],
                     title: 'HushBox Secure QR',
-                    text: 'Scan this QR code to decrypt a secure message with HushBox.'
+                    text: 'Scan this QR code to decrypt a secure message with HushBox. Send it to HUSHBOX_STORAGE: ' + telegramChatUrl
                 });
                 console.log('Image shared successfully via Web Share API');
             } catch (error) {
@@ -234,21 +235,23 @@ const handlers = {
                 alert('Sharing failed: ' + error.message);
             }
         } else {
-            // Fallback: Improved handling for Telegram or unsupported browsers
+            // Fallback: Telegram-specific sharing to HUSHBOX_STORAGE
             const blobUrl = URL.createObjectURL(blob);
+            const telegramShareUrl = `https://t.me/HUSHBOX_STORAGE?attach=${encodeURIComponent(blobUrl)}`;
+
+            // Create a temporary link to trigger Telegram sharing
             const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = 'hushbox-qr.png';
+            link.href = telegramShareUrl;
             document.body.appendChild(link);
 
             if (isTelegramWebView) {
-                // Inside Telegram WebView: Prompt user to download and share manually
-                alert('Direct sharing is limited in Telegram WebView. The QR image will download now. Open it from your device\'s downloads and share it via Telegram.');
+                // Inside Telegram WebView: Prompt user to share to HUSHBOX_STORAGE
+                alert('Direct sharing in Telegram WebView is limited. Click OK to open Telegram and send the QR to HUSHBOX_STORAGE.');
                 link.click();
             } else {
-                // Outside Telegram: Fallback for browsers without Web Share API support
-                alert('Your browser doesn\'t support direct file sharing. The QR image will download now. Please share it manually via Telegram or another app.');
-                link.click();
+                // Outside Telegram: Open Telegram with pre-targeted chat
+                alert('Your browser doesn\'t support direct file sharing. Click OK to open Telegram and send the QR to HUSHBOX_STORAGE.');
+                window.open(telegramShareUrl, '_blank');
             }
 
             // Clean up
