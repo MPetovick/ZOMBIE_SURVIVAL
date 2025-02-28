@@ -40,7 +40,6 @@ const cryptoUtils = {
 
     encryptMessage: async (message, passphrase) => {
         try {
-            // Comprimir el mensaje antes de cifrar
             const compressed = pako.deflate(cryptoUtils.stringToArrayBuffer(message));
             const salt = crypto.getRandomValues(new Uint8Array(16));
             const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -49,7 +48,7 @@ const cryptoUtils = {
             const encrypted = await crypto.subtle.encrypt(
                 { name: 'AES-GCM', iv },
                 key,
-                compressed // Usar datos comprimidos
+                compressed
             );
 
             const combined = new Uint8Array([...salt, ...iv, ...new Uint8Array(encrypted)]);
@@ -74,7 +73,6 @@ const cryptoUtils = {
                 ciphertext
             );
 
-            // Descomprimir después de descifrar
             const decompressed = pako.inflate(new Uint8Array(decrypted));
             return cryptoUtils.arrayBufferToString(decompressed);
         } catch (error) {
@@ -103,20 +101,20 @@ const ui = {
     generateQR: async (data) => {
         return new Promise((resolve, reject) => {
             const canvas = elements.qrCanvas;
-            const size = Math.min(canvas.offsetWidth, canvas.offsetHeight);
-            canvas.width = size * 2;
-            canvas.height = size * 2;
-            canvas.style.width = `${size}px`;
-            canvas.style.height = `${size}px`;
+            // Tamaño base en píxeles (antes de escalar para alta resolución)
+            const baseSize = Math.min(300, Math.min(canvas.parentElement.offsetWidth * 0.8, 300)); // Máximo 300px o 80% del contenedor
+            const scaleFactor = 2; // Para pantallas Retina
+            canvas.width = baseSize * scaleFactor;
+            canvas.height = baseSize * scaleFactor;
+            canvas.style.width = `${baseSize}px`;
+            canvas.style.height = `${baseSize}px`;
 
-            // Configuración optimizada para mensajes largos
             QRCode.toCanvas(canvas, data, {
                 errorCorrectionLevel: 'L', // Baja corrección para maximizar capacidad
-                version: undefined, // Auto-ajuste de versión (hasta 40)
-                width: size * 2,
+                width: baseSize * scaleFactor, // Tamaño del QR en alta resolución
                 margin: 2,
                 color: { dark: '#000000', light: '#ffffff' },
-                scale: 8
+                scale: 4 // Reducido para mantener legibilidad sin agrandar demasiado
             }, (error) => {
                 if (error) {
                     reject(error);
@@ -216,7 +214,7 @@ const handlers = {
     handleDownload: () => {
         const link = document.createElement('a');
         link.download = 'hushbox-qr.png';
-        link.href = elements.qrCanvas.toDataURL('image/png', 1.0); // Máxima calidad
+        link.href = elements.qrCanvas.toDataURL('image/png', 1.0);
         link.click();
     }
 };
