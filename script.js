@@ -40,6 +40,8 @@ const cryptoUtils = {
 
     encryptMessage: async (message, passphrase) => {
         try {
+            // Comprimir el mensaje antes de cifrar
+            const compressed = pako.deflate(cryptoUtils.stringToArrayBuffer(message));
             const salt = crypto.getRandomValues(new Uint8Array(16));
             const iv = crypto.getRandomValues(new Uint8Array(12));
             const key = await cryptoUtils.deriveKey(passphrase, salt);
@@ -47,7 +49,7 @@ const cryptoUtils = {
             const encrypted = await crypto.subtle.encrypt(
                 { name: 'AES-GCM', iv },
                 key,
-                cryptoUtils.stringToArrayBuffer(message)
+                compressed // Usar datos comprimidos
             );
 
             const combined = new Uint8Array([...salt, ...iv, ...new Uint8Array(encrypted)]);
@@ -72,7 +74,9 @@ const cryptoUtils = {
                 ciphertext
             );
 
-            return cryptoUtils.arrayBufferToString(decrypted);
+            // Descomprimir después de descifrar
+            const decompressed = pako.inflate(new Uint8Array(decrypted));
+            return cryptoUtils.arrayBufferToString(decompressed);
         } catch (error) {
             throw new Error('Decryption failed: ' + error.message);
         }
@@ -98,24 +102,21 @@ const ui = {
 
     generateQR: async (data) => {
         return new Promise((resolve, reject) => {
-            // Obtener el tamaño actual del canvas desde el CSS
             const canvas = elements.qrCanvas;
-            const size = Math.min(canvas.offsetWidth, canvas.offsetHeight); // Usar el menor valor para asegurar cuadrado
-
-            // Ajustar el tamaño del canvas para alta resolución (2x para pantallas Retina)
+            const size = Math.min(canvas.offsetWidth, canvas.offsetHeight);
             canvas.width = size * 2;
             canvas.height = size * 2;
             canvas.style.width = `${size}px`;
             canvas.style.height = `${size}px`;
 
+            // Configuración optimizada para mensajes largos
             QRCode.toCanvas(canvas, data, {
-                width: size * 2, // Doble resolución para nitidez
+                errorCorrectionLevel: 'L', // Baja corrección para maximizar capacidad
+                version: undefined, // Auto-ajuste de versión (hasta 40)
+                width: size * 2,
                 margin: 2,
-                color: {
-                    dark: '#000000',
-                    light: '#ffffff'
-                },
-                scale: 8 // Aumentar escala para mejor resolución
+                color: { dark: '#000000', light: '#ffffff' },
+                scale: 8
             }, (error) => {
                 if (error) {
                     reject(error);
