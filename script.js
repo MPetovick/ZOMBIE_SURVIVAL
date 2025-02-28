@@ -7,6 +7,7 @@ const elements = {
     qrUpload: document.getElementById('qr-upload'),
     decodeButton: document.getElementById('decode-button'),
     downloadButton: document.getElementById('download-button'),
+    shareButton: document.getElementById('share-button'), // New element
     qrContainer: document.getElementById('qr-container')
 };
 
@@ -112,6 +113,7 @@ const ui = {
                     reject(error);
                 } else {
                     elements.qrContainer.classList.remove('hidden');
+                    elements.shareButton.disabled = false; // Enable share button
                     resolve();
                 }
             });
@@ -135,7 +137,7 @@ const handlers = {
         const passphrase = elements.passphraseInput.value.trim();
 
         if (!message || !passphrase) {
-            alert('Please enter both a message and passphrase');
+            alert('Please enter both a message and a passphrase');
             return;
         }
 
@@ -159,7 +161,7 @@ const handlers = {
         const passphrase = elements.passphraseInput.value.trim();
 
         if (!file || !passphrase) {
-            alert('Please select a QR file and enter passphrase');
+            alert('Please select a QR file and enter the passphrase');
             return;
         }
 
@@ -208,6 +210,30 @@ const handlers = {
         link.download = 'hushbox-qr.png';
         link.href = elements.qrCanvas.toDataURL('image/png', 1.0);
         link.click();
+    },
+
+    handleShare: async () => {
+        const qrDataURL = elements.qrCanvas.toDataURL('image/png', 1.0);
+        const blob = await (await fetch(qrDataURL)).blob();
+        const file = new File([blob], 'hushbox-qr.png', { type: 'image/png' });
+
+        if (navigator.share) {
+            // Use Web Share API
+            try {
+                await navigator.share({
+                    files: [file],
+                    title: 'HushBox Secure QR',
+                    text: 'Scan this QR code to decrypt a secure message with HushBox.'
+                });
+            } catch (error) {
+                console.error('Share error:', error);
+                alert('Sharing failed: ' + error.message);
+            }
+        } else {
+            // Fallback: Telegram-specific share link
+            const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(qrDataURL)}&text=${encodeURIComponent('Scan this QR code to decrypt a secure message with HushBox.')}`;
+            window.open(telegramUrl, '_blank');
+        }
     }
 };
 
@@ -215,6 +241,8 @@ const handlers = {
 elements.sendButton.addEventListener('click', handlers.handleEncrypt);
 elements.decodeButton.addEventListener('click', handlers.handleDecrypt);
 elements.downloadButton.addEventListener('click', handlers.handleDownload);
+elements.shareButton.addEventListener('click', handlers.handleShare);
 
-// Initialize
+// Initialization
 elements.qrContainer.classList.add('hidden');
+elements.shareButton.disabled = true; // Disable share button until QR is generated
