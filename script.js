@@ -190,39 +190,53 @@ const handlers = {
 
     handleDownload: async () => {
         const qrDataURL = elements.qrCanvas.toDataURL('image/png', 1.0);
-        
-        // Convertir la URL de datos a un blob
         const response = await fetch(qrDataURL);
         const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
 
-        // Detectar si estamos en una MiniApp de Telegram
-        if (window.Telegram && window.Telegram.WebApp) {
+    
+        const isMiniApp = window.Telegram && window.Telegram.WebApp;
+
+        if (isMiniApp && navigator.clipboard && navigator.clipboard.write) {
             try {
-                // Abrir el blob URL en el navegador externo
-                window.Telegram.WebApp.openLink(blobUrl);
-                alert('Image opened in your browser. Please save it manually (e.g., long press and select "Save Image").');
+                
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'image/png': blob
+                    })
+                ]);
+                alert('QR image copied to clipboard! Paste it into Telegram (long press or Ctrl+V) or save it from your clipboard.');
+                return;
             } catch (error) {
-                console.error('Failed to open link in MiniApp:', error);
-                alert('Could not open the image. Please try downloading it from a standard browser.');
-            } finally {
-                // Limpiar la URL del blob después de un breve retraso
-                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+                console.error('Failed to copy to clipboard in MiniApp:', error);
             }
-        } else {
-            // En navegador estándar: Descarga directa
+        }
+
+        
+        if (!isMiniApp) {
+            
             const link = document.createElement('a');
             link.download = 'hushbox-qr.png';
             link.href = qrDataURL;
             link.click();
+        } else {
+            
+            const blobUrl = URL.createObjectURL(blob);
+            alert('Could not copy to clipboard. Opening image in browser instead. Save it manually (e.g., long press > "Save Image").');
+            if (window.Telegram.WebApp) {
+                window.Telegram.WebApp.openLink(blobUrl);
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+            } else {
+                window.open(blobUrl, '_blank');
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+            }
         }
     }
 };
 
-// Event Listeners
+
 elements.sendButton.addEventListener('click', handlers.handleEncrypt);
 elements.decodeButton.addEventListener('click', handlers.handleDecrypt);
 elements.downloadButton.addEventListener('click', handlers.handleDownload);
 
-// Initialize
+
 elements.qrContainer.classList.add('hidden');
