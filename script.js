@@ -215,44 +215,26 @@ const handlers = {
     handleShare: async () => {
         const qrDataURL = elements.qrCanvas.toDataURL('image/png', 1.0);
         const blob = await (await fetch(qrDataURL)).blob();
-        const file = new File([blob], 'hushbox-qr.png', { type: 'image/png' });
         const telegramChatUrl = 'https://t.me/HUSHBOX_STORAGE';
 
-        // Check if running inside Telegram WebView
-        const isTelegramWebView = window.Telegram?.WebView?.initParams?.tgWebAppPlatform !== undefined;
-
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] }) && !isTelegramWebView) {
-            // Use Web Share API for direct file sharing outside Telegram WebView
-            try {
-                await navigator.share({
-                    files: [file],
-                    title: 'HushBox Secure QR',
-                    text: 'Scan this QR code to decrypt a secure message with HushBox. Send it to HUSHBOX_STORAGE: ' + telegramChatUrl
-                });
-                console.log('Image shared successfully via Web Share API');
-            } catch (error) {
-                console.error('Share error:', error);
-                alert('Sharing failed: ' + error.message);
-            }
-        } else {
-            // Fallback: Telegram-specific sharing to HUSHBOX_STORAGE
+        try {
+            // Copy the image to the clipboard
+            await navigator.clipboard.write([
+                new ClipboardItem({
+                    'image/png': blob
+                })
+            ]);
+            alert('QR image copied to clipboard! Open Telegram, go to HUSHBOX_STORAGE (' + telegramChatUrl + '), and paste the image (Ctrl+V or long press) to share it.');
+        } catch (error) {
+            console.error('Failed to copy image to clipboard:', error);
+            // Fallback: Trigger download if clipboard copy fails
             const blobUrl = URL.createObjectURL(blob);
-            const telegramShareUrl = `https://t.me/HUSHBOX_STORAGE?attach=${encodeURIComponent(blobUrl)}`;
-
-            // Create a temporary link to trigger Telegram sharing
             const link = document.createElement('a');
-            link.href = telegramShareUrl;
+            link.href = blobUrl;
+            link.download = 'hushbox-qr.png';
             document.body.appendChild(link);
-
-            if (isTelegramWebView) {
-                // Inside Telegram WebView: Prompt user to share to HUSHBOX_STORAGE
-                alert('Direct sharing in Telegram WebView is limited. Click OK to open Telegram and send the QR to HUSHBOX_STORAGE.');
-                link.click();
-            } else {
-                // Outside Telegram: Open Telegram with pre-targeted chat
-                alert('Your browser doesn\'t support direct file sharing. Click OK to open Telegram and send the QR to HUSHBOX_STORAGE.');
-                window.open(telegramShareUrl, '_blank');
-            }
+            alert('Copying to clipboard failed. The QR image will download instead. Open it and share it to HUSHBOX_STORAGE (' + telegramChatUrl + ') manually.');
+            link.click();
 
             // Clean up
             setTimeout(() => {
