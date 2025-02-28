@@ -217,31 +217,39 @@ const handlers = {
         const blob = await (await fetch(qrDataURL)).blob();
         const telegramChatUrl = 'https://t.me/HUSHBOX_STORAGE';
 
-        try {
-            // Copy the image to the clipboard
-            await navigator.clipboard.write([
-                new ClipboardItem({
-                    'image/png': blob
-                })
-            ]);
-            alert('QR image copied to clipboard! Open Telegram, go to HUSHBOX_STORAGE (' + telegramChatUrl + '), and paste the image (Ctrl+V or long press) to share it.');
-        } catch (error) {
-            console.error('Failed to copy image to clipboard:', error);
-            // Fallback: Trigger download if clipboard copy fails
-            const blobUrl = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = 'hushbox-qr.png';
-            document.body.appendChild(link);
-            alert('Copying to clipboard failed. The QR image will download instead. Open it and share it to HUSHBOX_STORAGE (' + telegramChatUrl + ') manually.');
-            link.click();
-
-            // Clean up
-            setTimeout(() => {
-                document.body.removeChild(link);
-                URL.revokeObjectURL(blobUrl);
-            }, 100);
+        // Check if Clipboard API is available
+        if (navigator.clipboard && navigator.clipboard.write) {
+            try {
+                // Attempt to copy the image to the clipboard
+                await navigator.clipboard.write([
+                    new ClipboardItem({
+                        'image/png': blob
+                    })
+                ]);
+                alert('QR image copied to clipboard! Open Telegram, go to HUSHBOX_STORAGE (' + telegramChatUrl + '), and paste the image (Ctrl+V or long press) to share it.');
+                return; // Exit if successful
+            } catch (error) {
+                console.error('Clipboard copy failed:', error);
+                // Don’t alert here; proceed to fallback
+            }
+        } else {
+            console.warn('Clipboard API not available');
         }
+
+        // Fallback: Download the image if clipboard copy fails or isn’t supported
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = 'hushbox-qr.png';
+        document.body.appendChild(link);
+        alert('Couldn’t copy to clipboard. The QR image will download instead. Open it and share it to HUSHBOX_STORAGE (' + telegramChatUrl + ') manually.');
+        link.click();
+
+        // Clean up
+        setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+        }, 100);
     }
 };
 
