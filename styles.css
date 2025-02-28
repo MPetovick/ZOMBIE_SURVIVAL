@@ -1,6 +1,4 @@
-/* ====================
-   VARIABLES GLOBALES
-   ==================== */
+
 :root { 
     --primary-color: #00cc99;
     --secondary-color: #2a2a2a;
@@ -10,18 +8,54 @@
     --error-color: #ff4d4d;
     --section-bg: rgba(42, 42, 42, 0.95);
     --glow-color: rgba(0, 204, 153, 0.4);
-    --border-radius: 12px;
-    --transition-speed: 0.3s;
 }
 
-/* ====================
-   RESET Y ESTILOS BASE
-   ==================== */
 * { 
     margin: 0; 
     padding: 0; 
     box-sizing: border-box; 
     font-family: 'Segoe UI', system-ui, sans-serif; 
+}
+
+
+.qr-actions {
+    display: flex;
+    gap: clamp(0.5rem, 1vw, 1rem);
+    flex-wrap: wrap;
+}
+
+
+.btn-secondary {
+    padding: clamp(0.6rem, 1.5vw, 0.8rem);
+    background: var(--secondary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 8px;
+    color: var(--primary-color);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: clamp(0.8rem, 2vw, 1rem);
+}
+
+.btn-secondary:hover {
+    background: var(--primary-color);
+    color: #1a1a1a;
+    box-shadow: 0 2px 8px var(--glow-color);
+}
+
+
+@media (max-width: 480px) {
+    .qr-actions {
+        justify-content: center;
+    }
+
+    .btn-secondary {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
 }
 
 body { 
@@ -36,17 +70,11 @@ body {
     padding: 1rem;
 }
 
-.hidden {
-    display: none !important;
-}
-
-/* ====================
-   LAYOUT PRINCIPAL
-   ==================== */
 .container { 
     width: 100%;
     max-width: 1200px;
     padding: clamp(1rem, 3vw, 2rem);
+    position: relative;
 }
 
 .logo { 
@@ -54,9 +82,11 @@ body {
     color: var(--primary-color);
     margin-bottom: clamp(1.5rem, 4vw, 2rem);
     font-size: clamp(2rem, 6vw, 2.8rem);
+    letter-spacing: clamp(2px, 0.5vw, 4px);
     text-shadow: 0 0 10px var(--glow-color);
     animation: pulseGlow 2s infinite;
     position: relative;
+    z-index: 1;
 }
 
 .logo::after {
@@ -76,18 +106,17 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: clamp(1rem, 3vw, 2rem);
     margin-top: clamp(1rem, 3vw, 2rem);
+    position: relative;
+    z-index: 1;
 }
 
-/* ====================
-   COMPONENTES
-   ==================== */
 .section { 
     background: var(--section-bg);
-    border-radius: var(--border-radius);
+    border-radius: 15px;
     padding: clamp(1rem, 2.5vw, 2rem);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
-    transition: transform var(--transition-speed) ease;
+    transition: transform 0.3s ease;
 }
 
 .section:hover {
@@ -99,18 +128,25 @@ body {
     margin-bottom: clamp(1rem, 2vw, 1.5rem);
 }
 
-/* ====================
-   FORMULARIOS
-   ==================== */
+.input-group .icon { 
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(160, 160, 160, 0.6);
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    transition: color 0.3s ease;
+}
+
 #passphrase, #message-input { 
     width: 100%;
-    padding: clamp(0.8rem, 2vw, 1rem);
+    padding: clamp(0.8rem, 2vw, 1rem) clamp(2rem, 4vw, 2.5rem) clamp(0.8rem, 2vw, 1rem) clamp(0.8rem, 2vw, 1rem);
     border: 2px solid transparent;
-    border-radius: var(--border-radius);
+    border-radius: 10px;
     background: rgba(58, 58, 58, 0.8);
     color: var(--text-color);
     font-size: clamp(0.9rem, 2vw, 1rem);
-    transition: all var(--transition-speed) ease;
+    transition: all 0.3s ease;
 }
 
 #message-input { 
@@ -125,109 +161,131 @@ body {
     box-shadow: 0 0 12px var(--glow-color);
 }
 
-/* ====================
-   BOTONES
-   ==================== */
-.btn {
-    padding: clamp(0.6rem, 1.5vw, 0.8rem);
-    border-radius: var(--border-radius);
-    font-weight: 500;
+.btn-primary { 
+    width: 100%;
+    padding: clamp(0.8rem, 2.5vw, 1.2rem);
+    background: var(--primary-color);
+    border: none;
+    border-radius: 10px;
+    color: #1a1a1a;
+    font-weight: 600;
     cursor: pointer;
-    transition: all var(--transition-speed) ease;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
     justify-content: center;
-}
-
-.btn-primary {
-    background: var(--primary-color);
-    color: #1a1a1a;
-    border: none;
+    gap: clamp(0.5rem, 1vw, 0.8rem);
     font-size: clamp(0.9rem, 2.5vw, 1.1rem);
     position: relative;
     overflow: hidden;
 }
 
-.btn-primary:hover {
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-primary:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-primary:hover { 
     background: #00b386;
     transform: translateY(-2px);
     box-shadow: 0 4px 16px var(--glow-color);
 }
 
-.btn-secondary {
-    background: var(--secondary-color);
-    border: 1px solid var(--primary-color);
-    color: var(--primary-color);
-}
-
-.btn-secondary:hover {
-    background: var(--primary-color);
-    color: #1a1a1a;
-    box-shadow: 0 2px 8px var(--glow-color);
-}
-
-/* ====================
-   QR CONTAINER
-   ==================== */
 #qr-container { 
     margin-top: clamp(1rem, 3vw, 2rem);
     text-align: center;
     animation: fadeIn 0.5s ease-out;
 }
 
+#qr-container.hidden { 
+    display: none; 
+}
+
+.qr-header { 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: clamp(1rem, 2vw, 1.5rem);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
 #qr-canvas { 
-    width: clamp(150px, 50%, 300px);
-    height: clamp(150px, 50%, 300px);
+    width: clamp(150px, 50%, 300px); /* Tamaño controlado y proporcional */
+    height: clamp(150px, 50%, 300px); /* Proporción cuadrada */
+    max-width: 100%; /* No desborda el contenedor */
     background: white;
-    padding: clamp(0.5rem, 1vw, 0.8rem);
-    border-radius: var(--border-radius);
+    padding: clamp(0.5rem, 1vw, 0.8rem); /* Padding más pequeño */
+    border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     border: 2px solid var(--primary-color);
+    transition: transform 0.3s ease;
     margin: 0 auto;
+    display: block;
     image-rendering: pixelated;
-    transition: transform var(--transition-speed) ease;
 }
 
 #qr-canvas:hover {
     transform: scale(1.02);
 }
 
-/* ====================
-   TELEGRAM COMPONENTS
-   ==================== */
-#telegram-share {
-    background: var(--primary-color);
-    color: #1a1a1a;
-    border: 2px solid transparent;
-    margin: 1rem auto;
-    width: fit-content;
+.upload-container { 
+    margin-bottom: clamp(1rem, 3vw, 2rem); 
 }
 
-#telegram-share:hover {
-    background: #00b386;
+.file-upload { 
+    display: block;
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: clamp(1rem, 3vw, 2rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: radial-gradient(circle, rgba(0, 204, 153, 0.1) 0%, transparent 70%);
+}
+
+.file-upload:hover { 
     border-color: var(--primary-color);
+    background: radial-gradient(circle, rgba(0, 204, 153, 0.2) 0%, transparent 70%);
 }
 
-#telegram-hint {
-    color: var(--text-color);
-    background: rgba(0, 204, 153, 0.1);
-    border: 1px solid var(--primary-color);
-    margin: 1rem auto;
-    max-width: 80%;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all var(--transition-speed) ease;
+.upload-content i { 
+    font-size: clamp(2rem, 5vw, 2.5rem);
+    margin-bottom: clamp(0.5rem, 2vw, 1rem);
+    color: var(--primary-color);
+    animation: float 3s ease-in-out infinite;
 }
 
-#telegram-hint.visible {
-    opacity: 1;
-    transform: translateY(0);
+.upload-content p {
+    font-size: clamp(0.8rem, 2vw, 1rem);
 }
 
-/* ====================
-   ANIMACIONES
-   ==================== */
+.message-container { 
+    margin-top: clamp(1rem, 3vw, 2rem);
+    background: rgba(30, 30, 30, 0.6);
+    border-radius: 10px;
+    padding: clamp(1rem, 2vw, 1.5rem);
+    min-height: clamp(150px, 40vw, 200px);
+    border: 1px solid rgba(0, 204, 153, 0.1);
+}
+
+.message-placeholder {
+    font-size: clamp(0.9rem, 2vw, 1rem);
+}
+
+/* Animaciones */
 @keyframes pulseGlow {
     0% { text-shadow: 0 0 10px var(--glow-color); }
     50% { text-shadow: 0 0 20px var(--glow-color), 0 0 30px var(--glow-color); }
@@ -240,38 +298,94 @@ body {
     100% { width: 60%; opacity: 0.7; }
 }
 
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ====================
-   MEDIA QUERIES
-   ==================== */
+/* Media Queries para Responsividad */
 @media (max-width: 768px) {
+    body {
+        padding: 0.5rem;
+    }
+
     .main-grid {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
-    
+
+    .section {
+        padding: 1.5rem;
+    }
+
+    .logo {
+        font-size: 2rem;
+    }
+
+    .btn-primary {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
     #qr-canvas {
-        width: clamp(150px, 70%, 250px);
+        width: clamp(150px, 70%, 250px); /* Ajustado para tablets */
         height: clamp(150px, 70%, 250px);
+    }
+
+    .upload-content i {
+        font-size: 2rem;
     }
 }
 
 @media (max-width: 480px) {
-    #telegram-share {
-        width: 100%;
+    .container {
+        padding: 0.5rem;
     }
-    
+
+    .logo {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .main-grid {
+        gap: 1rem;
+    }
+
+    .section {
+        padding: 1rem;
+    }
+
+    #passphrase, #message-input {
+        padding: 0.8rem 2rem 0.8rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .qr-header {
+        flex-direction: column;
+        align-items: center;
+    }
+
     #qr-canvas {
-        width: clamp(120px, 80%, 200px);
+        width: clamp(120px, 80%, 200px); /* Ajustado para móviles pequeños */
         height: clamp(120px, 80%, 200px);
     }
-    
-    #telegram-hint {
-        font-size: 0.8rem;
-        padding: 8px;
-        max-width: 90%;
+
+    .upload-content i {
+        font-size: 1.8rem;
+    }
+
+    .message-container {
+        min-height: 120px;
     }
 }
