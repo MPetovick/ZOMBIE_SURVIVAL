@@ -32,9 +32,17 @@
                             <button id="download-button" class="btn-secondary">
                                 <i class="fas fa-download"></i> Download
                             </button>
+                            <!-- Botón de Telegram añadido -->
+                            <button id="telegram-share" class="btn-secondary hidden">
+                                <i class="fas fa-share"></i> Share via Telegram
+                            </button>
                         </div>
                     </div>
                     <canvas id="qr-canvas"></canvas>
+                    <!-- Mensaje para Telegram añadido -->
+                    <div id="telegram-hint" class="hidden">
+                        <p>En Telegram: Mantén presionado el QR para guardar</p>
+                    </div>
                 </div>
             </div>
 
@@ -63,10 +71,10 @@
     </div>
 
     <!-- Required Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
