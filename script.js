@@ -188,15 +188,27 @@ const handlers = {
         ui.resetButton(elements.decodeButton, `<i class="fas fa-unlock"></i> Decrypt Message`);
     },
 
-    handleDownload: () => {
+    handleDownload: async () => {
         const qrDataURL = elements.qrCanvas.toDataURL('image/png', 1.0);
+        
+        // Convertir la URL de datos a un blob
+        const response = await fetch(qrDataURL);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
 
         // Detectar si estamos en una MiniApp de Telegram
         if (window.Telegram && window.Telegram.WebApp) {
-            // En MiniApp: Abrir la URL de datos en el navegador externo
-            window.Telegram.WebApp.openLink(qrDataURL);
-            // Nota: El usuario deberá guardar la imagen manualmente desde el navegador
-            alert('Image opened in your browser. Please save it manually.');
+            try {
+                // Abrir el blob URL en el navegador externo
+                window.Telegram.WebApp.openLink(blobUrl);
+                alert('Image opened in your browser. Please save it manually (e.g., long press and select "Save Image").');
+            } catch (error) {
+                console.error('Failed to open link in MiniApp:', error);
+                alert('Could not open the image. Please try downloading it from a standard browser.');
+            } finally {
+                // Limpiar la URL del blob después de un breve retraso
+                setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+            }
         } else {
             // En navegador estándar: Descarga directa
             const link = document.createElement('a');
