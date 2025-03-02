@@ -7,8 +7,14 @@ const elements = {
     qrUpload: document.getElementById('qr-upload'),
     decodeButton: document.getElementById('decode-button'),
     downloadButton: document.getElementById('download-button'),
-    qrContainer: document.getElementById('qr-container')
+    qrContainer: document.getElementById('qr-container'),
+    cameraButton: document.getElementById('camera-button'),
+    cameraFeed: document.getElementById('camera-feed'),
+    stopCameraButton: document.getElementById('stop-camera-button'),
+    cameraPreview: document.getElementById('camera-preview')
 };
+
+let stream = null;
 
 const cryptoUtils = {
     stringToArrayBuffer: str => new TextEncoder().encode(str),
@@ -99,49 +105,41 @@ const ui = {
     },
 
     generateQR: async (data) => {
-    return new Promise((resolve, reject) => {
-        QRCode.toCanvas(elements.qrCanvas, data, {
-            width: 250,
-            margin: 2,
-            color: {
-                dark: '#000000',
-                light: '#ffffff'
-            }
-        }, (error) => {
-            if (error) {
-                reject(error);
-            } else {
-                const ctx = elements.qrCanvas.getContext('2d');
+        return new Promise((resolve, reject) => {
+            QRCode.toCanvas(elements.qrCanvas, data, {
+                width: 250,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
+            }, (error) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    const ctx = elements.qrCanvas.getContext('2d');
+                    const circleRadius = 40;
+                    const circleX = 125;
+                    const circleY = 125;
 
-                // Tamaño del círculo de la marca de agua
-                const circleRadius = 40; // Radio del círculo
-                const circleX = 125; // Centro horizontal del canvas (250px / 2)
-                const circleY = 125; // Centro vertical del canvas (250px / 2)
+                    ctx.beginPath();
+                    ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'var(--primary-color)';
+                    ctx.fill();
 
-                // Dibujar el círculo de fondo
-                ctx.beginPath();
-                ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
-                ctx.fillStyle = 'var(--primary-color)'; // Usar el color verde de tu CSS
-                ctx.fill();
+                    ctx.fillStyle = '#00cc99';
+                    ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('HUSH', circleX, circleY - 10);
+                    ctx.fillText('BOX', circleX, circleY + 15);
 
-                // Configurar el estilo del texto
-                ctx.fillStyle = '#00cc99'; // Texto en negro
-                ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                // Texto "HUSH" arriba
-                ctx.fillText('HUSH', circleX, circleY - 10); // 10px arriba del centro
-
-                // Texto "BOX" debajo
-                ctx.fillText('BOX', circleX, circleY + 15); // 15px debajo del centro
-
-                elements.qrContainer.classList.remove('hidden');
-                resolve();
-            }
+                    elements.qrContainer.classList.remove('hidden');
+                    resolve();
+                }
+            });
         });
-    });
-},
+    },
 
     showLoader: (button, text = 'Processing...') => {
         button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
@@ -151,6 +149,57 @@ const ui = {
     resetButton: (button, originalHTML) => {
         button.innerHTML = originalHTML;
         button.disabled = false;
+    }
+};
+
+const cameraUtils = {
+    startCamera: async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            elements.cameraFeed.srcObject = stream;
+            elements.cameraPreview.classList.remove('hidden');
+            elements.cameraButton.disabled = true;
+            cameraUtils.scanQRFromCamera();
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            alert('Unable to access camera. Please ensure you have granted permission.');
+        }
+    },
+
+    stopCamera: () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            elements.cameraFeed.srcObject = null;
+            elements.cameraPreview.classList.add('hidden');
+            elements.cameraButton.disabled = false;
+        }
+    },
+
+    scanQRFromCamera: () => {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+
+        const scanFrame = () => {
+            if (elements.cameraFeed.readyState === elements.cameraFeed.HAVE_ENOUGH_DATA) {
+                canvas.width = elements.cameraFeed.videoWidth;
+                canvas.height = elements.cameraFeed.videoHeight;
+                context.drawImage(elements.cameraFeed, 0, 0, canvas.width, canvas.height);
+
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+
+                if (qrCode) {
+                    cameraUtils.stopCamera();
+                    handlers.handleDecryptFromQR(qrCode.data);
+                } else {
+                    requestAnimationFrame(scanFrame);
+                }
+            } else {
+                requestAnimationFrame(scanFrame);
+            }
+        };
+
+        scanFrame();
     }
 };
 
@@ -228,6 +277,29 @@ const handlers = {
         ui.resetButton(elements.decodeButton, `<i class="fas fa-unlock"></i> Decrypt Message`);
     },
 
+    handleDecryptFromQR: async (qrData) => {
+        const passphrase = elements.passphraseInput.value.trim();
+
+        if (!passphrase) {
+            alert('Please enter passphrase');
+            return;
+        }
+
+        ui.showLoader(elements.decodeButton, 'Decrypting...');
+
+        try {
+            const decrypted = await cryptoUtils.decryptMessage(qrData, passphrase);
+            ui.displayMessage(decrypted);
+        } catch (error) {
+            console.error('Decryption error:', error);
+            alert(error.message.includes('decrypt') ? 
+                'Decryption failed. Wrong passphrase?' : 
+                error.message);
+        }
+
+        ui.resetButton(elements.decodeButton, `<i class="fas fa-unlock"></i> Decrypt Message`);
+    },
+
     handleDownload: () => {
         const link = document.createElement('a');
         link.download = 'hushbox-qr.png';
@@ -239,5 +311,8 @@ const handlers = {
 elements.sendButton.addEventListener('click', handlers.handleEncrypt);
 elements.decodeButton.addEventListener('click', handlers.handleDecrypt);
 elements.downloadButton.addEventListener('click', handlers.handleDownload);
+elements.cameraButton.addEventListener('click', cameraUtils.startCamera);
+elements.stopCameraButton.addEventListener('click', cameraUtils.stopCamera);
 
 elements.qrContainer.classList.add('hidden');
+elements.cameraPreview.classList.add('hidden');
