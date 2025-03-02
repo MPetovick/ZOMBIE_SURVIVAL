@@ -189,7 +189,7 @@ const cameraUtils = {
                 const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
 
                 if (qrCode) {
-                    cameraUtils.stopCamera();
+                    cameraUtils.stopCamera(); // Cerrar la cámara automáticamente
                     handlers.handleDecryptFromQR(qrCode.data);
                 } else {
                     requestAnimationFrame(scanFrame);
