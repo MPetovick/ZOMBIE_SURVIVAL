@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -48,9 +47,18 @@
                         </div>
                     </label>
                 </div>
+                <button id="camera-button" class="btn-primary">
+                    <i class="fas fa-camera"></i> Scan QR with Camera
+                </button>
                 <button id="decode-button" class="btn-primary">
                     <i class="fas fa-unlock"></i> Decrypt Message
                 </button>
+                <div id="camera-preview" class="hidden">
+                    <video id="camera-feed" autoplay playsinline></video>
+                    <button id="stop-camera-button" class="btn-secondary">
+                        <i class="fas fa-stop"></i> Stop Camera
+                    </button>
+                </div>
                 <div id="messages" class="message-container">
                     <div class="message-placeholder">
                         <i class="fas fa-comments"></i>
