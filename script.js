@@ -86,6 +86,7 @@ const ui = {
         elements.messagesDiv.appendChild(messageEl);
         elements.messagesDiv.scrollTop = elements.messagesDiv.scrollHeight;
     },
+    
     generateQR: async (data) => {
     return new Promise((resolve, reject) => {
         QRCode.toCanvas(elements.qrCanvas, data, {
@@ -101,35 +102,28 @@ const ui = {
             } else {
                 const ctx = elements.qrCanvas.getContext('2d');
 
-                // Configurar estilo común
-                ctx.fillStyle = '#00cc99'; // --primary-color
-                ctx.strokeStyle = '#000000'; // Contorno negro
-                ctx.lineWidth = 2;
-                ctx.shadowColor = 'rgba(0, 204, 153, 0.8)'; // --glow-color
-                ctx.shadowBlur = 15;
-                ctx.textAlign = 'center';
+                // Tamaño del círculo de la marca de agua
+                const circleRadius = 40; // Radio del círculo
+                const circleX = 125; // Centro horizontal del canvas (250px / 2)
+                const circleY = 125; // Centro vertical del canvas (250px / 2)
 
-                // Fondo circular para la marca de agua
+                // Dibujar el círculo de fondo
                 ctx.beginPath();
-                ctx.arc(125, 125, 50, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                ctx.arc(circleX, circleY, circleRadius, 0, Math.PI * 2);
+                ctx.fillStyle = 'var(--primary-color)'; // Usar el color verde de tu CSS
                 ctx.fill();
-                ctx.stroke();
+
+                // Configurar el estilo del texto
+                ctx.fillStyle = '#000000'; // Texto en negro
+                ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
 
                 // Texto "HUSH" arriba
-                ctx.font = 'bold 24px "Segoe UI", system-ui, sans-serif';
-                ctx.textBaseline = 'bottom';
-                ctx.strokeText('HUSH', 125, 115);
-                ctx.fillText('HUSH', 125, 115);
+                ctx.fillText('HUSH', circleX, circleY - 10); // 10px arriba del centro
 
                 // Texto "BOX" debajo
-                ctx.font = 'bold 32px "Segoe UI", system-ui, sans-serif';
-                ctx.textBaseline = 'top';
-                ctx.strokeText('BOX', 125, 115);
-                ctx.fillText('BOX', 125, 115);
-
-                // Limpiar sombra
-                ctx.shadowBlur = 0;
+                ctx.fillText('BOX', circleX, circleY + 15); // 15px debajo del centro
 
                 elements.qrContainer.classList.remove('hidden');
                 resolve();
