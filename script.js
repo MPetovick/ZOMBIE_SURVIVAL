@@ -114,7 +114,7 @@ const ui = {
                 ctx.fill();
 
                 // Configurar el estilo del texto
-                ctx.fillStyle = '#000000'; // Texto en negro
+                ctx.fillStyle = '#00cc99'; // Texto en negro
                 ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
