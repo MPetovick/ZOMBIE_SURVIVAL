@@ -161,6 +161,23 @@ body {
     box-shadow: 0 0 12px var(--glow-color);
 }
 
+#camera-preview {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+#camera-feed {
+    width: 100%;
+    max-width: 300px;
+    border-radius: 12px;
+    border: 2px solid var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+#stop-camera-button {
+    margin-top: 1rem;
+}
+
 .btn-primary { 
     width: 100%;
     padding: clamp(0.8rem, 2.5vw, 1.2rem);
