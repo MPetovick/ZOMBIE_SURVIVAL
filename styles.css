@@ -161,6 +161,16 @@ body {
     box-shadow: 0 0 12px var(--glow-color);
 }
 
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.button-group .btn-primary {
+    flex: 1;
+}
+
 #camera-preview {
     margin-top: 1rem;
     text-align: center;
@@ -172,10 +182,6 @@ body {
     border-radius: 12px;
     border: 2px solid var(--primary-color);
     margin-bottom: 1rem;
-}
-
-#stop-camera-button {
-    margin-top: 1rem;
 }
 
 .btn-primary { 
