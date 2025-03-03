@@ -16,48 +16,81 @@ const elements = {
 
 let stream = null;
 
+// Añadir estas dependencias en tu HTML:
+// <script src="https://cdn.jsdelivr.net/npm/argon2-browser@1.18.0/dist/argon2-bundle.min.js"></script>
+// <script src="https://cdn.jsdelivr.net/npm/pqcrypto.js@0.8.0/dist/kyber.js"></script>
+
 const cryptoUtils = {
     stringToArrayBuffer: str => new TextEncoder().encode(str),
 
     arrayBufferToString: buffer => new TextDecoder().decode(buffer),
 
     deriveKey: async (passphrase, salt) => {
-        const keyMaterial = await crypto.subtle.importKey(
-            'raw',
-            cryptoUtils.stringToArrayBuffer(passphrase),
-            { name: 'PBKDF2' },
-            false,
-            ['deriveKey']
-        );
+        try {
+            const { hash } = await argon2.hash({
+                pass: passphrase,
+                salt: salt,
+                time: 3,       // Iteraciones
+                mem: 65536,    // 64MB de memoria
+                hashLen: 32,   // Longitud de clave AES-256
+                parallelism: 4,
+                type: argon2.ArgonType.Argon2id
+            });
 
-        return crypto.subtle.deriveKey(
-            {
-                name: 'PBKDF2',
-                salt,
-                iterations: 100000,
-                hash: 'SHA-256'
-            },
-            keyMaterial,
-            { name: 'AES-GCM', length: 256 },
-            true,
-            ['encrypt', 'decrypt']
-        );
+            return crypto.subtle.importKey(
+                'raw',
+                hash,
+                { name: 'AES-GCM' },
+                false,
+                ['encrypt', 'decrypt']
+            );
+        } catch (error) {
+            throw new Error('Key derivation failed: ' + error.message);
+        }
+    },
+
+    generatePostQuantumKeyPair: async () => {
+        const keyPair = await pqcrypto.keyPair();
+        return {
+            publicKey: keyPair.publicKey,
+            privateKey: keyPair.privateKey
+        };
     },
 
     encryptMessage: async (message, passphrase) => {
         try {
+            // Generar parámetros de encapsulamiento cuántico
+            const kyberKeys = await pqcrypto.keyPair();
+            const encapsulated = await pqcrypto.encapsulate(kyberKeys.publicKey);
+
+            // Combinar claves cuánticas con derivación Argon2
             const compressed = pako.deflate(cryptoUtils.stringToArrayBuffer(message));
             const salt = crypto.getRandomValues(new Uint8Array(16));
             const iv = crypto.getRandomValues(new Uint8Array(12));
-            const key = await cryptoUtils.deriveKey(passphrase, salt);
-
+            
+            // Mezcla de claves híbrida (cuántica + clásica)
+            const combinedSecret = new Uint8Array([
+                ...new TextEncoder().encode(passphrase),
+                ...encapsulated.sharedSecret
+            ]);
+            
+            const key = await cryptoUtils.deriveKey(combinedSecret, salt);
+            
             const encrypted = await crypto.subtle.encrypt(
                 { name: 'AES-GCM', iv },
                 key,
                 compressed
             );
 
-            const combined = new Uint8Array([...salt, ...iv, ...new Uint8Array(encrypted)]);
+            // Incluir parámetros cuánticos en el payload
+            const combined = new Uint8Array([
+                ...salt,
+                ...iv,
+                ...kyberKeys.publicKey,
+                ...encapsulated.ciphertext,
+                ...new Uint8Array(encrypted)
+            ]);
+
             return btoa(String.fromCharCode(...combined));
         } catch (error) {
             throw new Error('Encryption failed: ' + error.message);
@@ -67,16 +100,29 @@ const cryptoUtils = {
     decryptMessage: async (encryptedBase64, passphrase) => {
         try {
             const encryptedData = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0));
+            
+            // Extraer componentes del payload
             const salt = encryptedData.slice(0, 16);
             const iv = encryptedData.slice(16, 28);
-            const ciphertext = encryptedData.slice(28);
+            const publicKey = encryptedData.slice(28, 28 + 1568); // Tamaño clave pública Kyber-768
+            const ciphertext = encryptedData.slice(28 + 1568, 28 + 1568 + 1088); // Ciphertext Kyber
+            const aesCiphertext = encryptedData.slice(28 + 1568 + 1088);
 
-            const key = await cryptoUtils.deriveKey(passphrase, salt);
+            // Desencapsular clave cuántica
+            const sharedSecret = await pqcrypto.decapsulate(ciphertext, privateKey);
+            
+            // Combinar secretos
+            const combinedSecret = new Uint8Array([
+                ...new TextEncoder().encode(passphrase),
+                ...sharedSecret
+            ]);
+
+            const key = await cryptoUtils.deriveKey(combinedSecret, salt);
 
             const decrypted = await crypto.subtle.decrypt(
                 { name: 'AES-GCM', iv },
                 key,
-                ciphertext
+                aesCiphertext
             );
 
             const decompressed = pako.inflate(new Uint8Array(decrypted));
@@ -87,6 +133,7 @@ const cryptoUtils = {
     }
 };
 
+// El resto del código permanece similar con ajustes menores en los handlers
 const ui = {
     displayMessage: (content, isSent = false) => {
         const messageEl = document.createElement('div');
