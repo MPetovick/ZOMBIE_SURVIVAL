@@ -4,85 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#00cc99">
+    <meta name="description" content="HushBox - Post-Quantum Secure Messenger">
     <title>HushBox - Post-Quantum Secure Messenger</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
 </head>
 <body>
     <div class="container">
         <h1 class="logo">HUSHBOX</h1>
-        <div class="main-grid">
+        <div class="main-grid" role="main">
             <!-- Encryption Section -->
-            <div class="section encrypt-section">
+            <section class="section encrypt-section" aria-label="Message Encryption">
                 <div class="input-group">
-                    <input type="password" id="passphrase" placeholder="Enter your quantum-safe passphrase" required>
-                    <i class="fas fa-key icon"></i>
-                    <div class="password-strength"></div>
+                    <input type="password" id="passphrase" placeholder="Enter your quantum-safe passphrase" required aria-label="Passphrase">
+                    <i class="fas fa-key icon" aria-hidden="true"></i>
+                    <div class="password-strength" aria-live="polite"></div>
                 </div>
                 <div class="input-group">
-                    <textarea id="message-input" placeholder="Type your secret message..." rows="4"></textarea>
-                    <i class="fas fa-comment-dots icon"></i>
+                    <textarea id="message-input" placeholder="Type your secret message..." rows="4" aria-label="Message Input"></textarea>
+                    <i class="fas fa-comment-dots icon" aria-hidden="true"></i>
                 </div>
-                <button id="send-button" class="btn-primary">
-                    <i class="fas fa-lock"></i> Quantum Encrypt & QR
+                <button id="send-button" class="btn-primary" aria-label="Encrypt and Generate QR">
+                    <i class="fas fa-lock" aria-hidden="true"></i> Quantum Encrypt & QR
                 </button>
-                <div id="qr-container" class="hidden">
+                <div id="qr-container" class="hidden" aria-hidden="true">
                     <div class="qr-header">
-                        <h3><i class="fas fa-qrcode"></i> Quantum-Safe QR</h3>
-                        <button id="download-button" class="btn-secondary">
-                            <i class="fas fa-download"></i> Download
+                        <h3><i class="fas fa-qrcode" aria-hidden="true"></i> Quantum-Safe QR</h3>
+                        <button id="download-button" class="btn-secondary" aria-label="Download QR Code">
+                            <i class="fas fa-download" aria-hidden="true"></i> Download
                         </button>
                     </div>
-                    <canvas id="qr-canvas"></canvas>
+                    <canvas id="qr-canvas" aria-label="Generated QR Code"></canvas>
                 </div>
-            </div>
+            </section>
 
             <!-- Decryption Section -->
-            <div class="section decrypt-section">
+            <section class="section decrypt-section" aria-label="Message Decryption">
                 <div class="upload-container">
-                    <label class="file-upload">
+                    <label class="file-upload" aria-label="Upload QR Code">
                         <input type="file" id="qr-upload" accept="image/*" hidden>
                         <div class="upload-content">
-                            <i class="fas fa-cloud-upload-alt"></i>
+                            <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
                             <p>Drop or select QR file</p>
                         </div>
                     </label>
                 </div>
                 <div class="button-group">
-                    <button id="decode-button" class="btn-primary">
-                        <i class="fas fa-unlock"></i> Decrypt Message
+                    <button id="decode-button" class="btn-primary" aria-label="Decrypt Message">
+                        <i class="fas fa-unlock" aria-hidden="true"></i> Decrypt Message
                     </button>
-                    <button id="camera-button" class="btn-primary">
-                        <i class="fas fa-camera"></i> Live Scan
-                    </button>
-                </div>
-                <div id="camera-preview" class="hidden">
-                    <video id="camera-feed" autoplay playsinline></video>
-                    <button id="stop-camera" class="btn-secondary">
-                        <i class="fas fa-video-slash"></i> Stop
+                    <button id="camera-button" class="btn-primary" aria-label="Scan with Camera">
+                        <i class="fas fa-camera" aria-hidden="true"></i> Live Scan
                     </button>
                 </div>
-                <div id="messages" class="message-container">
+                <div id="camera-preview" class="hidden" aria-hidden="true">
+                    <video id="camera-feed" autoplay playsinline muted aria-label="Camera Feed"></video>
+                    <button id="stop-camera" class="btn-secondary" aria-label="Stop Camera">
+                        <i class="fas fa-video-slash" aria-hidden="true"></i> Stop
+                    </button>
+                </div>
+                <div id="messages" class="message-container" aria-live="polite">
                     <div class="message-placeholder">
-                        <i class="fas fa-comments"></i>
+                        <i class="fas fa-comments" aria-hidden="true"></i>
                         <p>Decrypted messages appear here</p>
                     </div>
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 
-    <!-- External Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/webcrypto-shim@1.1.0/dist/webcrypto-shim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pqcrypto.js@0.8.0/dist/kyber.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/argon2-browser@1.18.0/dist/argon2-bundle.min.js"></script>
-    
-    <!-- Main Application Script -->
+    <script src="https://cdn.jsdelivr.net/npm/webcrypto-shim@1.1.0/dist/webcrypto-shim.min.js" integrity="sha512-..." crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js" integrity="sha512-..." crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pqcrypto.js@0.8.0/dist/kyber.js" integrity="sha512-..." crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js" integrity="sha512-..." crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js" integrity="sha512-..." crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js" integrity="sha512-..." crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/argon2-browser@1.18.0/dist/argon2-bundle.min.js" integrity="sha512-..." crossorigin="anonymous"></script>
     <script src="script.js"></script>
 </body>
 </html>
