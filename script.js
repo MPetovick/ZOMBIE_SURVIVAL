@@ -10,272 +10,136 @@ const elements = {
     downloadButton: document.getElementById('download-button'),
     messagesDiv: document.getElementById('messages'),
     cameraFeed: document.getElementById('camera-feed'),
-    qrContainer: document.getElementById('qr-container'),
-    cameraPreview: document.getElementById('camera-preview')
+    qrContainer: document.getElementById('qr-container')
 };
 
-class PostQuantumCrypto {
-    static async deriveKey(passphrase, salt) {
+class CryptoHandler {
+    static async encryptMessage(message, passphrase) {
         try {
-            const { hash } = await argon2.hash({
-                pass: passphrase,
-                salt,
-                time: 3,
-                mem: 64 * 1024,
-                hashLen: 32,
-                parallelism: 2,
-                type: argon2.ArgonType.Argon2id
-            });
-            
-            return await crypto.subtle.importKey(
-                'raw',
-                hash,
-                { name: 'AES-GCM' },
-                false,
-                ['encrypt', 'decrypt']
-            );
-        } catch (error) {
-            throw new Error(`Key derivation failed: ${error.message}`);
-        }
-    }
-
-    static async generateKeyPair() {
-        return await pqcrypto.keyPair();
-    }
-
-    static async hybridEncrypt(message, passphrase) {
-        try {
-            const { publicKey, privateKey } = await this.generateKeyPair();
-            const { ciphertext, sharedSecret } = await pqcrypto.encapsulate(publicKey);
-            const compressed = pako.deflate(message);
+            const messageBytes = new TextEncoder().encode(message);
             const salt = crypto.getRandomValues(new Uint8Array(16));
             const iv = crypto.getRandomValues(new Uint8Array(12));
-            const combinedSecret = new TextEncoder().encode(`${passphrase}${sharedSecret}`);
+            
+            // Generar par de claves Kyber
+            const kyberKeys = await pqcrypto.keyPair();
+            const encapsulated = await pqcrypto.encapsulate(kyberKeys.publicKey);
+            
+            // Combinar secretos
+            const combinedSecret = new TextEncoder().encode(passphrase + encapsulated.sharedSecret);
+            
+            // Derivar clave AES
             const aesKey = await this.deriveKey(combinedSecret, salt);
             
+            // Comprimir y cifrar
+            const compressed = pako.deflate(messageBytes);
             const encrypted = await crypto.subtle.encrypt(
                 { name: 'AES-GCM', iv },
                 aesKey,
                 compressed
             );
             
+            // Construir payload final
+            const payload = new Uint8Array([
+                ...salt,
+                ...iv,
+                ...kyberKeys.publicKey,
+                ...encapsulated.ciphertext,
+                ...new Uint8Array(encrypted)
+            ]);
+            
             return {
-                data: Uint8Array.from([...salt, ...iv, ...publicKey, ...ciphertext, ...new Uint8Array(encrypted)]),
-                privateKey
+                data: btoa(String.fromCharCode(...payload)),
+                privateKey: kyberKeys.privateKey
             };
         } catch (error) {
-            throw new Error(`Quantum encryption failed: ${error.message}`);
+            throw new Error('Error de cifrado: ' + error.message);
         }
     }
 
-    static async hybridDecrypt(encryptedData, passphrase, privateKey) {
-        try {
-            const salt = encryptedData.slice(0, 16);
-            const iv = encryptedData.slice(16, 28);
-            const publicKey = encryptedData.slice(28, 1596);
-            const ciphertext = encryptedData.slice(1596, 2684);
-            const aesCiphertext = encryptedData.slice(2684);
-            
-            const sharedSecret = await pqcrypto.decapsulate(ciphertext, privateKey);
-            const combinedSecret = new TextEncoder().encode(`${passphrase}${sharedSecret}`);
-            const aesKey = await this.deriveKey(combinedSecret, salt);
-            
-            const decrypted = await crypto.subtle.decrypt(
-                { name: 'AES-GCM', iv },
-                aesKey,
-                aesCiphertext
-            );
-            
-            return pako.inflate(new Uint8Array(decrypted), { to: 'string' });
-        } catch (error) {
-            throw new Error(`Quantum decryption failed: ${error.message}`);
-        }
+    static async deriveKey(secret, salt) {
+        const { hash } = await argon2.hash({
+            pass: secret,
+            salt: salt,
+            time: 3,
+            mem: 65536,
+            hashLen: 32,
+            type: argon2.ArgonType.Argon2id
+        });
+        return crypto.subtle.importKey('raw', hash, 'AES-GCM', false, ['encrypt', 'decrypt']);
     }
 }
 
-class UIHandler {
-    static showLoader(button, text) {
-        button.disabled = true;
-        button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${text}`;
-    }
-
-    static resetButton(button, originalHTML) {
-        button.innerHTML = originalHTML;
-        button.disabled = false;
-    }
-
-    static displayMessage(content, isError = false) {
-        const messageEl = document.createElement('div');
-        messageEl.className = `message ${isError ? 'error' : ''}`;
-        messageEl.innerHTML = `
-            <div class="message-content">${content}</div>
-            <div class="message-time">${new Date().toLocaleTimeString()}</div>
-        `;
-        elements.messagesDiv.innerHTML = '';
-        elements.messagesDiv.appendChild(messageEl);
-        elements.messagesDiv.scrollTop = elements.messagesDiv.scrollHeight;
-    }
-
+class QRManager {
     static async generateQR(data) {
-        try {
-            await QRCode.toCanvas(elements.qrCanvas, data, {
-                width: 300,
-                margin: 2,
-                color: { dark: '#000000', light: '#ffffff' }
-            });
-        } catch (error) {
-            throw new Error(`QR generation failed: ${error.message}`);
-        }
-    }
-}
-
-class CameraHandler {
-    static stream = null;
-
-    static async startCamera() {
-        try {
-            this.stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: 'environment', width: 640, height: 480 }
-            });
-            elements.cameraFeed.srcObject = this.stream;
-            elements.cameraPreview.classList.remove('hidden');
-            this.scanFrame();
-        } catch (error) {
-            UIHandler.displayMessage(`Camera error: ${error.message}`, true);
-        }
-    }
-
-    static scanFrame() {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        let animationId;
-
-        const processFrame = () => {
-            if (!elements.cameraFeed.srcObject) return;
+        return new Promise((resolve, reject) => {
+            const ctx = elements.qrCanvas.getContext('2d');
+            ctx.clearRect(0, 0, 300, 300);
             
-            if (elements.cameraFeed.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA) {
-                canvas.width = elements.cameraFeed.videoWidth;
-                canvas.height = elements.cameraFeed.videoHeight;
-                context.drawImage(elements.cameraFeed, 0, 0);
+            QRCode.toCanvas(elements.qrCanvas, data, {
+                width: 250,
+                margin: 2,
+                color: { dark: '#000', light: '#fff' },
+                errorCorrectionLevel: 'H'
+            }, (error) => {
+                if (error) return reject(error);
                 
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+                // Agregar marca de agua
+                ctx.fillStyle = '#00cc99';
+                ctx.beginPath();
+                ctx.arc(150, 150, 40, 0, Math.PI * 2);
+                ctx.fill();
                 
-                if (qrCode) {
-                    this.handleQR(qrCode.data);
-                    return;
-                }
-            }
-            animationId = requestAnimationFrame(processFrame);
-        };
-
-        processFrame();
-        return () => cancelAnimationFrame(animationId);
-    }
-
-    static async handleQR(data) {
-        try {
-            const encryptedData = Uint8Array.from(atob(data), c => c.charCodeAt(0));
-            const decrypted = await PostQuantumCrypto.hybridDecrypt(
-                encryptedData,
-                elements.passphraseInput.value,
-                null // Note: Private key handling needs to be implemented
-            );
-            UIHandler.displayMessage(decrypted);
-            this.stopCamera();
-        } catch (error) {
-            UIHandler.displayMessage(`Decryption failed: ${error.message}`, true);
-        }
-    }
-
-    static stopCamera() {
-        if (this.stream) {
-            this.stream.getTracks().forEach(track => track.stop());
-            this.stream = null;
-            elements.cameraPreview.classList.add('hidden');
-        }
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('HUSH', 150, 145);
+                ctx.fillText('BOX', 150, 165);
+                
+                resolve();
+            });
+        });
     }
 }
 
-// Event Handlers with Debouncing
-const debounce = (func, wait) => {
-    let timeout;
-    return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func(...args), wait);
-    };
-};
-
+// Event Handlers
 elements.sendButton.addEventListener('click', async () => {
-    if (!elements.messageInput.value || !elements.passphraseInput.value) {
-        UIHandler.displayMessage('Please enter both passphrase and message', true);
-        return;
-    }
-
-    const originalHTML = elements.sendButton.innerHTML;
-    UIHandler.showLoader(elements.sendButton, 'Quantum Encrypting...');
-    
     try {
-        const message = new TextEncoder().encode(elements.messageInput.value);
-        const { data } = await PostQuantumCrypto.hybridEncrypt(message, elements.passphraseInput.value);
-        const base64Data = btoa(String.fromCharCode(...data));
+        const message = elements.messageInput.value;
+        const passphrase = elements.passphraseInput.value;
         
-        await UIHandler.generateQR(base64Data);
+        if (!message || !passphrase) {
+            throw new Error('Ingresa mensaje y contraseña');
+        }
+        
+        elements.sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cifrando...';
+        elements.sendButton.disabled = true;
+        
+        const { data } = await CryptoHandler.encryptMessage(message, passphrase);
+        await QRManager.generateQR(data);
+        
         elements.qrContainer.classList.remove('hidden');
         elements.messageInput.value = '';
     } catch (error) {
-        UIHandler.displayMessage(`Encryption error: ${error.message}`, true);
+        alert(error.message);
     } finally {
-        UIHandler.resetButton(elements.sendButton, originalHTML);
+        elements.sendButton.innerHTML = '<i class="fas fa-lock"></i> Cifrar y Generar QR';
+        elements.sendButton.disabled = false;
     }
 });
-
-elements.decodeButton.addEventListener('click', debounce(async () => {
-    const file = elements.qrUpload.files[0];
-    if (!file) {
-        UIHandler.displayMessage('Please upload a QR code image', true);
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-        const img = new Image();
-        img.onload = async () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
-            
-            if (qrCode) {
-                await CameraHandler.handleQR(qrCode.data);
-            } else {
-                UIHandler.displayMessage('No valid QR code found', true);
-            }
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}, 300));
-
-elements.cameraButton.addEventListener('click', () => CameraHandler.startCamera());
-elements.stopCameraButton.addEventListener('click', () => CameraHandler.stopCamera());
 
 elements.downloadButton.addEventListener('click', () => {
     const link = document.createElement('a');
-    link.download = `quantum-safe-qr-${Date.now()}.png`;
-    link.href = elements.qrCanvas.toDataURL('image/png', 1.0);
+    link.download = `hushbox-${Date.now()}.png`;
+    link.href = elements.qrCanvas.toDataURL();
     link.click();
 });
 
-// Initialize
+// Inicialización
 (async () => {
     try {
         await pqcrypto.ready;
-        console.log('Post-quantum crypto initialized');
+        console.log('Sistema post-cuántico listo');
     } catch (error) {
-        UIHandler.displayMessage(`Crypto initialization failed: ${error.message}`, true);
+        console.error('Error inicializando Kyber:', error);
     }
 })();
