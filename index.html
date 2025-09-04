@@ -24,11 +24,12 @@
     
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
     
     html, body, #app {
       height: 100%;
-      margin: 0;
       background: linear-gradient(180deg, #071028 0%, #031124 100%);
       color: var(--text);
       overflow: hidden;
@@ -37,9 +38,10 @@
     #app {
       display: grid;
       grid-template-columns: 1fr 380px;
-      gap: 18px;
-      padding: 18px;
+      gap: 16px;
+      padding: 16px;
       position: relative;
+      height: 100vh;
     }
     
     /* Map container */
@@ -48,7 +50,6 @@
       box-shadow: 0 10px 30px rgba(2, 6, 23, 0.8);
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.05);
-      min-height: 720px;
       position: relative;
       z-index: 1;
     }
@@ -56,40 +57,39 @@
     /* Sidebar */
     .sidebar {
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-      padding: 20px;
+      padding: 16px;
       border-radius: 16px;
       box-shadow: 0 6px 20px rgba(2, 6, 23, 0.6);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.03);
       overflow-y: auto;
-      max-height: 100%;
     }
     
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
+      gap: 10px;
+      margin-bottom: 6px;
     }
     
     .logo {
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       background: var(--accent-gradient);
-      border-radius: 14px;
+      border-radius: 12px;
       display: grid;
       place-items: center;
       font-weight: 800;
-      font-size: 24px;
+      font-size: 20px;
       color: white;
       box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
     }
     
     h1 {
-      font-size: 20px;
+      font-size: 18px;
       margin: 0;
       background: linear-gradient(90deg, #e0e7ff, #c7d2fe);
       -webkit-background-clip: text;
@@ -99,18 +99,18 @@
     
     .muted {
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
     }
     
     .stat-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 8px;
     }
     
     .card {
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
-      padding: 16px;
+      padding: 14px;
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.04);
       box-shadow: 0 4px 12px rgba(2, 6, 23, 0.4);
@@ -120,22 +120,22 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     
     .card-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--muted);
       margin: 0;
     }
     
     .meter {
-      height: 10px;
+      height: 8px;
       background: rgba(255, 255, 255, 0.05);
       border-radius: 8px;
       overflow: hidden;
-      margin: 8px 0;
+      margin: 6px 0;
     }
     
     .meter > i {
@@ -149,23 +149,23 @@
     
     .controls {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
     
     .btn {
       background: transparent;
       border: 1px solid rgba(255, 255, 255, 0.07);
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
       color: var(--text);
-      font-size: 13px;
+      font-size: 12px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
     
     .btn:hover {
@@ -187,36 +187,48 @@
     
     .map-overlay {
       position: absolute;
-      left: 18px;
-      top: 18px;
+      left: 16px;
+      top: 16px;
       z-index: 1000;
       background: rgba(2, 6, 23, 0.7);
-      padding: 12px;
+      padding: 10px;
       border-radius: 12px;
       border: 1px solid rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(10px);
-      min-width: 280px;
+      width: 280px;
+      max-height: 40vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .overlay-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .overlay-content {
+      overflow-y: auto;
+      flex-grow: 1;
     }
     
     .poi-list {
-      max-height: 200px;
-      overflow: auto;
-      padding: 6px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 8px;
+      gap: 6px;
     }
     
     .poi {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px;
+      padding: 8px;
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.03);
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent);
       transition: all 0.2s ease;
+      font-size: 13px;
     }
     
     .poi:hover {
@@ -227,16 +239,16 @@
     .inventory {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
+      gap: 6px;
     }
     
     .item {
-      padding: 10px;
+      padding: 8px;
       background: rgba(255, 255, 255, 0.02);
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.03);
       text-align: center;
-      font-size: 13px;
+      font-size: 12px;
       transition: all 0.2s ease;
       cursor: pointer;
     }
@@ -248,30 +260,31 @@
     
     .item-count {
       font-weight: 700;
-      font-size: 18px;
-      margin-bottom: 4px;
+      font-size: 16px;
+      margin-bottom: 2px;
     }
     
     .hud {
       position: absolute;
-      right: 24px;
-      bottom: 24px;
+      right: 20px;
+      bottom: 20px;
       z-index: 1000;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      max-width: 300px;
+      gap: 8px;
+      max-width: 280px;
     }
     
     .toast {
       background: rgba(6, 18, 38, 0.9);
-      padding: 12px 16px;
+      padding: 10px 14px;
       border-radius: 10px;
       border: 1px solid rgba(255, 255, 255, 0.05);
-      min-width: 240px;
+      min-width: 220px;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
       animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s;
       backdrop-filter: blur(10px);
+      font-size: 13px;
     }
     
     @keyframes toastIn {
@@ -286,12 +299,12 @@
     
     .xpbar {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
     }
     
     .big {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
     }
     
@@ -300,8 +313,8 @@
     }
     
     .resource-icon {
-      font-size: 20px;
-      margin-right: 6px;
+      font-size: 18px;
+      margin-right: 4px;
     }
     
     /* Animations */
@@ -332,9 +345,9 @@
     .modal {
       background: var(--card);
       border-radius: 16px;
-      padding: 20px;
+      padding: 18px;
       width: 90%;
-      max-width: 800px;
+      max-width: 700px;
       max-height: 90vh;
       overflow-y: auto;
       border: 1px solid rgba(255, 255, 255, 0.05);
@@ -343,37 +356,112 @@
     
     /* Quest styles */
     .quest {
-      padding: 12px;
+      padding: 10px;
       border-radius: 10px;
       background: rgba(255, 255, 255, 0.02);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       border-left: 3px solid var(--accent);
+      font-size: 13px;
     }
     
     .quest-completed {
       border-left-color: var(--good);
     }
     
+    /* Collapsible sections */
+    .collapsible {
+      cursor: pointer;
+    }
+    
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    
+    .collapsible.active + .collapsible-content {
+      max-height: 500px;
+    }
+    
+    /* Mini map controls */
+    .mini-controls {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      z-index: 1000;
+      display: flex;
+      gap: 8px;
+      background: rgba(2, 6, 23, 0.7);
+      padding: 8px;
+      border-radius: 10px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
     /* Responsive */
     @media (max-width: 1000px) {
       #app {
         grid-template-columns: 1fr;
-        grid-auto-rows: 1fr;
+        grid-template-rows: 60vh 1fr;
+        padding: 12px;
+        gap: 12px;
       }
       
       .sidebar {
         order: 2;
-        max-height: 400px;
+        max-height: none;
+        padding: 12px;
       }
       
       #map {
-        min-height: 400px;
+        min-height: auto;
+        order: 1;
+      }
+      
+      .map-overlay {
+        left: 12px;
+        top: 12px;
+        width: calc(100% - 24px);
+        max-height: 30vh;
+      }
+      
+      .hud {
+        right: 12px;
+        bottom: 12px;
+      }
+      
+      .inventory {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    
+    @media (max-width: 600px) {
+      #app {
+        grid-template-rows: 50vh 1fr;
+      }
+      
+      .card {
+        padding: 10px;
+      }
+      
+      .inventory {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .brand {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
       }
     }
     
     /* Scrollbar styling */
     ::-webkit-scrollbar {
-      width: 8px;
+      width: 6px;
     }
     
     ::-webkit-scrollbar-track {
@@ -415,7 +503,7 @@
             <div class="big" id="player-coin">0</div>
           </div>
         </div>
-        <div style="margin-top:10px">
+        <div style="margin-top:8px">
           <div class="xpbar">
             <div class="meter" style="flex:1"><i id="xp-fill"></i></div>
             <div class="muted" id="player-hp">HP 100</div>
@@ -425,61 +513,85 @@
 
       <div class="card">
         <div class="card-header">
-          <div class="card-title">Inventario</div>
+          <div class="card-title collapsible" data-target="inventory-section">Inventario</div>
           <button class="btn" id="btn-clear-inv" title="Vaciar inventario">
-            <i class="fas fa-trash"></i> Vaciar
+            <i class="fas fa-trash"></i>
           </button>
         </div>
-        <div class="inventory" id="inventory"></div>
+        <div id="inventory-section" class="collapsible-content">
+          <div class="inventory" id="inventory"></div>
+        </div>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <div class="card-title">Crafteo</div>
+          <div class="card-title collapsible" data-target="crafting-section">Crafteo</div>
           <button class="btn primary" id="open-craft">
-            <i class="fas fa-hammer"></i> Abrir
+            <i class="fas fa-hammer"></i>
           </button>
         </div>
-        <div id="recipe-preview" class="muted">Recetas desbloqueadas aparecerán aquí.</div>
+        <div id="crafting-section" class="collapsible-content">
+          <div id="recipe-preview" class="muted">Recetas desbloqueadas aparecerán aquí.</div>
+        </div>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <div class="card-title">Misiones</div>
+          <div class="card-title collapsible" data-target="quests-section">Misiones</div>
           <button class="btn" id="btn-new-quest">
-            <i class="fas fa-plus"></i> Nueva
+            <i class="fas fa-plus"></i>
           </button>
         </div>
-        <div id="quest-box" class="muted">Sin misión activa.</div>
+        <div id="quests-section" class="collapsible-content">
+          <div id="quest-box" class="muted">Sin misión activa.</div>
+        </div>
       </div>
       
       <div class="card">
         <div class="card-header">
-          <div class="card-title">Logros</div>
+          <div class="card-title collapsible" data-target="achievements-section">Logros</div>
           <span class="muted" id="achievement-count">0/20</span>
         </div>
-        <div id="achievement-box" class="muted">Completa acciones para desbloquear logros.</div>
+        <div id="achievements-section" class="collapsible-content">
+          <div id="achievement-box" class="muted">Completa acciones para desbloquear logros.</div>
+        </div>
       </div>
 
-      <div style="margin-top:auto;display:flex;gap:8px;justify-content:space-between;align-items:center">
+      <div style="margin-top:auto;display:flex;gap:6px;justify-content:space-between;align-items:center;font-size:12px">
         <div class="muted">Progreso guardado automáticamente</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn" id="btn-sim-move">
-            <i class="fas fa-gamepad"></i> Simular
+        <div style="display:flex;gap:6px">
+          <button class="btn" id="btn-sim-move" title="Simular movimiento">
+            <i class="fas fa-gamepad"></i>
           </button>
-          <button class="btn" id="btn-teleport">
-            <i class="fas fa-location-crosshairs"></i> Telep.
+          <button class="btn" id="btn-teleport" title="Teletransportar">
+            <i class="fas fa-location-crosshairs"></i>
           </button>
         </div>
       </div>
     </aside>
 
     <div class="map-overlay" id="overlay">
-      <div style="display:flex;gap:8px;align-items:center">
-        <strong class="muted">Estado:</strong> 
-        <span id="status">Esperando ubicación / modo teclado</span>
+      <div class="overlay-header">
+        <strong class="muted">POIs Cercanos:</strong> 
+        <button class="btn" id="toggle-poi-list">
+          <i class="fas fa-chevron-down"></i>
+        </button>
       </div>
-      <div style="margin-top:8px" class="poi-list" id="poi-list"></div>
+      <div class="overlay-content">
+        <div class="poi-list" id="poi-list"></div>
+      </div>
+    </div>
+
+    <div class="mini-controls">
+      <button class="btn" id="btn-center-map" title="Centrar en mi ubicación">
+        <i class="fas fa-crosshairs"></i>
+      </button>
+      <button class="btn" id="btn-zoom-in" title="Acercar">
+        <i class="fas fa-plus"></i>
+      </button>
+      <button class="btn" id="btn-zoom-out" title="Alejar">
+        <i class="fas fa-minus"></i>
+      </button>
     </div>
 
     <div class="hud" id="hud" aria-hidden="false"></div>
@@ -614,11 +726,19 @@
     };
 
     // --- Map setup ---
-    const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([40.4168, -3.7038], 13);
+    const map = L.map('map', { 
+      zoomControl: false, 
+      preferCanvas: true,
+      attributionControl: false
+    }).setView([40.4168, -3.7038], 13);
+    
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
+    
+    // Add attribution in a custom position
+    L.control.attribution({position: 'bottomleft'}).addTo(map);
 
     // Player marker
     const playerIcon = L.divIcon({
@@ -757,7 +877,7 @@
           </div>
           <div>
             <button class="btn" onclick="window.attemptDiscoverFromList('${p.id}')">
-              <i class="fas fa-${p.discovered ? 'eye' : 'search'}"></i> ${p.discovered ? 'Ver' : 'Descubrir'}
+              <i class="fas fa-${p.discovered ? 'eye' : 'search'}"></i>
             </button>
           </div>
         `;
@@ -1553,6 +1673,47 @@
         updateUI();
         toast('Inventario vaciado');
         save(state);
+      }
+    };
+
+    // Collapsible sections
+    document.querySelectorAll('.collapsible').forEach(el => {
+      el.addEventListener('click', () => {
+        el.classList.toggle('active');
+      });
+    });
+
+    // Map controls
+    document.getElementById('btn-center-map').onclick = () => {
+      if (lastKnown) {
+        map.setView(lastKnown, 16);
+        toast('Mapa centrado en tu ubicación');
+      } else {
+        toast('No hay ubicación disponible');
+      }
+    };
+    
+    document.getElementById('btn-zoom-in').onclick = () => {
+      map.zoomIn();
+    };
+    
+    document.getElementById('btn-zoom-out').onclick = () => {
+      map.zoomOut();
+    };
+
+    // Toggle POI list
+    let poiListExpanded = true;
+    document.getElementById('toggle-poi-list').onclick = () => {
+      poiListExpanded = !poiListExpanded;
+      const content = document.querySelector('.overlay-content');
+      const icon = document.querySelector('#toggle-poi-list i');
+      
+      if (poiListExpanded) {
+        content.style.display = 'block';
+        icon.className = 'fas fa-chevron-down';
+      } else {
+        content.style.display = 'none';
+        icon.className = 'fas fa-chevron-up';
       }
     };
 
