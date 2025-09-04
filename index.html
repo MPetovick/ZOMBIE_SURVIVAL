@@ -477,6 +477,47 @@
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(255, 255, 255, 0.2);
     }
+    
+    /* Leaflet player icon */
+    .player-icon {
+      animation: pulse 2s infinite;
+    }
+    
+    /* Status indicator */
+    .status-indicator {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 1000;
+      background: rgba(2, 6, 23, 0.7);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    
+    .status-dot.gps {
+      background-color: var(--good);
+    }
+    
+    .status-dot.sim {
+      background-color: var(--warning);
+    }
+    
+    .status-dot.off {
+      background-color: var(--danger);
+    }
   </style>
 </head>
 <body>
@@ -558,7 +599,7 @@
       </div>
 
       <div style="margin-top:auto;display:flex;gap:6px;justify-content:space-between;align-items:center;font-size:12px">
-        <div class="muted">Progreso guardado automáticamente</div>
+        <div class="muted" id="status">Esperando ubicación...</div>
         <div style="display:flex;gap:6px">
           <button class="btn" id="btn-sim-move" title="Simular movimiento">
             <i class="fas fa-gamepad"></i>
@@ -595,6 +636,11 @@
     </div>
 
     <div class="hud" id="hud" aria-hidden="false"></div>
+    
+    <div class="status-indicator" id="status-indicator">
+      <span class="status-dot off" id="status-dot"></span>
+      <span id="status-text">Sin GPS</span>
+    </div>
   </div>
 
   <!-- Leaflet JS -->
@@ -697,7 +743,7 @@
     const STORAGE_KEY = 'geocraft_pro';
     function save(state) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); 
-      document.getElementById('status').innerText = 'Guardado ' + (new Date()).toLocaleTimeString();
+      updateStatus('Guardado ' + (new Date()).toLocaleTimeString());
     }
     
     function load() {
@@ -768,9 +814,31 @@
     const hudEl = document.getElementById('hud');
     const questBoxEl = document.getElementById('quest-box');
     const achievementBoxEl = document.getElementById('achievement-box');
+    const statusEl = document.getElementById('status');
+    const statusIndicator = document.getElementById('status-indicator');
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
 
     // Initialize audio
     AudioManager.init();
+
+    // Update status indicator
+    function updateStatus(text, type = 'off') {
+      statusEl.textContent = text;
+      statusText.textContent = text;
+      
+      // Remove all classes
+      statusDot.classList.remove('gps', 'sim', 'off');
+      
+      // Add appropriate class
+      if (type === 'gps') {
+        statusDot.classList.add('gps');
+      } else if (type === 'sim') {
+        statusDot.classList.add('sim');
+      } else {
+        statusDot.classList.add('off');
+      }
+    }
 
     // --- POI logic ---
     function randomOffset(meters) {
@@ -1451,7 +1519,7 @@
     
     function enableGeolocation() {
       if (!navigator.geolocation) {
-        document.getElementById('status').innerText = 'Geolocalización no disponible';
+        updateStatus('Geolocalización no disponible');
         return;
       }
       
@@ -1464,13 +1532,13 @@
           accuracyCircle.setLatLng(lastKnown);
           accuracyCircle.setRadius(pos.coords.accuracy);
           map.setView(lastKnown, 16);
-          document.getElementById('status').innerText = 'Modo GPS activo';
+          updateStatus('Modo GPS activo', 'gps');
           spawnPOI(lastKnown);
           updateUI();
           save(state);
         },
         err => {
-          document.getElementById('status').innerText = 'Permiso denegado — usa teclado/simular';
+          updateStatus('Permiso denegado — usa teclado/simular');
         },
         { enableHighAccuracy: true, maximumAge: 20000, timeout: 10000 }
       );
@@ -1552,7 +1620,7 @@
         watchId = null;
       }
       
-      document.getElementById('status').innerText = simulatedMode ? 'Modo simulación: usa WASD/flechas' : 'Modo simulación detenido';
+      updateStatus(simulatedMode ? 'Modo simulación: usa WASD/flechas' : 'Modo simulación detenido', simulatedMode ? 'sim' : 'off');
       toast('Simulación ' + (simulatedMode ? 'activada' : 'desactivada'));
     };
     
