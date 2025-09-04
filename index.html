@@ -6,37 +6,389 @@
   <title>GeoCraft — Juego de Geolocalización</title>
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+e2A6kGg3gXk2sH5a1mM2Z4VbM9s3i0zj5xXv+0mM=" crossorigin=""/>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root{--bg:#0f1724;--card:#0b1220;--accent:#3b82f6;--muted:#94a3b8;--good:#10b981;--danger:#ef4444;font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
-    html,body,#app{height:100%;margin:0;background:linear-gradient(180deg,#071028 0%, #031124 100%);color:#e6eef8}
-    #app{display:grid;grid-template-columns:1fr 360px;gap:18px;padding:18px}
+    :root {
+      --bg: #0a1128;
+      --card: #0c142c;
+      --accent: #4f46e5;
+      --accent-gradient: linear-gradient(135deg, #4f46e5, #7c3aed);
+      --muted: #94a3b8;
+      --good: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f1f5f9;
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    html, body, #app {
+      height: 100%;
+      margin: 0;
+      background: linear-gradient(180deg, #071028 0%, #031124 100%);
+      color: var(--text);
+      overflow: hidden;
+    }
+    
+    #app {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 18px;
+      padding: 18px;
+      position: relative;
+    }
+    
     /* Map container */
-    #map{border-radius:14px;box-shadow:0 10px 30px rgba(2,6,23,.6);overflow:hidden;border:1px solid rgba(255,255,255,.03);min-height:720px}
+    #map {
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.8);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      min-height: 720px;
+      position: relative;
+      z-index: 1;
+    }
+    
     /* Sidebar */
-    .sidebar{background:linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));padding:18px;border-radius:14px;box-shadow:0 6px 20px rgba(2,6,23,.6);display:flex;flex-direction:column;gap:12px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:54px;height:54px;background:linear-gradient(135deg,var(--accent),#06b6d4);border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:20px;color:white}
-    h1{font-size:16px;margin:0}
-    .muted{color:var(--muted);font-size:13px}
-    .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,.01), rgba(255,255,255,.02));padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.03)}
-    .meter{height:10px;background:rgba(255,255,255,.04);border-radius:8px;overflow:hidden}
-    .meter > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#06b6d4);width:40%}
-    .controls{display:flex;gap:8px;flex-wrap:wrap}
-    .btn{background:transparent;border:1px solid rgba(255,255,255,.06);padding:8px 10px;border-radius:8px;font-weight:600;cursor:pointer}
-    .btn.primary{background:linear-gradient(90deg,var(--accent),#06b6d4);color:#021025;border:none}
-    .map-overlay{position:absolute;left:18px;top:18px;z-index:1000;background:rgba(2,6,23,.6);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.03);backdrop-filter: blur(6px)}
-    .poi-list{max-height:200px;overflow:auto;padding:6px;display:flex;flex-direction:column;gap:6px}
-    .poi{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.02);background:linear-gradient(180deg, rgba(255,255,255,.008), transparent)}
-    .inventory{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-    .item{padding:8px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid rgba(255,255,255,.02);text-align:center;font-size:13px}
-    .hud{position:absolute;right:24px;bottom:24px;z-index:1000;display:flex;flex-direction:column;gap:8px}
-    .toast{background:#061226;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.03);min-width:220px}
-    .xpbar{display:flex;gap:8px;align-items:center}
-    .big{font-size:22px;font-weight:700}
-    .subtle{opacity:.85}
+    .sidebar {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(2, 6, 23, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      overflow-y: auto;
+      max-height: 100%;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .logo {
+      width: 60px;
+      height: 60px;
+      background: var(--accent-gradient);
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 24px;
+      color: white;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+    }
+    
+    h1 {
+      font-size: 20px;
+      margin: 0;
+      background: linear-gradient(90deg, #e0e7ff, #c7d2fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+    }
+    
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 4px 12px rgba(2, 6, 23, 0.4);
+    }
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      margin: 0;
+    }
+    
+    .meter {
+      height: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    
+    .meter > i {
+      display: block;
+      height: 100%;
+      background: var(--accent-gradient);
+      width: 40%;
+      border-radius: 8px;
+      transition: width 0.5s ease;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-1px);
+    }
+    
+    .btn.primary {
+      background: var(--accent-gradient);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+    }
+    
+    .btn.primary:hover {
+      box-shadow: 0 6px 14px rgba(79, 70, 229, 0.4);
+      transform: translateY(-2px);
+    }
+    
+    .map-overlay {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      z-index: 1000;
+      background: rgba(2, 6, 23, 0.7);
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      min-width: 280px;
+    }
+    
+    .poi-list {
+      max-height: 200px;
+      overflow: auto;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    
+    .poi {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.01), transparent);
+      transition: all 0.2s ease;
+    }
+    
+    .poi:hover {
+      background: rgba(255, 255, 255, 0.03);
+      transform: translateX(2px);
+    }
+    
+    .inventory {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    
+    .item {
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      text-align: center;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: scale(1.05);
+    }
+    
+    .item-count {
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+    
+    .hud {
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 300px;
+    }
+    
+    .toast {
+      background: rgba(6, 18, 38, 0.9);
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      min-width: 240px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+      animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s;
+      backdrop-filter: blur(10px);
+    }
+    
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-20px); }
+    }
+    
+    .xpbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .big {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    
+    .subtle {
+      opacity: 0.85;
+    }
+    
+    .resource-icon {
+      font-size: 20px;
+      margin-right: 6px;
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: grid;
+      place-items: center;
+      z-index: 10000;
+      backdrop-filter: blur(5px);
+    }
+    
+    .modal {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Quest styles */
+    .quest {
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      margin-bottom: 8px;
+      border-left: 3px solid var(--accent);
+    }
+    
+    .quest-completed {
+      border-left-color: var(--good);
+    }
+    
     /* Responsive */
-    @media (max-width:1000px){#app{grid-template-columns:1fr;grid-auto-rows:1fr} .sidebar{order:2}}
+    @media (max-width: 1000px) {
+      #app {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 1fr;
+      }
+      
+      .sidebar {
+        order: 2;
+        max-height: 400px;
+      }
+      
+      #map {
+        min-height: 400px;
+      }
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -44,7 +396,13 @@
     <div id="map" aria-label="Mapa de juego"></div>
 
     <aside class="sidebar" aria-label="Panel de control">
-      <div class="brand"><div class="logo">GC</div><div><h1>GeoCraft</h1><div class="muted">Explora. Descubre. Craftea.</div></div></div>
+      <div class="brand">
+        <div class="logo">GC</div>
+        <div>
+          <h1>GeoCraft</h1>
+          <div class="muted">Explora. Descubre. Craftea.</div>
+        </div>
+      </div>
 
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center">
@@ -58,33 +416,69 @@
           </div>
         </div>
         <div style="margin-top:10px">
-          <div class="xpbar"><div class="meter" style="flex:1"><i id="xp-fill"></i></div><div class="muted" id="player-hp">HP 100</div></div>
+          <div class="xpbar">
+            <div class="meter" style="flex:1"><i id="xp-fill"></i></div>
+            <div class="muted" id="player-hp">HP 100</div>
+          </div>
         </div>
       </div>
 
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="muted">Inventario</div><button class="btn" id="btn-clear-inv" title="Vaciar inventario">Vaciar</button></div>
+        <div class="card-header">
+          <div class="card-title">Inventario</div>
+          <button class="btn" id="btn-clear-inv" title="Vaciar inventario">
+            <i class="fas fa-trash"></i> Vaciar
+          </button>
+        </div>
         <div class="inventory" id="inventory"></div>
       </div>
 
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="muted">Crafteo</div><button class="btn primary" id="open-craft">Abrir</button></div>
+        <div class="card-header">
+          <div class="card-title">Crafteo</div>
+          <button class="btn primary" id="open-craft">
+            <i class="fas fa-hammer"></i> Abrir
+          </button>
+        </div>
         <div id="recipe-preview" class="muted">Recetas desbloqueadas aparecerán aquí.</div>
       </div>
 
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div class="muted">Misiones rápidas</div><button class="btn" id="btn-new-quest">Nueva</button></div>
+        <div class="card-header">
+          <div class="card-title">Misiones</div>
+          <button class="btn" id="btn-new-quest">
+            <i class="fas fa-plus"></i> Nueva
+          </button>
+        </div>
         <div id="quest-box" class="muted">Sin misión activa.</div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Logros</div>
+          <span class="muted" id="achievement-count">0/20</span>
+        </div>
+        <div id="achievement-box" class="muted">Completa acciones para desbloquear logros.</div>
       </div>
 
       <div style="margin-top:auto;display:flex;gap:8px;justify-content:space-between;align-items:center">
         <div class="muted">Progreso guardado automáticamente</div>
-        <div style="display:flex;gap:8px"><button class="btn" id="btn-sim-move">Simular</button><button class="btn" id="btn-teleport">Telep.</button></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn" id="btn-sim-move">
+            <i class="fas fa-gamepad"></i> Simular
+          </button>
+          <button class="btn" id="btn-teleport">
+            <i class="fas fa-location-crosshairs"></i> Telep.
+          </button>
+        </div>
       </div>
     </aside>
 
     <div class="map-overlay" id="overlay">
-      <div style="display:flex;gap:8px;align-items:center"><strong class="muted">Estado:</strong> <span id="status">Esperando ubicación / modo teclado</span></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <strong class="muted">Estado:</strong> 
+        <span id="status">Esperando ubicación / modo teclado</span>
+      </div>
       <div style="margin-top:8px" class="poi-list" id="poi-list"></div>
     </div>
 
@@ -98,39 +492,152 @@
     const CONFIG = {
       discoveryRadius: 35, // meters
       poiSpawnRadiusMeters: 800,
-      maxPOI: 12,
+      maxPOI: 15,
       tickMs: 1000/30,
       levelXPBase: 100,
+      resources: {
+        'wood': { name: 'Madera', emoji: '🌲', color: '#a17c4a' },
+        'stone': { name: 'Piedra', emoji: '🪨', color: '#9ca3af' },
+        'iron': { name: 'Hierro', emoji: '⛏️', color: '#a1a1aa' },
+        'coal': { name: 'Carbón', emoji: '⚫', color: '#3f3f46' },
+        'gold': { name: 'Oro', emoji: '🟡', color: '#fbbf24' },
+        'diamond': { name: 'Diamante', emoji: '💎', color: '#a5f3fc' },
+        'herb': { name: 'Hierba', emoji: '🌿', color: '#65a30d' },
+        'ruby': { name: 'Rubí', emoji: '🔴', color: '#f87171' }
+      },
       recipes: {
-        'Campamento': {wood:4,stone:2,craftXP:30},
-        'Antorcha': {wood:2,coal:1,craftXP:10},
-        'PicoMejorado': {wood:3,stone:5,iron:2,craftXP:60}
+        'Antorcha': { wood: 2, coal: 1, craftXP: 10, emoji: '🔥' },
+        'Pico': { wood: 3, stone: 2, craftXP: 15, emoji: '⛏️' },
+        'Hacha': { wood: 2, stone: 1, craftXP: 12, emoji: '🪓' },
+        'Campamento': { wood: 4, stone: 2, craftXP: 30, emoji: '🏕️' },
+        'PicoMejorado': { wood: 3, stone: 5, iron: 2, craftXP: 60, emoji: '⛏️✨' },
+        'Casa': { wood: 10, stone: 8, iron: 3, craftXP: 120, emoji: '🏠' },
+        'Espada': { wood: 2, iron: 3, craftXP: 45, emoji: '⚔️' },
+        'Flecha': { wood: 1, stone: 1, craftXP: 8, emoji: '🏹' },
+        'Poción de Vida': { herb: 3, coal: 1, craftXP: 25, emoji: '🧪' },
+        'Anillo de Oro': { gold: 5, ruby: 1, craftXP: 150, emoji: '💍' }
+      },
+      questTypes: [
+        { type: 'collect', name: 'Recolectar recursos', target: ['wood', 'stone', 'iron'], amount: [5, 15] },
+        { type: 'discover', name: 'Descubrir POIs', amount: [3, 7] },
+        { type: 'craft', name: 'Craftear objetos', target: ['Antorcha', 'Pico', 'Hacha'], amount: [1, 3] },
+        { type: 'level', name: 'Subir de nivel', amount: [1, 2] }
+      ],
+      achievements: [
+        { id: 'first_discovery', name: 'Primer Descubrimiento', desc: 'Descubre tu primer POI', reward: 10, unlocked: false },
+        { id: 'craft_master', name: 'Maestro Artesano', desc: 'Craftea 10 objetos', reward: 25, progress: 0, target: 10, unlocked: false },
+        { id: 'explorer', name: 'Explorador', desc: 'Descubre 20 POIs', reward: 30, progress: 0, target: 20, unlocked: false },
+        { id: 'rich', name: 'Rico', desc: 'Consigue 100 monedas', reward: 50, progress: 0, target: 100, unlocked: false },
+        { id: 'level_10', name: 'Experto', desc: 'Alcanza el nivel 10', reward: 100, progress: 0, target: 10, unlocked: false }
+      ]
+    };
+
+    // --- Audio Manager ---
+    const AudioManager = {
+      context: null,
+      init() {
+        try {
+          this.context = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+          console.warn("Web Audio API no soportada");
+        }
+      },
+      play(frequency, duration, volume, type = 'sine') {
+        if (!this.context) return;
+        
+        const osc = this.context.createOscillator();
+        const gain = this.context.createGain();
+        
+        osc.type = type;
+        osc.frequency.value = frequency;
+        gain.gain.value = volume;
+        
+        osc.connect(gain);
+        gain.connect(this.context.destination);
+        
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.0001, this.context.currentTime + duration);
+        osc.stop(this.context.currentTime + duration + 0.02);
+      },
+      playDiscovery() {
+        this.play(784, 0.1, 0.1);
+        this.play(1046, 0.2, 0.05);
+      },
+      playCraft() {
+        this.play(523, 0.05, 0.1);
+        this.play(659, 0.1, 0.08);
+        this.play(784, 0.15, 0.06);
+      },
+      playLevelUp() {
+        this.play(523, 0.1, 0.1);
+        this.play(659, 0.1, 0.1);
+        this.play(784, 0.1, 0.1);
+        this.play(1046, 0.3, 0.1);
+      },
+      playQuestComplete() {
+        this.play(1046, 0.1, 0.1);
+        this.play(1174, 0.1, 0.1);
+        this.play(1318, 0.2, 0.1);
+      }
+    };
+
+    // --- Storage helpers ---
+    const STORAGE_KEY = 'geocraft_pro';
+    function save(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); 
+      document.getElementById('status').innerText = 'Guardado ' + (new Date()).toLocaleTimeString();
+    }
+    
+    function load() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || null;
+      } catch(e) {
+        return null;
       }
     }
 
-    // --- Simple audio feedback ---
-    function beep(freq=440, time=0.06, vol=0.03){ try{const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.frequency.value=freq;g.gain.value=vol;o.connect(g);g.connect(a.destination);o.start();g.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+time);o.stop(a.currentTime+time+0.02);}catch(e){} }
-
-    // --- Storage helpers ---
-    const STORAGE_KEY='geocraft_v1';
-    function save(state){localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); document.getElementById('status').innerText='Guardado '+(new Date()).toLocaleTimeString();}
-    function load(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||null}catch(e){return null}}
-
     // --- Player state ---
     let state = load() || {
-      player:{name:'Jugador',level:1,xp:0,coin:0,hp:100},
-      inventory:{wood:0,stone:0,iron:0,coal:0,campamento:0},
-      unlockedRecipes:['Antorcha'],
-      pois:[],quests:[],lastPos:null
-    }
+      player: { name: 'Jugador', level: 1, xp: 0, coin: 0, hp: 100, maxHp: 100 },
+      inventory: { wood: 0, stone: 0, iron: 0, coal: 0, gold: 0, diamond: 0, herb: 0, ruby: 0 },
+      unlockedRecipes: ['Antorcha', 'Pico', 'Hacha'],
+      pois: [],
+      quests: [],
+      achievements: CONFIG.achievements,
+      stats: {
+        discoveries: 0,
+        crafts: 0,
+        steps: 0,
+        distance: 0
+      },
+      lastPos: null
+    };
 
     // --- Map setup ---
-    const map = L.map('map',{zoomControl:true,preferCanvas:true}).setView([40.4168,-3.7038],13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
+    const map = L.map('map', { zoomControl: true, preferCanvas: true }).setView([40.4168, -3.7038], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
     // Player marker
-    const playerIcon = L.divIcon({className:'player-icon',html:'<div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#06b6d4);box-shadow:0 4px 8px rgba(3,16,35,.6);border:2px solid rgba(255,255,255,.9)"></div>',iconSize:[28,28],iconAnchor:[14,14]});
-    const playerMarker = L.marker([40.4168,-3.7038],{icon:playerIcon,interactive:false}).addTo(map);
+    const playerIcon = L.divIcon({
+      className: 'player-icon',
+      html: '<div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#7c3aed);box-shadow:0 4px 12px rgba(3,16,35,.8);border:2px solid rgba(255,255,255,.9);display:grid;place-items:center;"><i class="fas fa-user" style="color:white;font-size:14px;"></i></div>',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+    
+    const playerMarker = L.marker([40.4168, -3.7038], { icon: playerIcon, interactive: false }).addTo(map);
+
+    // Player accuracy circle
+    const accuracyCircle = L.circle([40.4168, -3.7038], {
+      radius: 20,
+      color: 'rgba(79, 70, 229, 0.3)',
+      fillColor: 'rgba(79, 70, 229, 0.1)',
+      weight: 1,
+      interactive: false
+    }).addTo(map);
 
     // POI group
     const poiLayer = L.layerGroup().addTo(map);
@@ -139,164 +646,962 @@
     const inventoryEl = document.getElementById('inventory');
     const poiListEl = document.getElementById('poi-list');
     const hudEl = document.getElementById('hud');
+    const questBoxEl = document.getElementById('quest-box');
+    const achievementBoxEl = document.getElementById('achievement-box');
+
+    // Initialize audio
+    AudioManager.init();
 
     // --- POI logic ---
-    function randomOffset(meters){
-      const r = Math.random()*meters; const ang = Math.random()*Math.PI*2; const dx = r*Math.cos(ang); const dy = r*Math.sin(ang);
+    function randomOffset(meters) {
+      const r = Math.random() * meters; 
+      const ang = Math.random() * Math.PI * 2; 
+      const dx = r * Math.cos(ang); 
+      const dy = r * Math.sin(ang);
       // approx degrees per meter
-      const lat = dx/111320; const lon = dy/(111320*Math.cos(map.getCenter().lat*Math.PI/180));
-      return [lat,lon];
+      const lat = dx / 111320; 
+      const lon = dy / (111320 * Math.cos(map.getCenter().lat * Math.PI / 180));
+      return [lat, lon];
     }
 
-    function spawnPOI(center){
-      while(state.pois.length < CONFIG.maxPOI){
+    function spawnPOI(center) {
+      if (state.pois.length >= CONFIG.maxPOI) return;
+      
+      const resources = Object.keys(CONFIG.resources);
+      const types = [...resources, 'mystery', 'quest', 'treasure'];
+      
+      for (let i = state.pois.length; i < CONFIG.maxPOI; i++) {
         const off = randomOffset(CONFIG.poiSpawnRadiusMeters);
-        const lat = center[0]+off[0]; const lon = center[1]+off[1];
-        const types=['wood','stone','iron','coal','mystery'];
-        const type = types[Math.floor(Math.random()*types.length)];
-        const poi = {id:cryptoRandomId(),lat,lon,type,discovered:false,name:capitalize(type)};
+        const lat = center[0] + off[0]; 
+        const lon = center[1] + off[1];
+        
+        const type = types[Math.floor(Math.random() * types.length)];
+        let name, rarity;
+        
+        if (type === 'mystery') {
+          name = 'Misterio';
+          rarity = 'rare';
+        } else if (type === 'quest') {
+          name = 'Misión';
+          rarity = 'epic';
+        } else if (type === 'treasure') {
+          name = 'Tesoro';
+          rarity = 'legendary';
+        } else {
+          name = CONFIG.resources[type].name;
+          rarity = 'common';
+        }
+        
+        const poi = {
+          id: cryptoRandomId(),
+          lat, 
+          lon, 
+          type, 
+          rarity,
+          discovered: false, 
+          name,
+          collected: false
+        };
+        
         state.pois.push(poi);
       }
       renderPOIs();
     }
 
-    function cryptoRandomId(){return Math.random().toString(36).slice(2,9)}
-    function capitalize(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+    function cryptoRandomId() {
+      return Math.random().toString(36).slice(2, 9);
+    }
+    
+    function capitalize(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
 
-    function renderPOIs(){poiLayer.clearLayers(); poiListEl.innerHTML='';
-      state.pois.forEach(p=>{
-        const iconHtml = `<div style="width:36px;height:36px;border-radius:8px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.04);background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)">${emojiFor(p.type)}</div>`;
-        const marker = L.marker([p.lat,p.lon],{icon:L.divIcon({className:'poi-icon',html:iconHtml,iconSize:[36,36],iconAnchor:[18,18]})}).addTo(poiLayer);
-        marker.on('click',()=>attemptDiscover(p));
-        const li = document.createElement('div'); li.className='poi'; li.innerHTML=`<div><strong>${p.name}</strong><div class="muted">${p.type==='mystery'?'Puede contener recursos raros':p.type}</div></div><div><button class="btn" onclick="window.attemptDiscoverFromList('${p.id}')">Ir/Descubrir</button></div>`;
+    function getRarityColor(rarity) {
+      switch(rarity) {
+        case 'common': return '#94a3b8';
+        case 'uncommon': return '#10b981';
+        case 'rare': return '#3b82f6';
+        case 'epic': return '#8b5cf6';
+        case 'legendary': return '#f59e0b';
+        default: return '#94a3b8';
+      }
+    }
+
+    function renderPOIs() {
+      poiLayer.clearLayers(); 
+      poiListEl.innerHTML = '';
+      
+      state.pois.forEach(p => {
+        // Create marker with appropriate style based on rarity
+        const color = getRarityColor(p.rarity);
+        const iconHtml = `<div style="width:42px;height:42px;border-radius:10px;display:grid;place-items:center;border:2px solid ${color};background:rgba(0,0,0,0.5);box-shadow:0 0 10px ${color}40;">${emojiFor(p.type)}</div>`;
+        
+        const marker = L.marker([p.lat, p.lon], {
+          icon: L.divIcon({
+            className: 'poi-icon',
+            html: iconHtml,
+            iconSize: [42, 42],
+            iconAnchor: [21, 21]
+          })
+        }).addTo(poiLayer);
+        
+        marker.on('click', () => attemptDiscover(p));
+        
+        // Create list item
+        const li = document.createElement('div'); 
+        li.className = 'poi';
+        li.innerHTML = `
+          <div>
+            <strong style="color:${getRarityColor(p.rarity)}">${p.name}</strong>
+            <div class="muted">${p.discovered ? 'Descubierto' : 'Sin descubrir'} • ${getRarityName(p.rarity)}</div>
+          </div>
+          <div>
+            <button class="btn" onclick="window.attemptDiscoverFromList('${p.id}')">
+              <i class="fas fa-${p.discovered ? 'eye' : 'search'}"></i> ${p.discovered ? 'Ver' : 'Descubrir'}
+            </button>
+          </div>
+        `;
+        
         poiListEl.appendChild(li);
       });
     }
 
-    window.attemptDiscoverFromList = function(id){const p=state.pois.find(x=>x.id===id);if(!p) return;map.panTo([p.lat,p.lon]);attemptDiscover(p)}
+    function getRarityName(rarity) {
+      switch(rarity) {
+        case 'common': return 'Común';
+        case 'uncommon': return 'Poco común';
+        case 'rare': return 'Raro';
+        case 'epic': return 'Épico';
+        case 'legendary': return 'Legendario';
+        default: return 'Común';
+      }
+    }
 
-    function emojiFor(t){switch(t){case 'wood':return '🌲';case 'stone':return '🪨';case 'iron':return '⛏️';case 'coal':return '⚫';case 'mystery':return '✨';default:return '❓'}}
+    window.attemptDiscoverFromList = function(id) {
+      const p = state.pois.find(x => x.id === id);
+      if (!p) return;
+      map.panTo([p.lat, p.lon]);
+      attemptDiscover(p);
+    };
+
+    function emojiFor(t) {
+      switch(t) {
+        case 'wood': return '🌲';
+        case 'stone': return '🪨';
+        case 'iron': return '⛏️';
+        case 'coal': return '⚫';
+        case 'gold': return '🟡';
+        case 'diamond': return '💎';
+        case 'herb': return '🌿';
+        case 'ruby': return '🔴';
+        case 'mystery': return '❓';
+        case 'quest': return '📜';
+        case 'treasure': return '🎁';
+        default: return '❓';
+      }
+    }
 
     // --- Discovery and resource logic ---
-    function metersBetween(a,b){const R=6371000;const φ1=a[0]*Math.PI/180;const φ2=b[0]*Math.PI/180;const Δφ=(b[0]-a[0])*Math.PI/180;const Δλ=(b[1]-a[1])*Math.PI/180;const aa=Math.sin(Δφ/2)*Math.sin(Δφ/2)+Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)*Math.sin(Δλ/2);const c=2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));return R*c}
+    function metersBetween(a, b) {
+      const R = 6371000;
+      const φ1 = a[0] * Math.PI / 180;
+      const φ2 = b[0] * Math.PI / 180;
+      const Δφ = (b[0] - a[0]) * Math.PI / 180;
+      const Δλ = (b[1] - a[1]) * Math.PI / 180;
+      
+      const aa = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+                
+      const c = 2 * Math.atan2(Math.sqrt(aa), Math.sqrt(1 - aa));
+      
+      return R * c;
+    }
 
-    function attemptDiscover(poi){const pos = playerMarker.getLatLng(); const dist = metersBetween([pos.lat,pos.lng],[poi.lat,poi.lon]); if(dist <= CONFIG.discoveryRadius){if(!poi.discovered){poi.discovered=true;handleDiscovery(poi);}else{toast('Ya descubierto.');}} else {toast(`Estás a ${Math.round(dist)} m — acércate para descubrir`)} }
+    function attemptDiscover(poi) {
+      const pos = playerMarker.getLatLng(); 
+      const dist = metersBetween([pos.lat, pos.lng], [poi.lat, poi.lon]); 
+      
+      if (dist <= CONFIG.discoveryRadius) {
+        if (!poi.discovered) {
+          poi.discovered = true;
+          handleDiscovery(poi);
+        } else if (!poi.collected) {
+          collectFromPOI(poi);
+        } else {
+          toast('Ya recolectado de este POI.');
+        }
+      } else {
+        toast(`Estás a ${Math.round(dist)} m — acércate para ${poi.discovered ? 'recolectar' : 'descubrir'}`);
+      }
+    }
 
-    function handleDiscovery(poi){beep(720,0.07,0.06);toast(`Descubriste: ${poi.name}`);
-      // reward based on type
-      let gained={};
-      if(poi.type==='wood'){gained.wood=3;state.player.xp+=8}
-      else if(poi.type==='stone'){gained.stone=3;state.player.xp+=10}
-      else if(poi.type==='iron'){gained.iron=2;state.player.xp+=18}
-      else if(poi.type==='coal'){gained.coal=2;state.player.xp+=12}
-      else if(poi.type==='mystery'){const roll=Math.random(); if(roll<0.6){gained.wood=4;state.player.xp+=12}else if(roll<0.9){gained.iron=2;state.player.xp+=30;state.player.coin+=10}else{gained.coal=3;state.player.xp+=40;state.unlockedRecipes.push('Campamento') }
+    function handleDiscovery(poi) {
+      AudioManager.playDiscovery();
+      toast(`¡Descubriste: ${poi.name}!`, 4000);
+      
+      // Update stats
+      state.stats.discoveries += 1;
+      checkAchievements();
+      
+      // Special handling for different POI types
+      if (poi.type === 'quest') {
+        generateQuest();
+        poi.collected = true;
+      } else if (poi.type === 'treasure') {
+        handleTreasure(poi);
+        poi.collected = true;
+      }
+      
+      updateUI(); 
+      save(state);
+    }
 
-      // apply gains
-      for(const k in gained){state.inventory[k]=(state.inventory[k]||0)+gained[k]}
-      // small coin reward
-      state.player.coin += Math.floor(Math.random()*3);
-      // mark poi removed after discovery
-      state.pois = state.pois.filter(x=>x.id!==poi.id);
-      spawnPOI([playerMarker.getLatLng().lat,playerMarker.getLatLng().lng]);
-      updateUI(); save(state);
+    function collectFromPOI(poi) {
+      if (poi.collected) {
+        toast('Ya recolectado de este POI.');
+        return;
+      }
+      
+      // Reward based on type and rarity
+      let gained = {};
+      let xpGain = 0;
+      let coinGain = 0;
+      
+      const rarityMultiplier = {
+        'common': 1,
+        'uncommon': 1.5,
+        'rare': 2,
+        'epic': 3,
+        'legendary': 5
+      };
+      
+      const multiplier = rarityMultiplier[poi.rarity];
+      
+      if (poi.type === 'wood') {
+        gained.wood = Math.floor(3 * multiplier);
+        xpGain = 8 * multiplier;
+      } else if (poi.type === 'stone') {
+        gained.stone = Math.floor(3 * multiplier);
+        xpGain = 10 * multiplier;
+      } else if (poi.type === 'iron') {
+        gained.iron = Math.floor(2 * multiplier);
+        xpGain = 18 * multiplier;
+      } else if (poi.type === 'coal') {
+        gained.coal = Math.floor(2 * multiplier);
+        xpGain = 12 * multiplier;
+      } else if (poi.type === 'gold') {
+        gained.gold = Math.floor(1 * multiplier);
+        xpGain = 25 * multiplier;
+      } else if (poi.type === 'diamond') {
+        gained.diamond = Math.floor(1 * multiplier);
+        xpGain = 40 * multiplier;
+        coinGain = 15 * multiplier;
+      } else if (poi.type === 'herb') {
+        gained.herb = Math.floor(2 * multiplier);
+        xpGain = 10 * multiplier;
+      } else if (poi.type === 'ruby') {
+        gained.ruby = Math.floor(1 * multiplier);
+        xpGain = 35 * multiplier;
+        coinGain = 20 * multiplier;
+      } else if (poi.type === 'mystery') {
+        // Mystery POI can give various rewards
+        const roll = Math.random();
+        if (roll < 0.4) {
+          gained.wood = Math.floor(4 * multiplier);
+          gained.stone = Math.floor(3 * multiplier);
+          xpGain = 15 * multiplier;
+        } else if (roll < 0.7) {
+          gained.iron = Math.floor(2 * multiplier);
+          gained.coal = Math.floor(2 * multiplier);
+          xpGain = 25 * multiplier;
+          coinGain = 10 * multiplier;
+        } else if (roll < 0.9) {
+          gained.gold = Math.floor(1 * multiplier);
+          gained.herb = Math.floor(3 * multiplier);
+          xpGain = 35 * multiplier;
+          coinGain = 15 * multiplier;
+        } else {
+          gained.diamond = Math.floor(1 * multiplier);
+          xpGain = 50 * multiplier;
+          coinGain = 25 * multiplier;
+          // Small chance to unlock a recipe
+          const recipes = Object.keys(CONFIG.recipes).filter(r => !state.unlockedRecipes.includes(r));
+          if (recipes.length > 0) {
+            const newRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+            state.unlockedRecipes.push(newRecipe);
+            toast(`¡Receta desbloqueada: ${newRecipe}!`, 5000);
+          }
+        }
+      }
+      
+      // Apply gains
+      for (const k in gained) {
+        state.inventory[k] = (state.inventory[k] || 0) + gained[k];
+      }
+      
+      state.player.xp += xpGain;
+      state.player.coin += coinGain + Math.floor(Math.random() * 3 * multiplier);
+      
+      poi.collected = true;
+      updateUI();
+      
+      // Show collection message
+      let message = `Recolectaste: `;
+      for (const k in gained) {
+        message += `${gained[k]} ${CONFIG.resources[k]?.name || k}, `;
+      }
+      message += `+${Math.round(xpGain)} XP`;
+      
+      if (coinGain > 0) {
+        message += `, +${coinGain} monedas`;
+      }
+      
+      toast(message, 4000);
+      save(state);
+      
+      // Check if we need to spawn new POIs
+      if (state.pois.filter(p => !p.collected).length < 5) {
+        spawnPOI([playerMarker.getLatLng().lat, playerMarker.getLatLng().lng]);
+      }
+    }
+
+    function handleTreasure(poi) {
+      const rewards = [
+        { type: 'coin', amount: 50, message: '¡Encontraste un tesoro con 50 monedas!' },
+        { type: 'xp', amount: 100, message: '¡Encontraste un tesoro con 100 XP!' },
+        { type: 'item', items: { diamond: 2, gold: 3 }, message: '¡Encontraste un tesoro con diamantes y oro!' },
+        { type: 'recipe', message: '¡Encontraste un tesoro con una nueva receta!' }
+      ];
+      
+      const reward = rewards[Math.floor(Math.random() * rewards.length)];
+      
+      switch(reward.type) {
+        case 'coin':
+          state.player.coin += reward.amount;
+          toast(reward.message, 4000);
+          break;
+        case 'xp':
+          state.player.xp += reward.amount;
+          toast(reward.message, 4000);
+          break;
+        case 'item':
+          for (const item in reward.items) {
+            state.inventory[item] = (state.inventory[item] || 0) + reward.items[item];
+          }
+          toast(reward.message, 4000);
+          break;
+        case 'recipe':
+          const recipes = Object.keys(CONFIG.recipes).filter(r => !state.unlockedRecipes.includes(r));
+          if (recipes.length > 0) {
+            const newRecipe = recipes[Math.floor(Math.random() * recipes.length)];
+            state.unlockedRecipes.push(newRecipe);
+            toast(`¡${reward.message} ${newRecipe}!`, 5000);
+          } else {
+            state.player.coin += 75;
+            toast('¡Encontraste un tesoro con 75 monedas!', 4000);
+          }
+          break;
+      }
     }
 
     // --- Crafting ---
-    function openCraft(){const modal=document.createElement('div');modal.style.position='fixed';modal.style.inset='0';modal.style.display='grid';modal.style.placeItems='center';modal.style.zIndex=9999;modal.innerHTML=`
-      <div style="width:720px;background:${'rgba(3,10,20,.96)'};padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,.03)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><h3 style="margin:0">Crafteo</h3><button id="closeCraft" class="btn">Cerrar</button></div>
-        <div style="display:grid;grid-template-columns:1fr 320px;gap:12px">
-          <div id="recipesCol"></div>
-          <div class="card" style="height:100%"><div class="muted">Detalles</div><div id="recipeDetails" style="margin-top:8px"></div></div>
+    function openCraft() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <h2 style="margin:0">Crafteo</h2>
+            <button id="closeCraft" class="btn">
+              <i class="fas fa-times"></i> Cerrar
+            </button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 320px;gap:16px">
+            <div>
+              <h3 style="margin-top:0">Recetas disponibles</h3>
+              <div id="recipesCol" style="display:flex;flex-direction:column;gap:10px"></div>
+            </div>
+            <div class="card" style="height:fit-content">
+              <h3 style="margin-top:0">Detalles</h3>
+              <div id="recipeDetails">
+                <div class="muted">Selecciona una receta para ver los detalles</div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>`;
+      `;
+      
       document.body.appendChild(modal);
-      document.getElementById('closeCraft').onclick=()=>modal.remove();
-      const rc=document.getElementById('recipesCol'); rc.innerHTML='';
+      document.getElementById('closeCraft').onclick = () => modal.remove();
+      
+      const rc = document.getElementById('recipesCol');
+      rc.innerHTML = '';
+      
       state.unlockedRecipes = Array.from(new Set(state.unlockedRecipes));
-      state.unlockedRecipes.forEach(r=>{
-        const recipe=CONFIG.recipes[r]||null; const el=document.createElement('div');el.className='card';el.style.display='flex';el.style.justifyContent='space-between';el.style.alignItems='center';el.innerHTML=`<div><strong>${r}</strong><div class="muted">${recipe?Object.entries(recipe).filter(x=>x[0]!=='craftXP').map(x=>x[0]+': '+x[1]).join(' • '):'Receta misteriosa'}</div></div><div><button class="btn primary">Craftear</button></div>`;
+      
+      state.unlockedRecipes.forEach(r => {
+        const recipe = CONFIG.recipes[r] || null;
+        const canCraft = recipe ? Object.entries(recipe)
+          .filter(x => x[0] !== 'craftXP')
+          .every(([key, value]) => (state.inventory[key] || 0) >= value) : false;
+        
+        const el = document.createElement('div');
+        el.className = 'card';
+        el.style.cursor = 'pointer';
+        el.style.opacity = canCraft ? 1 : 0.6;
+        el.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <strong>${r} ${recipe?.emoji || ''}</strong>
+              <div class="muted">${recipe ? Object.entries(recipe)
+                .filter(x => x[0] !== 'craftXP')
+                .map(([key, value]) => `${CONFIG.resources[key]?.emoji || ''} ${value} ${key}`)
+                .join(' • ') : 'Receta misteriosa'}</div>
+            </div>
+            <div>
+              <button class="btn ${canCraft ? 'primary' : ''}" ${canCraft ? '' : 'disabled'}>
+                <i class="fas fa-hammer"></i> Craftear
+              </button>
+            </div>
+          </div>
+        `;
+        
         rc.appendChild(el);
-        el.querySelector('button').onclick=()=>{
+        
+        // Add click event to show details
+        el.addEventListener('click', () => {
+          showRecipeDetails(r, recipe);
+        });
+        
+        // Craft button
+        el.querySelector('button').onclick = (e) => {
+          e.stopPropagation();
           craft(r);
-          document.getElementById('recipeDetails').innerText = 'Crafteado: '+r;
-        }
-      })
+          modal.remove();
+        };
+      });
     }
 
-    function craft(name){const recipe=CONFIG.recipes[name]; if(!recipe){toast('Receta inválida');return}
-      // check resources
-      for(const key of Object.keys(recipe)){if(key==='craftXP') continue; if((state.inventory[key]||0) < recipe[key]){toast('No tienes recursos suficientes');beep(220,0.05,0.02);return}}
-      // consume
-      for(const key of Object.keys(recipe)){if(key==='craftXP') continue; state.inventory[key]-=recipe[key]}
-      // reward crafted item
-      const craftedKey = name.toLowerCase(); state.inventory[craftedKey] = (state.inventory[craftedKey]||0)+1; state.player.xp += recipe.craftXP||10; toast('Crafteaste '+name);beep(1100,0.07,0.05); updateUI(); save(state);
+    function showRecipeDetails(name, recipe) {
+      const detailsEl = document.getElementById('recipeDetails');
+      
+      if (!recipe) {
+        detailsEl.innerHTML = `<div class="muted">Receta no disponible</div>`;
+        return;
+      }
+      
+      let html = `
+        <div style="font-size:18px;font-weight:700;margin-bottom:10px">${name} ${recipe.emoji || ''}</div>
+        <div style="margin-bottom:12px">Requisitos:</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+      `;
+      
+      Object.entries(recipe).forEach(([key, value]) => {
+        if (key === 'craftXP') return;
+        
+        const hasEnough = (state.inventory[key] || 0) >= value;
+        html += `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <span class="resource-icon">${CONFIG.resources[key]?.emoji || '❓'}</span>
+              ${CONFIG.resources[key]?.name || key}
+            </div>
+            <div style="color:${hasEnough ? 'var(--good)' : 'var(--danger)'}">
+              ${state.inventory[key] || 0}/${value}
+            </div>
+          </div>
+        `;
+      });
+      
+      html += `</div>`;
+      html += `<div style="margin-top:12px">Recompensa: <strong>+${recipe.craftXP} XP</strong></div>`;
+      
+      detailsEl.innerHTML = html;
+    }
+
+    function craft(name) {
+      const recipe = CONFIG.recipes[name];
+      if (!recipe) {
+        toast('Receta inválida');
+        return;
+      }
+      
+      // Check resources
+      for (const key of Object.keys(recipe)) {
+        if (key === 'craftXP') continue;
+        if ((state.inventory[key] || 0) < recipe[key]) {
+          toast('No tienes recursos suficientes');
+          return;
+        }
+      }
+      
+      // Consume resources
+      for (const key of Object.keys(recipe)) {
+        if (key === 'craftXP') continue;
+        state.inventory[key] -= recipe[key];
+      }
+      
+      // Reward crafted item
+      const craftedKey = name.toLowerCase();
+      state.inventory[craftedKey] = (state.inventory[craftedKey] || 0) + 1;
+      state.player.xp += recipe.craftXP || 10;
+      state.stats.crafts += 1;
+      
+      AudioManager.playCraft();
+      toast('¡Crafteaste ' + name + '! +' + recipe.craftXP + ' XP');
+      
+      updateUI();
+      save(state);
+      checkAchievements();
+      checkQuests('craft', name);
     }
 
     // --- Quests ---
-    function newQuest(){const tasks=['Descubre 3 POIs próximos','Recolecta 5 madera','Craftea una Antorcha']; const t=tasks[Math.floor(Math.random()*tasks.length)]; state.quests=[{id:cryptoRandomId(),title:t,progress:0,goal: t.includes('3')?3:(t.includes('5')?5:1)}]; updateUI(); save(state); toast('Nueva misión: '+t)}
-
-    // --- Movement systems: geolocation + keyboard simulation ---
-    let geolocationEnabled=false; let simulatedMode=false; let lastKnown=null;
-    function enableGeolocation(){if(!navigator.geolocation){document.getElementById('status').innerText='Geolocalización no disponible'; return}
-      navigator.geolocation.getCurrentPosition(pos=>{
-        geolocationEnabled=true; simulatedMode=false; lastKnown=[pos.coords.latitude,pos.coords.longitude]; playerMarker.setLatLng(lastKnown); map.setView(lastKnown,15); document.getElementById('status').innerText='Modo GPS activo'; spawnPOI(lastKnown); updateUI(); save(state);
-      },err=>{document.getElementById('status').innerText='Permiso denegado — usa teclado/simular'} ,{enableHighAccuracy:true,maximumAge:20000})
-      // watch position
-      navigator.geolocation.watchPosition(pos=>{if(!geolocationEnabled) return; lastKnown=[pos.coords.latitude,pos.coords.longitude]; playerMarker.setLatLng(lastKnown); checkNearby(); save(state)},{enableHighAccuracy:true,maximumAge:10000})
+    function generateQuest() {
+      if (state.quests.length >= 3) {
+        toast('Ya tienes demasiadas misiones');
+        return;
+      }
+      
+      const questType = CONFIG.questTypes[Math.floor(Math.random() * CONFIG.questTypes.length)];
+      let target, amount;
+      
+      if (questType.type === 'collect') {
+        target = questType.target[Math.floor(Math.random() * questType.target.length)];
+        amount = Math.floor(Math.random() * (questType.amount[1] - questType.amount[0] + 1)) + questType.amount[0];
+      } else if (questType.type === 'craft') {
+        target = questType.target[Math.floor(Math.random() * questType.target.length)];
+        amount = Math.floor(Math.random() * (questType.amount[1] - questType.amount[0] + 1)) + questType.amount[0];
+      } else {
+        amount = Math.floor(Math.random() * (questType.amount[1] - questType.amount[0] + 1)) + questType.amount[0];
+      }
+      
+      const rewards = {
+        xp: amount * 10,
+        coin: amount * 5
+      };
+      
+      const quest = {
+        id: cryptoRandomId(),
+        title: questType.name + (target ? ` (${target})` : ''),
+        type: questType.type,
+        target: target,
+        progress: 0,
+        goal: amount,
+        rewards: rewards
+      };
+      
+      state.quests.push(quest);
+      updateUI();
+      toast('Nueva misión: ' + quest.title);
+      save(state);
     }
 
-    // keyboard movement for testing and users without GPS
-    const keys = {up:false,down:false,left:false,right:false}; let moveSpeed=0.0004; // degrees per tick approx
-    document.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='w'){keys.up=true} if(e.key==='ArrowDown'||e.key==='s'){keys.down=true} if(e.key==='ArrowLeft'||e.key==='a'){keys.left=true} if(e.key==='ArrowRight'||e.key==='d'){keys.right=true}})
-    document.addEventListener('keyup',e=>{if(e.key==='ArrowUp'||e.key==='w'){keys.up=false} if(e.key==='ArrowDown'||e.key==='s'){keys.down=false} if(e.key==='ArrowLeft'||e.key==='a'){keys.left=false} if(e.key==='ArrowRight'||e.key==='d'){keys.right=false}})
+    function checkQuests(type, target = null) {
+      state.quests.forEach(quest => {
+        if (quest.type === type && (!target || quest.target === target)) {
+          quest.progress += 1;
+          
+          if (quest.progress >= quest.goal) {
+            completeQuest(quest);
+          } else {
+            updateUI();
+            save(state);
+          }
+        }
+      });
+    }
 
-    function simulateTick(){if(simulatedMode){const pos=playerMarker.getLatLng(); let lat=pos.lat; let lon=pos.lng; if(keys.up) lat+=moveSpeed; if(keys.down) lat-=moveSpeed; if(keys.left) lon-=moveSpeed; if(keys.right) lon+=moveSpeed; playerMarker.setLatLng([lat,lon]); map.setView([lat,lon]); checkNearby(); save(state)} }
+    function completeQuest(quest) {
+      state.player.xp += quest.rewards.xp;
+      state.player.coin += quest.rewards.coin;
+      
+      AudioManager.playQuestComplete();
+      toast(`¡Misión completada: ${quest.title}! +${quest.rewards.xp} XP, +${quest.rewards.coin} monedas`, 5000);
+      
+      state.quests = state.quests.filter(q => q.id !== quest.id);
+      updateUI();
+      save(state);
+    }
 
-    document.getElementById('btn-sim-move').onclick=()=>{simulatedMode=!simulatedMode; geolocationEnabled=false; document.getElementById('status').innerText = simulatedMode ? 'Modo simulación: usa WASD/arrow' : 'Modo sim detenido'; toast('Simulación '+(simulatedMode?'activada':'desactivada'));}
-    document.getElementById('btn-teleport').onclick=()=>{const c=map.getCenter(); playerMarker.setLatLng(c); toast('Teletransportado al centro del mapa'); checkNearby(); save(state)}
+    function renderQuests() {
+      if (!state.quests || state.quests.length === 0) {
+        questBoxEl.innerHTML = '<div class="muted">Sin misiones activas. Encuentra un POI de misión para obtener una.</div>';
+        return;
+      }
+      
+      questBoxEl.innerHTML = '';
+      state.quests.forEach(quest => {
+        const questEl = document.createElement('div');
+        questEl.className = 'quest';
+        questEl.innerHTML = `
+          <div style="font-weight:700;margin-bottom:4px">${quest.title}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="muted">Progreso ${quest.progress}/${quest.goal}</div>
+            <div class="muted">+${quest.rewards.xp} XP, +${quest.rewards.coin} monedas</div>
+          </div>
+          <div class="meter"><i style="width: ${(quest.progress / quest.goal) * 100}%"></i></div>
+        `;
+        questBoxEl.appendChild(questEl);
+      });
+    }
 
-    // check nearby POIs automatically
-    function checkNearby(){const pos=[playerMarker.getLatLng().lat,playerMarker.getLatLng().lng]; // discover any within small radius automatically
-      const close = state.pois.filter(p=>metersBetween([p.lat,p.lon],pos) <= CONFIG.discoveryRadius);
-      close.forEach(p=>handleDiscovery(p)); updateUI();
+    // --- Achievements ---
+    function checkAchievements() {
+      let unlockedCount = 0;
+      
+      state.achievements.forEach(ach => {
+        if (ach.unlocked) {
+          unlockedCount++;
+          return;
+        }
+        
+        let unlocked = false;
+        
+        switch(ach.id) {
+          case 'first_discovery':
+            unlocked = state.stats.discoveries > 0;
+            break;
+          case 'craft_master':
+            ach.progress = state.stats.crafts;
+            unlocked = ach.progress >= ach.target;
+            break;
+          case 'explorer':
+            ach.progress = state.stats.discoveries;
+            unlocked = ach.progress >= ach.target;
+            break;
+          case 'rich':
+            ach.progress = state.player.coin;
+            unlocked = ach.progress >= ach.target;
+            break;
+          case 'level_10':
+            ach.progress = state.player.level;
+            unlocked = ach.progress >= ach.target;
+            break;
+        }
+        
+        if (unlocked && !ach.unlocked) {
+          ach.unlocked = true;
+          state.player.coin += ach.reward;
+          toast(`¡Logro desbloqueado: ${ach.name}! +${ach.reward} monedas`, 5000);
+          unlockedCount++;
+        }
+      });
+      
+      document.getElementById('achievement-count').textContent = `${unlockedCount}/${state.achievements.length}`;
+      renderAchievements();
+      save(state);
+    }
+
+    function renderAchievements() {
+      achievementBoxEl.innerHTML = '';
+      const achieved = state.achievements.filter(a => a.unlocked);
+      const locked = state.achievements.filter(a => !a.unlocked);
+      
+      if (achieved.length === 0 && locked.length === 0) {
+        achievementBoxEl.innerHTML = '<div class="muted">Completa acciones para desbloquear logros.</div>';
+        return;
+      }
+      
+      achieved.slice(0, 2).forEach(ach => {
+        const achEl = document.createElement('div');
+        achEl.className = 'quest quest-completed';
+        achEl.innerHTML = `
+          <div style="font-weight:700;margin-bottom:4px"><i class="fas fa-trophy" style="color:var(--good);margin-right:6px"></i> ${ach.name}</div>
+          <div class="muted">${ach.desc}</div>
+        `;
+        achievementBoxEl.appendChild(achEl);
+      });
+      
+      if (locked.length > 0) {
+        const lockedEl = document.createElement('div');
+        lockedEl.className = 'muted';
+        lockedEl.style.marginTop = '8px';
+        lockedEl.textContent = `+${locked.length} logros por desbloquear...`;
+        achievementBoxEl.appendChild(lockedEl);
+      }
+    }
+
+    // --- Movement systems: geolocation + keyboard simulation ---
+    let geolocationEnabled = false;
+    let simulatedMode = false;
+    let lastKnown = null;
+    let watchId = null;
+    
+    function enableGeolocation() {
+      if (!navigator.geolocation) {
+        document.getElementById('status').innerText = 'Geolocalización no disponible';
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          geolocationEnabled = true;
+          simulatedMode = false;
+          lastKnown = [pos.coords.latitude, pos.coords.longitude];
+          playerMarker.setLatLng(lastKnown);
+          accuracyCircle.setLatLng(lastKnown);
+          accuracyCircle.setRadius(pos.coords.accuracy);
+          map.setView(lastKnown, 16);
+          document.getElementById('status').innerText = 'Modo GPS activo';
+          spawnPOI(lastKnown);
+          updateUI();
+          save(state);
+        },
+        err => {
+          document.getElementById('status').innerText = 'Permiso denegado — usa teclado/simular';
+        },
+        { enableHighAccuracy: true, maximumAge: 20000, timeout: 10000 }
+      );
+      
+      // Watch position
+      watchId = navigator.geolocation.watchPosition(
+        pos => {
+          if (!geolocationEnabled) return;
+          
+          const newPos = [pos.coords.latitude, pos.coords.longitude];
+          lastKnown = newPos;
+          playerMarker.setLatLng(newPos);
+          accuracyCircle.setLatLng(newPos);
+          accuracyCircle.setRadius(pos.coords.accuracy);
+          
+          // Calculate distance moved
+          if (state.lastPos) {
+            const dist = metersBetween(state.lastPos, newPos);
+            state.stats.distance += dist;
+            state.stats.steps += Math.floor(dist / 0.7); // Approximate steps
+          }
+          
+          state.lastPos = newPos;
+          checkNearby();
+          save(state);
+        },
+        null,
+        { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+      );
+    }
+
+    // Keyboard movement for testing and users without GPS
+    const keys = { up: false, down: false, left: false, right: false };
+    let moveSpeed = 0.0004; // degrees per tick approx
+    
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keys.up = true;
+      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keys.down = true;
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = true;
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = true;
+    });
+    
+    document.addEventListener('keyup', e => {
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') keys.up = false;
+      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') keys.down = false;
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+    });
+
+    function simulateTick() {
+      if (simulatedMode) {
+        const pos = playerMarker.getLatLng();
+        let lat = pos.lat;
+        let lon = pos.lng;
+        
+        if (keys.up) lat += moveSpeed;
+        if (keys.down) lat -= moveSpeed;
+        if (keys.left) lon -= moveSpeed;
+        if (keys.right) lon += moveSpeed;
+        
+        playerMarker.setLatLng([lat, lon]);
+        map.setView([lat, lon]);
+        
+        // Update stats for simulated movement
+        state.stats.distance += 5; // Simulate 5 meters per tick
+        state.stats.steps += 7; // Simulate steps
+        
+        checkNearby();
+        save(state);
+      }
+    }
+
+    document.getElementById('btn-sim-move').onclick = () => {
+      simulatedMode = !simulatedMode;
+      geolocationEnabled = false;
+      
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+      
+      document.getElementById('status').innerText = simulatedMode ? 'Modo simulación: usa WASD/flechas' : 'Modo simulación detenido';
+      toast('Simulación ' + (simulatedMode ? 'activada' : 'desactivada'));
+    };
+    
+    document.getElementById('btn-teleport').onclick = () => {
+      const c = map.getCenter();
+      playerMarker.setLatLng(c);
+      toast('Teletransportado al centro del mapa');
+      checkNearby();
+      save(state);
+    };
+
+    // Check nearby POIs automatically
+    function checkNearby() {
+      const pos = [playerMarker.getLatLng().lat, playerMarker.getLatLng().lng];
+      
+      // Discover any within small radius automatically
+      const close = state.pois.filter(p => metersBetween([p.lat, p.lon], pos) <= CONFIG.discoveryRadius && !p.discovered);
+      close.forEach(p => {
+        p.discovered = true;
+        handleDiscovery(p);
+      });
+      
+      updateUI();
     }
 
     // --- UI updates ---
-    function updateUI(){document.getElementById('player-name').innerText=state.player.name;document.getElementById('player-level').innerText=state.player.level;document.getElementById('player-xp').innerText=state.player.xp;document.getElementById('player-xp-needed').innerText=levelXPNeeded(state.player.level);
-      const percent = Math.min(100, Math.round((state.player.xp/levelXPNeeded(state.player.level))*100)); document.getElementById('xp-fill').style.width = percent+'%'; document.getElementById('player-coin').innerText = state.player.coin; document.getElementById('player-hp').innerText = 'HP '+state.player.hp;
-      // inventory render
-      inventoryEl.innerHTML=''; for(const k of Object.keys(state.inventory)){const el=document.createElement('div');el.className='item'; el.innerHTML=`<div style="font-weight:700">${state.inventory[k]}</div><div style="font-size:11px" class="muted">${capitalize(k)}</div>`; inventoryEl.appendChild(el)}
-      renderPOIs(); renderQuests();
-      // level up
-      const needed = levelXPNeeded(state.player.level); if(state.player.xp >= needed){state.player.xp -= needed; state.player.level++; state.player.hp += 10; state.player.coin += 20; toast('Subiste de nivel! Nivel '+state.player.level); beep(1400,0.08,0.06); updateUI();}
+    function updateUI() {
+      // Player info
+      document.getElementById('player-name').innerText = state.player.name;
+      document.getElementById('player-level').innerText = state.player.level;
+      document.getElementById('player-xp').innerText = state.player.xp;
+      document.getElementById('player-xp-needed').innerText = levelXPNeeded(state.player.level);
+      
+      const percent = Math.min(100, Math.round((state.player.xp / levelXPNeeded(state.player.level)) * 100));
+      document.getElementById('xp-fill').style.width = percent + '%';
+      
+      document.getElementById('player-coin').innerText = state.player.coin;
+      document.getElementById('player-hp').innerText = 'HP ' + state.player.hp + '/' + state.player.maxHp;
+      
+      // Inventory render
+      inventoryEl.innerHTML = '';
+      for (const k of Object.keys(state.inventory)) {
+        if (state.inventory[k] > 0) {
+          const el = document.createElement('div');
+          el.className = 'item';
+          el.innerHTML = `
+            <div class="item-count">${state.inventory[k]}</div>
+            <div style="font-size:11px" class="muted">${CONFIG.resources[k]?.name || capitalize(k)}</div>
+          `;
+          inventoryEl.appendChild(el);
+        }
+      }
+      
+      // Show empty slots
+      const emptySlots = 8 - Object.keys(state.inventory).filter(k => state.inventory[k] > 0).length;
+      for (let i = 0; i < emptySlots; i++) {
+        const el = document.createElement('div');
+        el.className = 'item';
+        el.innerHTML = `
+          <div class="item-count">0</div>
+          <div style="font-size:11px" class="muted">Vacío</div>
+        `;
+        inventoryEl.appendChild(el);
+      }
+      
+      renderPOIs();
+      renderQuests();
+      renderAchievements();
+      
+      // Level up check
+      const needed = levelXPNeeded(state.player.level);
+      if (state.player.xp >= needed) {
+        state.player.xp -= needed;
+        state.player.level++;
+        state.player.maxHp += 10;
+        state.player.hp = state.player.maxHp;
+        state.player.coin += 20;
+        
+        AudioManager.playLevelUp();
+        toast('¡Subiste de nivel! Nivel ' + state.player.level, 5000);
+        
+        // Check for level-based achievements
+        checkAchievements();
+        checkQuests('level');
+        
+        updateUI();
+      }
     }
 
-    function levelXPNeeded(level){return Math.round(CONFIG.levelXPBase * Math.pow(1.25,level-1)); }
+    function levelXPNeeded(level) {
+      return Math.round(CONFIG.levelXPBase * Math.pow(1.3, level - 1));
+    }
 
-    function renderQuests(){const qb=document.getElementById('quest-box'); if(!state.quests||state.quests.length===0){qb.innerText='Sin misión activa.';return} const q=state.quests[0]; qb.innerHTML=`<div style="font-weight:700">${q.title}</div><div class="muted">Progreso ${q.progress}/${q.goal}</div>`}
-
-    // toasts
-    function toast(text,t=3500){const d=document.createElement('div');d.className='toast';d.innerText=text;hudEl.appendChild(d);setTimeout(()=>d.style.opacity='0.0',t-400);setTimeout(()=>d.remove(),t)}
+    // Toasts
+    function toast(text, t = 3500) {
+      const d = document.createElement('div');
+      d.className = 'toast';
+      d.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="fas fa-info-circle" style="color:var(--accent)"></i>
+          <div>${text}</div>
+        </div>
+      `;
+      hudEl.appendChild(d);
+      
+      // Remove after time
+      setTimeout(() => {
+        d.remove();
+      }, t);
+    }
 
     // UI buttons
-    document.getElementById('open-craft').onclick=openCraft; document.getElementById('btn-new-quest').onclick=newQuest; document.getElementById('btn-clear-inv').onclick=()=>{state.inventory={}; updateUI(); toast('Inventario vaciado'); save(state)}
+    document.getElementById('open-craft').onclick = openCraft;
+    document.getElementById('btn-new-quest').onclick = generateQuest;
+    document.getElementById('btn-clear-inv').onclick = () => {
+      if (confirm('¿Estás seguro de que quieres vaciar tu inventario?')) {
+        state.inventory = {};
+        updateUI();
+        toast('Inventario vaciado');
+        save(state);
+      }
+    };
 
-    // auto spawn initial POIs around center
-    spawnPOI(map.getCenter()); updateUI();
+    // Auto spawn initial POIs around center
+    spawnPOI(map.getCenter());
+    updateUI();
+    checkAchievements();
 
-    // attempt geolocation on load
+    // Attempt geolocation on load
     enableGeolocation();
 
-    // main loop
-    let lastTick = performance.now(); function loop(now){ const dt = now-lastTick; if(dt >= CONFIG.tickMs){simulateTick(); lastTick=now;} requestAnimationFrame(loop)} requestAnimationFrame(loop);
+    // Main loop
+    let lastTick = performance.now();
+    function loop(now) {
+      const dt = now - lastTick;
+      if (dt >= CONFIG.tickMs) {
+        simulateTick();
+        lastTick = now;
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
 
-    // small helper: unlock recipe when player reaches XP thresholds
-    setInterval(()=>{if(state.player.level >= 2 && !state.unlockedRecipes.includes('Campamento')){state.unlockedRecipes.push('Campamento'); toast('Nueva receta desbloqueada: Campamento'); save(state)}},5000);
+    // Small helper: unlock recipe when player reaches XP thresholds
+    setInterval(() => {
+      if (state.player.level >= 3 && !state.unlockedRecipes.includes('Campamento')) {
+        state.unlockedRecipes.push('Campamento');
+        toast('Nueva receta desbloqueada: Campamento');
+        save(state);
+      }
+      
+      if (state.player.level >= 5 && !state.unlockedRecipes.includes('Espada')) {
+        state.unlockedRecipes.push('Espada');
+        toast('Nueva receta desbloqueada: Espada');
+        save(state);
+      }
+      
+      if (state.player.level >= 8 && !state.unlockedRecipes.includes('Poción de Vida')) {
+        state.unlockedRecipes.push('Poción de Vida');
+        toast('Nueva receta desbloqueada: Poción de Vida');
+        save(state);
+      }
+    }, 10000);
 
-    // expose some functions to console for debugging
-    window._debug = {state,save,load,craft,spawnPOI};
+    // Expose some functions to console for debugging
+    window._debug = { state, save, load, craft, spawnPOI, generateQuest };
 
+    // Prevent context menu on long press
+    document.addEventListener('contextmenu', e => e.preventDefault());
   </script>
 </body>
 </html>
