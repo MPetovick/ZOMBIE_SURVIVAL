@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoCollector - Buscador de Materiales</title>
+    <title>GeoCollector - Buscador de Materiales Mejorado</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -64,14 +65,19 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
         
-        .inventory-btn {
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
             background-color: #2e7d32;
             color: white;
             border: none;
             border-radius: 50%;
             width: 50px;
             height: 50px;
-            font-size: 24px;
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -81,9 +87,32 @@
             transition: transform 0.2s, background-color 0.2s;
         }
         
-        .inventory-btn:hover {
+        .action-btn:hover {
             transform: scale(1.05);
+        }
+        
+        .inventory-btn {
+            background-color: #2e7d32;
+        }
+        
+        .inventory-btn:hover {
             background-color: #1b5e20;
+        }
+        
+        .missions-btn {
+            background-color: #1565c0;
+        }
+        
+        .missions-btn:hover {
+            background-color: #0d47a1;
+        }
+        
+        .shop-btn {
+            background-color: #9c27b0;
+        }
+        
+        .shop-btn:hover {
+            background-color: #7b1fa2;
         }
         
         .material {
@@ -151,13 +180,14 @@
             background-color: rgba(171, 71, 188, 0.5);
         }
         
-        .inventory-panel {
+        .panel {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             width: 90%;
             max-width: 500px;
+            max-height: 80vh;
             background-color: #1e1e1e;
             border-radius: 12px;
             padding: 20px;
@@ -165,9 +195,10 @@
             box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
             pointer-events: auto;
             display: none;
+            overflow-y: auto;
         }
         
-        .inventory-header {
+        .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -188,8 +219,6 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             gap: 10px;
-            max-height: 300px;
-            overflow-y: auto;
         }
         
         .inventory-item {
@@ -200,6 +229,12 @@
             flex-direction: column;
             align-items: center;
             gap: 5px;
+            transition: transform 0.2s;
+        }
+        
+        .inventory-item:hover {
+            transform: translateY(-5px);
+            background-color: #3d3d3d;
         }
         
         .item-icon {
@@ -212,13 +247,13 @@
             color: #aaa;
         }
         
-        .tools-section {
+        .section {
             margin-top: 20px;
             padding-top: 10px;
             border-top: 1px solid #333;
         }
         
-        .tool-item {
+        .tool-item, .mission-item, .shop-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -228,7 +263,7 @@
             margin-bottom: 10px;
         }
         
-        .tool-upgrade {
+        .upgrade-btn {
             background-color: #2e7d32;
             color: white;
             border: none;
@@ -237,9 +272,24 @@
             cursor: pointer;
         }
         
-        .tool-upgrade:disabled {
+        .upgrade-btn:disabled {
             background-color: #444;
             cursor: not-allowed;
+        }
+        
+        .mission-progress {
+            width: 100%;
+            height: 8px;
+            background-color: #333;
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #42a5f5;
+            border-radius: 4px;
         }
         
         .overlay-backdrop {
@@ -264,6 +314,64 @@
             z-index: 6;
             display: none;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translate(-50%, -20px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        
+        .xp-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background-color: #333;
+            z-index: 2;
+        }
+        
+        .xp-progress {
+            height: 100%;
+            background-color: #ff9800;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        
+        .detector-range {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 2px dashed rgba(66, 165, 245, 0.5);
+            border-radius: 50%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .material-name-tag {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .material:hover .material-name-tag {
+            opacity: 1;
+        }
+        
+        .mission-reward {
+            font-size: 12px;
+            color: #ffd54f;
+            margin-top: 5px;
         }
         
         @media (max-width: 600px) {
@@ -272,16 +380,21 @@
                 padding: 6px 10px;
             }
             
-            .inventory-btn {
+            .action-btn {
                 width: 45px;
                 height: 45px;
-                font-size: 20px;
+                font-size: 18px;
             }
             
             .material {
                 width: 40px;
                 height: 40px;
                 font-size: 20px;
+            }
+            
+            .panel {
+                width: 95%;
+                padding: 15px;
             }
         }
     </style>
@@ -305,27 +418,73 @@
                     <span id="coins">100</span>
                 </div>
             </div>
-            <button class="inventory-btn" id="inventoryBtn">🎒</button>
+            <div class="action-buttons">
+                <button class="action-btn missions-btn" id="missionsBtn" title="Misiones"><i class="fas fa-tasks"></i></button>
+                <button class="action-btn shop-btn" id="shopBtn" title="Tienda"><i class="fas fa-shopping-cart"></i></button>
+                <button class="action-btn inventory-btn" id="inventoryBtn" title="Inventario"><i class="fas fa-backpack"></i></button>
+            </div>
         </div>
+        
+        <div class="xp-bar">
+            <div class="xp-progress" id="xpProgress"></div>
+        </div>
+        
+        <div class="detector-range" id="detectorRange"></div>
         
         <div class="overlay-backdrop" id="overlayBackdrop"></div>
         
-        <div class="inventory-panel" id="inventoryPanel">
-            <div class="inventory-header">
+        <div class="panel" id="inventoryPanel">
+            <div class="panel-header">
                 <h2>Inventario</h2>
                 <button class="close-btn" id="closeInventory">×</button>
             </div>
             <div class="inventory-items" id="inventoryItems">
                 <!-- Los items del inventario se generarán dinámicamente -->
             </div>
-            <div class="tools-section">
+            <div class="section">
                 <h3>Herramientas</h3>
                 <div class="tool-item">
                     <div>
                         <div>Detector Básico</div>
-                        <div class="item-count">Nivel <span id="detectorLevel">1</span></div>
+                        <div class="item-count">Nivel <span id="detectorLevel">1</span> - Alcance: <span id="detectorRangeValue">50</span>m</div>
                     </div>
-                    <button class="tool-upgrade" id="upgradeDetector" data-cost="150">Mejorar</button>
+                    <button class="upgrade-btn" id="upgradeDetector" data-cost="150">Mejorar</button>
+                </div>
+                <div class="tool-item">
+                    <div>
+                        <div>Bolsa de Colección</div>
+                        <div class="item-count">Capacidad: <span id="bagCapacity">20</span> materiales</div>
+                    </div>
+                    <button class="upgrade-btn" id="upgradeBag" data-cost="200">Mejorar</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="panel" id="missionsPanel">
+            <div class="panel-header">
+                <h2>Misiones Diarias</h2>
+                <button class="close-btn" id="closeMissions">×</button>
+            </div>
+            <div id="missionsList">
+                <!-- Las misiones se generarán dinámicamente -->
+            </div>
+        </div>
+        
+        <div class="panel" id="shopPanel">
+            <div class="panel-header">
+                <h2>Tienda</h2>
+                <button class="close-btn" id="closeShop">×</button>
+            </div>
+            <div class="section">
+                <h3>Comprar Materiales</h3>
+                <div id="shopItems">
+                    <!-- Los items de la tienda se generarán dinámicamente -->
+                </div>
+            </div>
+            <div class="section">
+                <h3>Vender Materiales</h3>
+                <div id="sellItems">
+                    <!-- Los items para vender se generarán dinámicamente -->
                 </div>
             </div>
         </div>
@@ -335,7 +494,7 @@
 
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
-        // Estado del juego
+        // Estado del juego mejorado
         const gameState = {
             level: 1,
             xp: 0,
@@ -344,18 +503,56 @@
             distanceTraveled: 0,
             lastPosition: null,
             inventory: {
-                "wood": { name: "Madera", icon: "🪵", count: 0, rarity: "common" },
-                "stone": { name: "Piedra", icon: "🪨", count: 0, rarity: "common" },
-                "iron": { name: "Hierro", icon: "⛓️", count: 0, rarity: "rare" },
-                "gold": { name: "Oro", icon: "🥇", count: 0, rarity: "epic" },
-                "crystal": { name: "Cristal", icon: "🔮", count: 0, rarity: "epic" }
+                "wood": { name: "Madera", icon: "🪵", count: 0, rarity: "common", value: 5 },
+                "stone": { name: "Piedra", icon: "🪨", count: 0, rarity: "common", value: 7 },
+                "iron": { name: "Hierro", icon: "⛓️", count: 0, rarity: "rare", value: 15 },
+                "gold": { name: "Oro", icon: "🥇", count: 0, rarity: "epic", value: 30 },
+                "crystal": { name: "Cristal", icon: "🔮", count: 0, rarity: "epic", value: 50 },
+                "diamond": { name: "Diamante", icon: "💎", count: 0, rarity: "legendary", value: 100 }
             },
             tools: {
-                detector: { level: 1, range: 50 }
+                detector: { level: 1, range: 50, upgradeCost: 150 },
+                bag: { level: 1, capacity: 20, upgradeCost: 200 }
             },
+            missions: [
+                { 
+                    id: "collect_common", 
+                    name: "Coleccionista Novato", 
+                    description: "Recolecta 10 materiales comunes", 
+                    type: "collect", 
+                    target: "common", 
+                    progress: 0, 
+                    targetCount: 10, 
+                    reward: { coins: 50, xp: 25 },
+                    completed: false
+                },
+                { 
+                    id: "walk_distance", 
+                    name: "Caminante", 
+                    description: "Camina 500 metros", 
+                    type: "distance", 
+                    progress: 0, 
+                    targetCount: 500, 
+                    reward: { coins: 75, xp: 35 },
+                    completed: false
+                },
+                { 
+                    id: "collect_rare", 
+                    name: "Cazador de Rarezas", 
+                    description: "Encuentra 3 materiales raros", 
+                    type: "collect", 
+                    target: "rare", 
+                    progress: 0, 
+                    targetCount: 3, 
+                    reward: { coins: 100, xp: 50 },
+                    completed: false
+                }
+            ],
             collectedMaterials: [],
-            spawnRate: 2000, // Milisegundos entre apariciones de materiales
-            spawnTimer: null
+            spawnRate: 2000,
+            spawnTimer: null,
+            playerMarker: null,
+            usingRealGeolocation: false
         };
 
         // Elementos DOM
@@ -364,47 +561,128 @@
             level: document.getElementById('level'),
             distance: document.getElementById('distance'),
             coins: document.getElementById('coins'),
+            xpProgress: document.getElementById('xpProgress'),
             inventoryBtn: document.getElementById('inventoryBtn'),
+            missionsBtn: document.getElementById('missionsBtn'),
+            shopBtn: document.getElementById('shopBtn'),
             inventoryPanel: document.getElementById('inventoryPanel'),
+            missionsPanel: document.getElementById('missionsPanel'),
+            shopPanel: document.getElementById('shopPanel'),
             closeInventory: document.getElementById('closeInventory'),
+            closeMissions: document.getElementById('closeMissions'),
+            closeShop: document.getElementById('closeShop'),
             inventoryItems: document.getElementById('inventoryItems'),
+            missionsList: document.getElementById('missionsList'),
+            shopItems: document.getElementById('shopItems'),
+            sellItems: document.getElementById('sellItems'),
             detectorLevel: document.getElementById('detectorLevel'),
+            detectorRangeValue: document.getElementById('detectorRangeValue'),
+            detectorRange: document.getElementById('detectorRange'),
+            bagCapacity: document.getElementById('bagCapacity'),
             upgradeDetector: document.getElementById('upgradeDetector'),
+            upgradeBag: document.getElementById('upgradeBag'),
             overlayBackdrop: document.getElementById('overlayBackdrop'),
             notification: document.getElementById('notification')
         };
 
         // Inicializar el mapa
         function initMap() {
-            elements.map = L.map('map').setView([40.4168, -3.7038], 13); // Madrid por defecto
+            elements.map = L.map('map').setView([40.4168, -3.7038], 15);
             
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(elements.map);
             
             // Marcador del jugador
-            const playerMarker = L.marker([40.4168, -3.7038]).addTo(elements.map)
+            gameState.playerMarker = L.marker([40.4168, -3.7038]).addTo(elements.map)
                 .bindPopup('¡Estás aquí!')
                 .openPopup();
             
-            // Simular geolocalización (en un entorno real se usaría navigator.geolocation)
-            simulateGeolocation(playerMarker);
+            // Actualizar el rango del detector visual
+            updateDetectorRange();
+            
+            // Intentar usar geolocalización real
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const { latitude, longitude } = position.coords;
+                        elements.map.setView([latitude, longitude], 15);
+                        gameState.playerMarker.setLatLng([latitude, longitude]);
+                        gameState.lastPosition = { lat: latitude, lng: longitude };
+                        gameState.usingRealGeolocation = true;
+                        
+                        // Iniciar seguimiento de ubicación
+                        navigator.geolocation.watchPosition(
+                            (pos) => updatePosition(pos),
+                            (err) => {
+                                console.error('Error en geolocalización:', err);
+                                simulateGeolocation();
+                            },
+                            { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+                        );
+                    },
+                    (error) => {
+                        console.error('Error obteniendo ubicación:', error);
+                        simulateGeolocation();
+                    },
+                    { timeout: 10000 }
+                );
+            } else {
+                simulateGeolocation();
+            }
         }
 
-        // Simular geolocalización (para propósitos de demostración)
-        function simulateGeolocation(playerMarker) {
+        // Actualizar posición con geolocalización real
+        function updatePosition(position) {
+            const { latitude, longitude } = position.coords;
+            const accuracy = position.coords.accuracy;
+            
+            gameState.playerMarker.setLatLng([latitude, longitude]);
+            elements.map.panTo([latitude, longitude]);
+            
+            // Calcular distancia recorrida
+            if (gameState.lastPosition) {
+                const distance = calculateDistance(
+                    gameState.lastPosition.lat, 
+                    gameState.lastPosition.lng,
+                    latitude,
+                    longitude
+                );
+                
+                gameState.distanceTraveled += distance;
+                elements.distance.textContent = `${Math.round(gameState.distanceTraveled)}m`;
+                
+                // Actualizar misiones de distancia
+                updateDistanceMissions(distance);
+            }
+            
+            gameState.lastPosition = { lat: latitude, lng: longitude };
+            
+            // Añadir precisión como círculo
+            if (gameState.accuracyCircle) {
+                elements.map.removeLayer(gameState.accuracyCircle);
+            }
+            gameState.accuracyCircle = L.circle([latitude, longitude], {
+                radius: accuracy,
+                color: '#3388ff',
+                fillOpacity: 0.2
+            }).addTo(elements.map);
+        }
+
+        // Simular geolocalización (solo para demostración o fallback)
+        function simulateGeolocation() {
             let lat = 40.4168;
             let lng = -3.7038;
             
             // Mover el marcador aleatoriamente para simular movimiento
             setInterval(() => {
-                const latChange = (Math.random() - 0.5) * 0.001;
-                const lngChange = (Math.random() - 0.5) * 0.001;
+                const latChange = (Math.random() - 0.5) * 0.0005;
+                const lngChange = (Math.random() - 0.5) * 0.0005;
                 
                 lat += latChange;
                 lng += lngChange;
                 
-                playerMarker.setLatLng([lat, lng]);
+                gameState.playerMarker.setLatLng([lat, lng]);
                 elements.map.panTo([lat, lng]);
                 
                 // Calcular distancia recorrida
@@ -418,6 +696,9 @@
                     
                     gameState.distanceTraveled += distance;
                     elements.distance.textContent = `${Math.round(gameState.distanceTraveled)}m`;
+                    
+                    // Actualizar misiones de distancia
+                    updateDistanceMissions(distance);
                 }
                 
                 gameState.lastPosition = { lat, lng };
@@ -425,9 +706,24 @@
             }, 3000);
         }
 
-        // Calcular distancia entre dos puntos (fórmula de Haversine simplificada)
+        // Actualizar misiones de distancia
+        function updateDistanceMissions(distance) {
+            gameState.missions.forEach(mission => {
+                if (mission.type === 'distance' && !mission.completed) {
+                    mission.progress += distance;
+                    if (mission.progress >= mission.targetCount) {
+                        mission.progress = mission.targetCount;
+                        mission.completed = true;
+                        completeMission(mission);
+                    }
+                    updateMissionsUI();
+                }
+            });
+        }
+
+        // Calcular distancia entre dos puntos
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000; // Radio de la Tierra en metros
+            const R = 6371000;
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = 
@@ -435,21 +731,29 @@
                 Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
                 Math.sin(dLon/2) * Math.sin(dLon/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            const distance = R * c;
-            return distance;
+            return R * c;
+        }
+
+        // Actualizar rango visual del detector
+        function updateDetectorRange() {
+            const range = gameState.tools.detector.range;
+            elements.detectorRange.style.width = `${range * 6}px`;
+            elements.detectorRange.style.height = `${range * 6}px`;
+            elements.detectorRangeValue.textContent = range;
         }
 
         // Generar materiales en el mapa
         function spawnMaterials() {
-            // Limpiar timer existente
             if (gameState.spawnTimer) {
                 clearTimeout(gameState.spawnTimer);
             }
             
-            // Crear un nuevo material
-            createMaterial();
+            // No generar más materiales si la bolsa está llena
+            const totalMaterials = Object.values(gameState.inventory).reduce((total, item) => total + item.count, 0);
+            if (totalMaterials < gameState.tools.bag.capacity) {
+                createMaterial();
+            }
             
-            // Programar próximo material
             gameState.spawnTimer = setTimeout(spawnMaterials, gameState.spawnRate);
         }
 
@@ -457,20 +761,26 @@
         function createMaterial() {
             if (!gameState.lastPosition) return;
             
-            // Determinar tipo de material basado en probabilidad
+            // Determinar tipo de material basado en probabilidad y nivel del detector
+            const detectorLevel = gameState.tools.detector.level;
             const rand = Math.random();
             let materialType;
             
-            if (rand < 0.6) {
-                materialType = "wood"; // 60% de probabilidad
-            } else if (rand < 0.85) {
-                materialType = "stone"; // 25% de probabilidad
+            if (rand < 0.5) {
+                materialType = "wood";
+            } else if (rand < 0.75) {
+                materialType = "stone";
+            } else if (rand < 0.88) {
+                materialType = "iron";
             } else if (rand < 0.95) {
-                materialType = "iron"; // 10% de probabilidad
-            } else if (rand < 0.99) {
-                materialType = "gold"; // 4% de probabilidad
+                materialType = "gold";
+            } else if (rand < 0.99 && detectorLevel >= 3) {
+                materialType = "crystal";
+            } else if (detectorLevel >= 5) {
+                materialType = "diamond";
             } else {
-                materialType = "crystal"; // 1% de probabilidad
+                // Si no cumple requisitos para materiales especiales, dar material común
+                materialType = Math.random() < 0.5 ? "wood" : "stone";
             }
             
             const material = gameState.inventory[materialType];
@@ -478,7 +788,7 @@
             // Crear elemento DOM para el material
             const materialElement = document.createElement('div');
             materialElement.className = `material ${material.rarity}`;
-            materialElement.innerHTML = material.icon;
+            materialElement.innerHTML = `${material.icon}<div class="material-name-tag">${material.name}</div>`;
             materialElement.dataset.type = materialType;
             
             // Posicionar aleatoriamente dentro del rango del detector
@@ -489,12 +799,10 @@
             const offsetX = Math.cos(angle) * distance;
             const offsetY = Math.sin(angle) * distance;
             
-            // Escalar offset a coordenadas de píxeles (aproximación)
             const pixelRange = range * 3;
             const pixelX = (offsetX / range) * pixelRange;
             const pixelY = (offsetY / range) * pixelRange;
             
-            // Posicionar en el centro de la pantalla con offset
             materialElement.style.left = `calc(50% + ${pixelX}px)`;
             materialElement.style.top = `calc(50% + ${pixelY}px)`;
             
@@ -508,12 +816,31 @@
             // Guardar referencia
             gameState.collectedMaterials.push({
                 element: materialElement,
-                type: materialType
+                type: materialType,
+                timestamp: Date.now()
             });
+            
+            // Eliminar material después de 30 segundos si no se recolecta
+            setTimeout(() => {
+                if (materialElement.parentNode) {
+                    materialElement.remove();
+                    // Eliminar de la lista de materiales
+                    gameState.collectedMaterials = gameState.collectedMaterials.filter(
+                        m => m.element !== materialElement
+                    );
+                }
+            }, 30000);
         }
 
         // Recolectar material
         function collectMaterial(type, element) {
+            // Verificar capacidad de la bolsa
+            const totalMaterials = Object.values(gameState.inventory).reduce((total, item) => total + item.count, 0);
+            if (totalMaterials >= gameState.tools.bag.capacity) {
+                showNotification("¡Bolsa llena! Mejora tu bolsa o vende materiales.");
+                return;
+            }
+            
             // Añadir al inventario
             gameState.inventory[type].count++;
             
@@ -531,6 +858,38 @@
             
             // Añadir experiencia
             addXP(10);
+            
+            // Actualizar misiones de recolección
+            updateCollectionMissions(type);
+        }
+
+        // Actualizar misiones de recolección
+        function updateCollectionMissions(type) {
+            const rarity = gameState.inventory[type].rarity;
+            
+            gameState.missions.forEach(mission => {
+                if (mission.type === 'collect' && !mission.completed) {
+                    if (mission.target === rarity || mission.target === type) {
+                        mission.progress++;
+                        if (mission.progress >= mission.targetCount) {
+                            mission.completed = true;
+                            completeMission(mission);
+                        }
+                        updateMissionsUI();
+                    }
+                }
+            });
+        }
+
+        // Completar misión
+        function completeMission(mission) {
+            gameState.coins += mission.reward.coins;
+            addXP(mission.reward.xp);
+            
+            showNotification(`¡Misión completada: ${mission.name}! Recompensa: ${mission.reward.coins} monedas y ${mission.reward.xp} XP`);
+            
+            // Actualizar UI
+            elements.coins.textContent = gameState.coins;
         }
 
         // Mostrar efecto de recolección
@@ -571,6 +930,10 @@
         function addXP(amount) {
             gameState.xp += amount;
             
+            // Actualizar barra de XP
+            const xpPercent = (gameState.xp / gameState.xpToNextLevel) * 100;
+            elements.xpProgress.style.width = `${xpPercent}%`;
+            
             // Comprobar subida de nivel
             if (gameState.xp >= gameState.xpToNextLevel) {
                 gameState.level++;
@@ -583,6 +946,10 @@
                 // Recompensa por subir de nivel
                 gameState.coins += gameState.level * 50;
                 elements.coins.textContent = gameState.coins;
+                
+                // Actualizar barra de XP
+                const newXpPercent = (gameState.xp / gameState.xpToNextLevel) * 100;
+                elements.xpProgress.style.width = `${newXpPercent}%`;
             }
         }
 
@@ -607,10 +974,162 @@
             
             // Actualizar herramientas
             elements.detectorLevel.textContent = gameState.tools.detector.level;
+            elements.bagCapacity.textContent = gameState.tools.bag.capacity;
             
-            // Actualizar botón de mejora
-            const upgradeCost = parseInt(elements.upgradeDetector.dataset.cost);
-            elements.upgradeDetector.disabled = gameState.coins < upgradeCost;
+            // Actualizar botones de mejora
+            elements.upgradeDetector.dataset.cost = gameState.tools.detector.upgradeCost;
+            elements.upgradeDetector.textContent = `Mejorar (${gameState.tools.detector.upgradeCost})`;
+            elements.upgradeDetector.disabled = gameState.coins < gameState.tools.detector.upgradeCost;
+            
+            elements.upgradeBag.dataset.cost = gameState.tools.bag.upgradeCost;
+            elements.upgradeBag.textContent = `Mejorar (${gameState.tools.bag.upgradeCost})`;
+            elements.upgradeBag.disabled = gameState.coins < gameState.tools.bag.upgradeCost;
+            
+            // Actualizar tienda
+            updateShopUI();
+        }
+
+        // Actualizar UI de misiones
+        function updateMissionsUI() {
+            elements.missionsList.innerHTML = '';
+            
+            gameState.missions.forEach(mission => {
+                const missionElement = document.createElement('div');
+                missionElement.className = 'mission-item';
+                
+                const progressPercent = (mission.progress / mission.targetCount) * 100;
+                
+                missionElement.innerHTML = `
+                    <div>
+                        <div><strong>${mission.name}</strong></div>
+                        <div>${mission.description}</div>
+                        <div class="mission-progress">
+                            <div class="progress-bar" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <div class="mission-reward">Recompensa: ${mission.reward.coins} monedas, ${mission.reward.xp} XP</div>
+                    </div>
+                    <div>${mission.completed ? '✅' : `${mission.progress}/${mission.targetCount}`}</div>
+                `;
+                
+                elements.missionsList.appendChild(missionElement);
+            });
+        }
+
+        // Actualizar UI de la tienda
+        function updateShopUI() {
+            // Sección de compra
+            elements.shopItems.innerHTML = '';
+            for (const key in gameState.inventory) {
+                const item = gameState.inventory[key];
+                const shopItem = document.createElement('div');
+                shopItem.className = 'shop-item';
+                
+                shopItem.innerHTML = `
+                    <div>
+                        <div>${item.icon} ${item.name}</div>
+                        <div class="item-count">Precio: ${item.value * 2} monedas</div>
+                    </div>
+                    <button class="upgrade-btn buy-btn" data-item="${key}" data-price="${item.value * 2}">
+                        Comprar
+                    </button>
+                `;
+                
+                elements.shopItems.appendChild(shopItem);
+            }
+            
+            // Sección de venta
+            elements.sellItems.innerHTML = '';
+            for (const key in gameState.inventory) {
+                const item = gameState.inventory[key];
+                if (item.count > 0) {
+                    const sellItem = document.createElement('div');
+                    sellItem.className = 'shop-item';
+                    
+                    sellItem.innerHTML = `
+                        <div>
+                            <div>${item.icon} ${item.name}</div>
+                            <div class="item-count">Tienes: ${item.count} | Precio: ${item.value} monedas</div>
+                        </div>
+                        <button class="upgrade-btn sell-btn" data-item="${key}" data-price="${item.value}">
+                            Vender 1
+                        </button>
+                    `;
+                    
+                    elements.sellItems.appendChild(sellItem);
+                }
+            }
+            
+            // Añadir event listeners a los botones de compra/venta
+            document.querySelectorAll('.buy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const item = e.target.dataset.item;
+                    const price = parseInt(e.target.dataset.price);
+                    buyItem(item, price);
+                });
+            });
+            
+            document.querySelectorAll('.sell-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const item = e.target.dataset.item;
+                    const price = parseInt(e.target.dataset.price);
+                    sellItem(item, price);
+                });
+            });
+        }
+
+        // Comprar item de la tienda
+        function buyItem(item, price) {
+            if (gameState.coins >= price) {
+                gameState.coins -= price;
+                gameState.inventory[item].count++;
+                
+                elements.coins.textContent = gameState.coins;
+                updateUI();
+                showNotification(`Has comprado 1 ${gameState.inventory[item].name} por ${price} monedas`);
+            } else {
+                showNotification("No tienes suficientes monedas");
+            }
+        }
+
+        // Vender item
+        function sellItem(item, price) {
+            if (gameState.inventory[item].count > 0) {
+                gameState.inventory[item].count--;
+                gameState.coins += price;
+                
+                elements.coins.textContent = gameState.coins;
+                updateUI();
+                showNotification(`Has vendido 1 ${gameState.inventory[item].name} por ${price} monedas`);
+            } else {
+                showNotification("No tienes este material para vender");
+            }
+        }
+
+        // Mejorar herramienta
+        function upgradeTool(tool) {
+            const upgradeCost = gameState.tools[tool].upgradeCost;
+            
+            if (gameState.coins >= upgradeCost) {
+                gameState.coins -= upgradeCost;
+                gameState.tools[tool].level++;
+                
+                if (tool === 'detector') {
+                    gameState.tools.detector.range += 20;
+                    gameState.tools.detector.upgradeCost = Math.round(upgradeCost * 1.8);
+                    updateDetectorRange();
+                } else if (tool === 'bag') {
+                    gameState.tools.bag.capacity += 10;
+                    gameState.tools.bag.upgradeCost = Math.round(upgradeCost * 1.5);
+                }
+                
+                // Actualizar UI
+                elements.coins.textContent = gameState.coins;
+                updateUI();
+                
+                showNotification(`¡${tool === 'detector' ? 'Detector' : 'Bolsa'} mejorado al nivel ${gameState.tools[tool].level}!`);
+            } else {
+                showNotification("No tienes suficientes monedas");
+            }
         }
 
         // Mostrar notificación
@@ -623,36 +1142,27 @@
             }, 3000);
         }
 
-        // Mejorar herramienta
-        function upgradeTool(tool) {
-            const upgradeCost = parseInt(elements.upgradeDetector.dataset.cost);
-            
-            if (gameState.coins >= upgradeCost) {
-                gameState.coins -= upgradeCost;
-                gameState.tools.detector.level++;
-                gameState.tools.detector.range += 20;
-                
-                // Actualizar UI
-                elements.coins.textContent = gameState.coins;
-                elements.detectorLevel.textContent = gameState.tools.detector.level;
-                
-                // Nuevo costo
-                const newCost = upgradeCost * 2;
-                elements.upgradeDetector.dataset.cost = newCost;
-                elements.upgradeDetector.textContent = `Mejorar (${newCost})`;
-                
-                showNotification(`¡Detector mejorado al nivel ${gameState.tools.detector.level}!`);
-            }
-        }
-
         // Inicializar la aplicación
         function initApp() {
             initMap();
             spawnMaterials();
+            updateMissionsUI();
             
             // Event listeners
             elements.inventoryBtn.addEventListener('click', () => {
                 elements.inventoryPanel.style.display = 'block';
+                elements.overlayBackdrop.style.display = 'block';
+                updateUI();
+            });
+            
+            elements.missionsBtn.addEventListener('click', () => {
+                elements.missionsPanel.style.display = 'block';
+                elements.overlayBackdrop.style.display = 'block';
+                updateMissionsUI();
+            });
+            
+            elements.shopBtn.addEventListener('click', () => {
+                elements.shopPanel.style.display = 'block';
                 elements.overlayBackdrop.style.display = 'block';
                 updateUI();
             });
@@ -662,8 +1172,29 @@
                 elements.overlayBackdrop.style.display = 'none';
             });
             
+            elements.closeMissions.addEventListener('click', () => {
+                elements.missionsPanel.style.display = 'none';
+                elements.overlayBackdrop.style.display = 'none';
+            });
+            
+            elements.closeShop.addEventListener('click', () => {
+                elements.shopPanel.style.display = 'none';
+                elements.overlayBackdrop.style.display = 'none';
+            });
+            
             elements.upgradeDetector.addEventListener('click', () => {
                 upgradeTool('detector');
+            });
+            
+            elements.upgradeBag.addEventListener('click', () => {
+                upgradeTool('bag');
+            });
+            
+            elements.overlayBackdrop.addEventListener('click', () => {
+                elements.inventoryPanel.style.display = 'none';
+                elements.missionsPanel.style.display = 'none';
+                elements.shopPanel.style.display = 'none';
+                elements.overlayBackdrop.style.display = 'none';
             });
             
             // Actualizar UI inicial
