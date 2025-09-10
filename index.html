@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cazador de Monstruos</title>
+    <title>Cazador de Goblin</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -48,7 +48,7 @@
         }
 
         #game-title i {
-            color: #e74c3c;
+            color: #27ae60;
         }
 
         #stats {
@@ -112,24 +112,6 @@
             background-color: #27ae60;
             border: 2px solid #2ecc71;
             color: #2ecc71;
-        }
-
-        .orc {
-            background-color: #e74c3c;
-            border: 2px solid #c0392b;
-            color: #c0392b;
-        }
-
-        .troll {
-            background-color: #8e44ad;
-            border: 2px solid #9b59b6;
-            color: #9b59b6;
-        }
-
-        .dragon {
-            background-color: #f39c12;
-            border: 2px solid #f1c40f;
-            color: #f1c40f;
         }
 
         #controls {
@@ -214,33 +196,6 @@
             border-radius: 50%;
         }
 
-        #loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-            z-index: 1000;
-            text-align: center;
-        }
-
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid #3498db;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         @media (max-width: 768px) {
             #header {
                 flex-direction: column;
@@ -269,23 +224,14 @@
                 font-size: 0.8rem;
             }
         }
-
-        .debug-path {
-            position: absolute;
-            background: rgba(255, 0, 0, 0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-            z-index: 5;
-        }
     </style>
 </head>
 <body>
     <div id="app">
         <header id="header">
-            <h1 id="game-title"><i class="fas fa-dragon"></i> Cazador de Monstruos</h1>
+            <h1 id="game-title"><i class="fas fa-ghost"></i> Cazador de Goblin</h1>
             <div id="stats">
-                <div class="stat"><i class="fas fa-skull"></i> Monstruos: <span id="monster-count">0</span></div>
+                <div class="stat"><i class="fas fa-skull"></i> Goblins: <span id="monster-count">0</span></div>
                 <div class="stat"><i class="fas fa-coins"></i> Puntos: <span id="points">0</span></div>
                 <div class="stat"><i class="fas fa-crosshairs"></i> Eliminados: <span id="kills">0</span></div>
             </div>
@@ -296,34 +242,17 @@
             <div id="monster-layer"></div>
 
             <div id="monster-info">
-                <h3>Tipos de Monstruos</h3>
+                <h3>Goblins</h3>
                 <div class="monster-type">
                     <div class="monster-color" style="background-color: #27ae60; border: 2px solid #2ecc71;"></div>
                     <span>Goblin (+10 pts)</span>
                 </div>
-                <div class="monster-type">
-                    <div class="monster-color" style="background-color: #e74c3c; border: 2px solid #c0392b;"></div>
-                    <span>Orco (+15 pts)</span>
-                </div>
-                <div class="monster-type">
-                    <div class="monster-color" style="background-color: #8e44ad; border: 2px solid #9b59b6;"></div>
-                    <span>Troll (+20 pts)</span>
-                </div>
-                <div class="monster-type">
-                    <div class="monster-color" style="background-color: #f39c12; border: 2px solid #f1c40f;"></div>
-                    <span>Dragón (+30 pts)</span>
-                </div>
-            </div>
-
-            <div id="loading" style="display: none;">
-                <div class="spinner"></div>
-                <p>Calculando rutas...</p>
             </div>
         </div>
 
         <div id="controls">
             <button class="control-btn" id="pause-btn"><i class="fas fa-pause"></i> Pausa</button>
-            <button class="control-btn" id="add-monster-btn"><i class="fas fa-plus"></i> Añadir Monstruo</button>
+            <button class="control-btn" id="add-monster-btn"><i class="fas fa-plus"></i> Añadir Goblin</button>
             <button class="control-btn" id="clear-btn"><i class="fas fa-broom"></i> Limpiar</button>
         </div>
     </div>
@@ -338,51 +267,18 @@
         let gameActive = true;
         let paused = false;
         let lastSpawnTime = 0;
-        let mapBounds = null;
 
-        // Tipos de monstruos con características únicas
-        const MONSTER_TYPES = [
-            { 
-                name: "goblin", 
-                icon: "fas fa-ghost", 
-                color: "goblin", 
-                speed: 0.8,
-                points: 10,
-                spawnChance: 0.4,
-                routeLength: 5, // Corta
-                movementStyle: "walking" // Caminar
-            },
-            { 
-                name: "orc", 
-                icon: "fas fa-hat-cowboy-side", 
-                color: "orc", 
-                speed: 0.6,
-                points: 15,
-                spawnChance: 0.3,
-                routeLength: 8, // Media
-                movementStyle: "jogging" // Trotar
-            },
-            { 
-                name: "troll", 
-                icon: "fas fa-mountain", 
-                color: "troll", 
-                speed: 0.4,
-                points: 20,
-                spawnChance: 0.2,
-                routeLength: 12, // Larga
-                movementStyle: "walking" // Caminar
-            },
-            { 
-                name: "dragon", 
-                icon: "fas fa-dragon", 
-                color: "dragon", 
-                speed: 1.0,
-                points: 30,
-                spawnChance: 0.1,
-                routeLength: 15, // Muy larga
-                movementStyle: "running" // Correr
-            }
-        ];
+        // Configuración específica para goblins
+        const GOBLIN_CONFIG = {
+            name: "goblin", 
+            icon: "fas fa-ghost", 
+            color: "goblin", 
+            speed: 0.00003, // Velocidad de caminata humana (ajustada para coordenadas)
+            points: 10,
+            spawnChance: 1.0,
+            routeLength: 8,
+            movementStyle: "walking"
+        };
 
         // Inicialización del juego
         function initGame() {
@@ -408,7 +304,7 @@
                         initMap();
                         startGameLoop();
                         // Generar monstruos iniciales
-                        for (let i = 0; i < 5; i++) {
+                        for (let i = 0; i < 3; i++) {
                             setTimeout(() => spawnMonster(), i * 1000);
                         }
                     },
@@ -418,7 +314,7 @@
                         initMap();
                         startGameLoop();
                         // Generar monstruos iniciales
-                        for (let i = 0; i < 5; i++) {
+                        for (let i = 0; i < 3; i++) {
                             setTimeout(() => spawnMonster(), i * 1000);
                         }
                     },
@@ -429,7 +325,7 @@
                 initMap();
                 startGameLoop();
                 // Generar monstruos iniciales
-                for (let i = 0; i < 5; i++) {
+                for (let i = 0; i < 3; i++) {
                     setTimeout(() => spawnMonster(), i * 1000);
                 }
             }
@@ -457,9 +353,6 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
                 maxZoom: 19
             }).addTo(map);
-
-            // Obtener los límites del mapa
-            mapBounds = map.getBounds();
 
             // Marcador del usuario
             userMarker = L.marker(userLocation, {
@@ -495,8 +388,8 @@
             });
         }
 
-        // Generar una ruta realista con curvas suaves usando Catmull-Rom spline
-        function generateRealisticRoute(startPoint, numPoints, bounds) {
+        // Generar una ruta simple con waypoints aleatorios
+        function generateSimpleRoute(startPoint, numPoints, bounds) {
             const route = [startPoint];
             let currentPoint = startPoint;
 
@@ -505,76 +398,17 @@
                 const randomLat = bounds.getSouth() + Math.random() * (bounds.getNorth() - bounds.getSouth());
                 const randomLng = bounds.getWest() + Math.random() * (bounds.getEast() - bounds.getWest());
                 const targetPoint = L.latLng(randomLat, randomLng);
-
-                // Crear puntos intermedios para una ruta más suave usando Catmull-Rom
-                const intermediatePoints = catmullRomInterpolation(currentPoint, targetPoint, 5);
-                route.push(...intermediatePoints);
-
+                
+                route.push(targetPoint);
                 currentPoint = targetPoint;
             }
 
             return route;
         }
 
-        // Interpolación Catmull-Rom para curvas suaves
-        function catmullRomInterpolation(start, end, numPoints) {
-            const points = [];
-            
-            // Punto de control anterior (ligeramente aleatorio para naturalidad)
-            const prevPoint = L.latLng(
-                start.lat + (Math.random() - 0.5) * 0.001,
-                start.lng + (Math.random() - 0.5) * 0.001
-            );
-            
-            // Punto de control siguiente (ligeramente aleatorio para naturalidad)
-            const nextPoint = L.latLng(
-                end.lat + (Math.random() - 0.5) * 0.001,
-                end.lng + (Math.random() - 0.5) * 0.001
-            );
-            
-            for (let i = 1; i <= numPoints; i++) {
-                const t = i / (numPoints + 1);
-                
-                // Fórmula Catmull-Rom
-                const t2 = t * t;
-                const t3 = t2 * t;
-                
-                const lat = 0.5 * (
-                    (2 * start.lat) +
-                    (-prevPoint.lat + end.lat) * t +
-                    (2 * prevPoint.lat - 5 * start.lat + 4 * end.lat - nextPoint.lat) * t2 +
-                    (-prevPoint.lat + 3 * start.lat - 3 * end.lat + nextPoint.lat) * t3
-                );
-                
-                const lng = 0.5 * (
-                    (2 * start.lng) +
-                    (-prevPoint.lng + end.lng) * t +
-                    (2 * prevPoint.lng - 5 * start.lng + 4 * end.lng - nextPoint.lng) * t2 +
-                    (-prevPoint.lng + 3 * start.lng - 3 * end.lng + nextPoint.lng) * t3
-                );
-                
-                points.push(L.latLng(lat, lng));
-            }
-            
-            return points;
-        }
-
         // Generar un nuevo monstruo en una ubicación aleatoria del mapa
         function spawnMonster() {
-            if (!gameActive || paused || monsters.length >= 25) return;
-
-            // Seleccionar un tipo de monstruo aleatorio basado en probabilidades
-            const rand = Math.random();
-            let cumulativeChance = 0;
-            let monsterType;
-
-            for (const type of MONSTER_TYPES) {
-                cumulativeChance += type.spawnChance;
-                if (rand <= cumulativeChance) {
-                    monsterType = type;
-                    break;
-                }
-            }
+            if (!gameActive || paused || monsters.length >= 15) return;
 
             // Generar ubicación aleatoria en todo el mapa
             const bounds = map.getBounds();
@@ -584,8 +418,8 @@
 
             // Crear elemento HTML para el monstruo
             const monsterElement = document.createElement('div');
-            monsterElement.className = `monster ${monsterType.color}`;
-            monsterElement.innerHTML = `<i class="${monsterType.icon}"></i>`;
+            monsterElement.className = `monster ${GOBLIN_CONFIG.color}`;
+            monsterElement.innerHTML = `<i class="${GOBLIN_CONFIG.icon}"></i>`;
 
             // Posicionar el monstruo
             const point = latLngToContainerPoint(position);
@@ -596,23 +430,20 @@
             // Añadir a la capa de monstruos
             document.getElementById('monster-layer').appendChild(monsterElement);
 
-            // Generar una ruta realista para el monstruo
-            const route = generateRealisticRoute(position, monsterType.routeLength, bounds);
+            // Generar una ruta para el monstruo
+            const route = generateSimpleRoute(position, GOBLIN_CONFIG.routeLength, bounds);
 
             // Añadir información del monstruo
             const monster = {
                 element: monsterElement,
                 position: position,
-                type: monsterType.name,
-                speed: monsterType.speed,
-                points: monsterType.points,
+                type: GOBLIN_CONFIG.name,
+                speed: GOBLIN_CONFIG.speed,
+                points: GOBLIN_CONFIG.points,
                 route: route,
                 currentWaypoint: 0,
                 progress: 0,
-                isMoving: true,
-                movementStyle: monsterType.movementStyle,
-                lastStepTime: Date.now(),
-                stepPhase: 0
+                isMoving: true
             };
 
             monsters.push(monster);
@@ -626,10 +457,8 @@
             return monster;
         }
 
-        // Mover los monstruos a lo largo de sus rutas con movimiento realista
+        // Mover los monstruos a lo largo de sus rutas
         function moveMonsters(deltaTime) {
-            const now = Date.now();
-            
             monsters.forEach(monster => {
                 if (!monster.isMoving || monster.route.length <= 1) return;
 
@@ -656,83 +485,23 @@
                     // Si es el último waypoint, regenerar la ruta
                     if (nextIdx === 0) {
                         const bounds = map.getBounds();
-                        monster.route = generateRealisticRoute(monster.position, monster.route.length, bounds);
+                        monster.route = generateSimpleRoute(monster.position, GOBLIN_CONFIG.routeLength, bounds);
                     }
                 } else {
-                    // Interpolar la posición actual usando Catmull-Rom para curvas suaves
-                    const prevIdx = currentIdx > 0 ? currentIdx - 1 : monster.route.length - 1;
-                    const nextNextIdx = (nextIdx + 1) % monster.route.length;
+                    // Interpolación lineal entre waypoints
+                    const newLat = currentWaypoint.lat + dy * monster.progress;
+                    const newLng = currentWaypoint.lng + dx * monster.progress;
                     
-                    const prevPoint = monster.route[prevIdx];
-                    const nextNextPoint = monster.route[nextNextIdx];
-                    
-                    // Interpolación Catmull-Rom para movimiento suave
-                    const t = monster.progress;
-                    const t2 = t * t;
-                    const t3 = t2 * t;
-                    
-                    const newLng = 0.5 * (
-                        (2 * currentWaypoint.lng) +
-                        (-prevPoint.lng + nextWaypoint.lng) * t +
-                        (2 * prevPoint.lng - 5 * currentWaypoint.lng + 4 * nextWaypoint.lng - nextNextPoint.lng) * t2 +
-                        (-prevPoint.lng + 3 * currentWaypoint.lng - 3 * nextWaypoint.lng + nextNextPoint.lng) * t3
-                    );
-                    
-                    const newLat = 0.5 * (
-                        (2 * currentWaypoint.lat) +
-                        (-prevPoint.lat + nextWaypoint.lat) * t +
-                        (2 * prevPoint.lat - 5 * currentWaypoint.lat + 4 * nextWaypoint.lat - nextNextPoint.lat) * t2 +
-                        (-prevPoint.lat + 3 * currentWaypoint.lat - 3 * nextWaypoint.lat + nextNextPoint.lat) * t3
-                    );
-
-                    // Aplicar oscilación de pasos según el estilo de movimiento
-                    let stepFrequency, stepAmplitude;
-                    
-                    switch (monster.movementStyle) {
-                        case "walking":
-                            stepFrequency = 3;
-                            stepAmplitude = 0.00001;
-                            break;
-                        case "jogging":
-                            stepFrequency = 6;
-                            stepAmplitude = 0.000015;
-                            break;
-                        case "running":
-                            stepFrequency = 10;
-                            stepAmplitude = 0.00002;
-                            break;
-                        default:
-                            stepFrequency = 5;
-                            stepAmplitude = 0.00001;
-                    }
-                    
-                    // Calcular el desplazamiento del paso
-                    const stepOffset = Math.sin(now / 200 * stepFrequency + monster.stepPhase) * stepAmplitude;
-                    
-                    // Pequeñas desviaciones aleatorias para movimiento más natural
-                    const randomDriftLat = (Math.random() - 0.5) * 0.000005;
-                    const randomDriftLng = (Math.random() - 0.5) * 0.000005;
+                    monster.position = L.latLng(newLat, newLng);
 
                     // Calcular la dirección del movimiento para la orientación
                     const angle = Math.atan2(dy, dx) * (180 / Math.PI);
                     monster.element.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
 
-                    // Aplicar todos los desplazamientos a la posición
-                    monster.position = L.latLng(
-                        newLat + stepOffset + randomDriftLat,
-                        newLng + stepOffset + randomDriftLng
-                    );
-
                     // Actualizar la posición visual
                     const point = latLngToContainerPoint(monster.position);
                     monster.element.style.left = `${point.x}px`;
                     monster.element.style.top = `${point.y}px`;
-                    
-                    // Actualizar fase del paso para variación entre monstruos
-                    if (now - monster.lastStepTime > 1000) {
-                        monster.stepPhase = Math.random() * Math.PI * 2;
-                        monster.lastStepTime = now;
-                    }
                 }
             });
         }
@@ -783,7 +552,7 @@
                     moveMonsters(deltaTime);
 
                     // Generar nuevos monstruos cada 5 segundos
-                    if (now - lastSpawnTime > 5000 && monsters.length < 25) {
+                    if (now - lastSpawnTime > 5000 && monsters.length < 15) {
                         spawnMonster();
                         lastSpawnTime = now;
                     }
@@ -839,9 +608,6 @@
         window.addEventListener('resize', () => {
             if (map) {
                 map.invalidateSize();
-                // Actualizar los límites del mapa después del redimensionamiento
-                mapBounds = map.getBounds();
-                // Actualizar posiciones de monstruos
                 updateMonsterPositions();
             }
         });
