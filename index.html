@@ -269,6 +269,15 @@
                 font-size: 0.8rem;
             }
         }
+
+        .debug-path {
+            position: absolute;
+            background: rgba(255, 0, 0, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 5;
+        }
     </style>
 </head>
 <body>
@@ -330,8 +339,6 @@
         let paused = false;
         let lastSpawnTime = 0;
         let mapBounds = null;
-        let routeQueue = [];
-        let routeProcessing = false;
 
         // Tipos de monstruos con características únicas
         const MONSTER_TYPES = [
@@ -339,33 +346,37 @@
                 name: "goblin", 
                 icon: "fas fa-ghost", 
                 color: "goblin", 
-                speed: 0.00002,
+                speed: 0.8,
                 points: 10,
-                spawnChance: 0.4
+                spawnChance: 0.4,
+                routeLength: 5 // Corta
             },
             { 
                 name: "orc", 
                 icon: "fas fa-hat-cowboy-side", 
                 color: "orc", 
-                speed: 0.000015,
+                speed: 0.6,
                 points: 15,
-                spawnChance: 0.3
+                spawnChance: 0.3,
+                routeLength: 8 // Media
             },
             { 
                 name: "troll", 
                 icon: "fas fa-mountain", 
                 color: "troll", 
-                speed: 0.00001,
+                speed: 0.4,
                 points: 20,
-                spawnChance: 0.2
+                spawnChance: 0.2,
+                routeLength: 12 // Larga
             },
             { 
                 name: "dragon", 
                 icon: "fas fa-dragon", 
                 color: "dragon", 
-                speed: 0.00003,
+                speed: 1.0,
                 points: 30,
-                spawnChance: 0.1
+                spawnChance: 0.1,
+                routeLength: 15 // Muy larga
             }
         ];
 
@@ -378,8 +389,6 @@
             gameActive = true;
             paused = false;
             lastSpawnTime = 0;
-            routeQueue = [];
-            routeProcessing = false;
 
             // Limpiar la capa de monstruos
             document.getElementById('monster-layer').innerHTML = '';
@@ -482,6 +491,48 @@
             });
         }
 
+        // Generar una ruta realista con curvas suaves
+        function generateRealisticRoute(startPoint, numPoints, bounds) {
+            const route = [startPoint];
+            let currentPoint = startPoint;
+            
+            for (let i = 0; i < numPoints; i++) {
+                // Generar un punto aleatorio dentro de los límites del mapa
+                const randomLat = bounds.getSouth() + Math.random() * (bounds.getNorth() - bounds.getSouth());
+                const randomLng = bounds.getWest() + Math.random() * (bounds.getEast() - bounds.getWest());
+                const targetPoint = L.latLng(randomLat, randomLng);
+                
+                // Crear puntos intermedios para una ruta más suave
+                const intermediatePoints = generateIntermediatePoints(currentPoint, targetPoint, 3);
+                route.push(...intermediatePoints);
+                
+                currentPoint = targetPoint;
+            }
+            
+            return route;
+        }
+
+        // Generar puntos intermedios para una ruta más suave
+        function generateIntermediatePoints(start, end, numPoints) {
+            const points = [];
+            const latStep = (end.lat - start.lat) / (numPoints + 1);
+            const lngStep = (end.lng - start.lng) / (numPoints + 1);
+            
+            for (let i = 1; i <= numPoints; i++) {
+                // Añadir algo de aleatoriedad para simular curvas
+                const randomOffsetLat = (Math.random() - 0.5) * 0.001;
+                const randomOffsetLng = (Math.random() - 0.5) * 0.001;
+                
+                const point = L.latLng(
+                    start.lat + (latStep * i) + randomOffsetLat,
+                    start.lng + (lngStep * i) + randomOffsetLng
+                );
+                points.push(point);
+            }
+            
+            return points;
+        }
+
         // Generar un nuevo monstruo en una ubicación aleatoria del mapa
         function spawnMonster() {
             if (!gameActive || paused || monsters.length >= 25) return;
@@ -519,6 +570,9 @@
             // Añadir a la capa de monstruos
             document.getElementById('monster-layer').appendChild(monsterElement);
 
+            // Generar una ruta realista para el monstruo
+            const route = generateRealisticRoute(position, monsterType.routeLength, bounds);
+
             // Añadir información del monstruo
             const monster = {
                 element: monsterElement,
@@ -526,10 +580,10 @@
                 type: monsterType.name,
                 speed: monsterType.speed,
                 points: monsterType.points,
-                route: [],
+                route: route,
                 currentWaypoint: 0,
-                isMoving: false,
-                destination: null
+                progress: 0,
+                isMoving: true
             };
 
             monsters.push(monster);
@@ -540,72 +594,7 @@
                 removeMonster(monster, true);
             });
 
-            // Calcular ruta para este monstruo
-            calculateRouteForMonster(monster);
-
             return monster;
-        }
-
-        // Calcular una ruta OSRM para un monstruo
-        async function calculateRouteForMonster(monster) {
-            if (routeProcessing) {
-                routeQueue.push(monster);
-                return;
-            }
-
-            routeProcessing = true;
-            showLoading(true);
-
-            try {
-                const bounds = map.getBounds();
-                // Generar un destino aleatorio dentro de los límites del mapa
-                const destLat = bounds.getSouth() + Math.random() * (bounds.getNorth() - bounds.getSouth());
-                const destLng = bounds.getWest() + Math.random() * (bounds.getEast() - bounds.getWest());
-                
-                monster.destination = L.latLng(destLat, destLng);
-                
-                // Usar el servicio OSRM para calcular la ruta
-                const response = await fetch(
-                    `https://router.project-osrm.org/route/v1/driving/` +
-                    `${monster.position.lng},${monster.position.lat};${destLng},${destLat}?` +
-                    `overview=simplified&geometries=geojson`
-                );
-                
-                const data = await response.json();
-                
-                if (data.code === 'Ok' && data.routes.length > 0) {
-                    // Extraer los puntos de la ruta
-                    const routeCoordinates = data.routes[0].geometry.coordinates;
-                    monster.route = routeCoordinates.map(coord => L.latLng(coord[1], coord[0]));
-                    monster.currentWaypoint = 0;
-                    monster.isMoving = true;
-                } else {
-                    // Fallback: ruta directa si OSRM falla
-                    monster.route = [monster.position, monster.destination];
-                    monster.currentWaypoint = 0;
-                    monster.isMoving = true;
-                }
-            } catch (error) {
-                console.error("Error calculando ruta:", error);
-                // Fallback: ruta directa
-                monster.route = [monster.position, monster.destination];
-                monster.currentWaypoint = 0;
-                monster.isMoving = true;
-            } finally {
-                routeProcessing = false;
-                showLoading(false);
-                
-                // Procesar siguiente monstruo en la cola
-                if (routeQueue.length > 0) {
-                    const nextMonster = routeQueue.shift();
-                    calculateRouteForMonster(nextMonster);
-                }
-            }
-        }
-
-        // Mostrar/ocultar indicador de carga
-        function showLoading(show) {
-            document.getElementById('loading').style.display = show ? 'block' : 'none';
         }
 
         // Mover los monstruos a lo largo de sus rutas
@@ -613,27 +602,35 @@
             monsters.forEach(monster => {
                 if (!monster.isMoving || monster.route.length <= 1) return;
                 
-                const currentTarget = monster.route[monster.currentWaypoint];
-                const dx = currentTarget.lng - monster.position.lng;
-                const dy = currentTarget.lat - monster.position.lat;
+                // Obtener el waypoint actual y el siguiente
+                const currentIdx = Math.floor(monster.currentWaypoint);
+                const nextIdx = (currentIdx + 1) % monster.route.length;
+                
+                const currentWaypoint = monster.route[currentIdx];
+                const nextWaypoint = monster.route[nextIdx];
+                
+                // Calcular la distancia entre waypoints
+                const dx = nextWaypoint.lng - currentWaypoint.lng;
+                const dy = nextWaypoint.lat - currentWaypoint.lat;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                // Si está lo suficientemente cerca del waypoint, pasar al siguiente
-                if (distance < 0.0001) {
-                    monster.currentWaypoint++;
+                // Avanzar el progreso basado en la velocidad y el tiempo
+                monster.progress += (monster.speed * deltaTime) / (distance * 1000);
+                
+                // Si hemos llegado al siguiente waypoint
+                if (monster.progress >= 1) {
+                    monster.currentWaypoint = nextIdx;
+                    monster.progress = 0;
                     
-                    // Si llegó al final de la ruta, calcular una nueva
-                    if (monster.currentWaypoint >= monster.route.length) {
-                        calculateRouteForMonster(monster);
-                        return;
+                    // Si es el último waypoint, regenerar la ruta
+                    if (nextIdx === 0) {
+                        const bounds = map.getBounds();
+                        monster.route = generateRealisticRoute(monster.position, monster.route.length, bounds);
                     }
                 } else {
-                    // Calcular el movimiento hacia el waypoint
-                    const moveDistance = monster.speed * deltaTime;
-                    const ratio = moveDistance / distance;
-                    
-                    const newLat = monster.position.lat + dy * ratio;
-                    const newLng = monster.position.lng + dx * ratio;
+                    // Interpolar la posición actual
+                    const newLng = currentWaypoint.lng + dx * monster.progress;
+                    const newLat = currentWaypoint.lat + dy * monster.progress;
                     
                     // Actualizar la posición del monstruo
                     monster.position = L.latLng(newLat, newLng);
@@ -673,15 +670,12 @@
                 monster.element.parentNode.removeChild(monster.element);
             }
             
-            // Eliminar de la cola de rutas si está en ella
-            const queueIndex = routeQueue.indexOf(monster);
-            if (queueIndex !== -1) {
-                routeQueue.splice(queueIndex, 1);
-            }
-            
             monsters = monsters.filter(m => m !== monster);
             updateUI();
         }
+
+        // Bucle principal
+            
 
         // Bucle principal del juego
         function startGameLoop() {
